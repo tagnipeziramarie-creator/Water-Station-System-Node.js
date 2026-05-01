@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pure Water Refilling Station - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo-icon {
+            font-size: 32px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-nav {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .btn-login {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-login:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-register {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-register:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(20px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .info-section {
+            padding: 80px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 50px;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 16px;
+            margin-top: -30px;
+            margin-bottom: 40px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .product-card {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            border-color: #667eea;
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .product-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .product-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .product-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .services {
+            background: #f8f9fa;
+            padding: 80px 40px;
+        }
+
+        .services-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .service-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .service-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .service-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .why-choose {
+            padding: 80px 40px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        .why-choose-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .why-choose-image {
+            text-align: center;
+            font-size: 150px;
+            opacity: 0.8;
+        }
+
+        .why-choose-content h3 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .why-choose-list {
+            list-style: none;
+        }
+
+        .why-choose-list li {
+            padding: 12px 0;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+        }
+
+        .why-choose-list li::before {
+            content: '✓';
+            color: #667eea;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .cta-section {
+            padding: 80px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .cta-section h2 {
+            font-size: 40px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.95;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            padding: 40px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: #ccc;
+            font-size: 14px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-divider {
+            border-top: 1px solid #555;
+            padding-top: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .login-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            width: 100%;
+            max-width: 390px;
+            padding: 30px;
+            border-radius: 12px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+        }
+
+        .login-box h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .login-box p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .close-login {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .login-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .show-password {
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-block;
+            margin: 5px 0 10px;
+        }
+
+        .modal-login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 15px;
+        }
+
+        .modal-login-btn:hover {
+            background: #5a67d8;
+        }
+
+        #loginMessage {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .why-choose-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .cta-section h2 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">
+            <span class="logo-icon">💧</span>
+            <span>Pure Water Station</span>
+        </div>
+        <div class="nav-links">
+            <a href="#products">Products</a>
+            <a href="#services">Services</a>
+            <a href="#why">Why Us</a>
+            <div class="auth-buttons">
+                <button type="button" class="btn-nav btn-login" onclick="openLogin()">Login</button>
+                <a href="/register.html" class="btn-nav btn-register">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-icon">💧</div>
+            <h1>Pure & Fresh Water Refilling</h1>
+            <p>Your trusted source for high-quality water refilling services with fast and reliable delivery</p>
+            <div class="hero-cta">
+                <button type="button" class="btn btn-primary" onclick="openLogin()">Login Now</button>
+                <a href="/register.html" class="btn btn-secondary">Create Account</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="products" class="info-section">
+        <h2 class="section-title">Our Water Products</h2>
+        <p class="section-subtitle">Premium quality water refilling options for every need</p>
+        
+        <div class="products-grid">
+            <div class="product-card">
+                <div class="product-icon">💧</div>
+                <h3>Drinking Water</h3>
+                <p>Pure, clean drinking water suitable for everyday consumption. Tested and certified for safety and quality.</p>
+            </div>
+            <div class="product-card">
+                <div class="product-icon">🏠</div>
+                <h3>Mineral Water</h3>
+                <p>Enriched with essential minerals. Perfect for health-conscious families and long-term consumption.</p>
+            </div>
+            <div class="product-card">
+                <div class="product-icon">❄️</div>
+                <h3>Distilled Water</h3>
+                <p>Ultra-pure distilled water for appliances, industrial use, and specialized applications.</p>
+            </div>
+            <div class="product-card">
+                <div class="product-icon">🚚</div>
+                <h3>Bulk Delivery</h3>
+                <p>Order in bulk for offices, businesses, and events. Special corporate rates available.</p>
+            </div>
+            <div class="product-card">
+                <div class="product-icon">📦</div>
+                <h3>Bottle Exchange</h3>
+                <p>Easy bottle exchange program. Bring your empty bottles and exchange for refilled ones.</p>
+            </div>
+            <div class="product-card">
+                <div class="product-icon">🎁</div>
+                <h3>Subscriptions</h3>
+                <p>Subscribe for regular deliveries and enjoy discounted rates. Flexible plans tailored to your needs.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="services">
+        <div class="services-container">
+            <h2 class="section-title">Our Services</h2>
+            <p class="section-subtitle">Comprehensive water refilling solutions for your convenience</p>
+            
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🚗</div>
+                    <h3>Fast Delivery</h3>
+                    <p>Same-day or next-day delivery available. Our reliable delivery team ensures your water arrives on time.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">✅</div>
+                    <h3>Quality Assurance</h3>
+                    <p>All water products undergo rigorous testing and quality control. Certified and safe for consumption.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">💰</div>
+                    <h3>Affordable Pricing</h3>
+                    <p>Competitive rates with flexible payment options. COD, credit cards, and online payments accepted.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📞</div>
+                    <h3>24/7 Support</h3>
+                    <p>Customer support available round the clock. Contact us anytime for orders or inquiries.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🎯</div>
+                    <h3>Easy Ordering</h3>
+                    <p>Simple and intuitive online ordering system. Track your orders in real-time from placement to delivery.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🌿</div>
+                    <h3>Eco-Friendly</h3>
+                    <p>We promote reusable bottles and sustainable practices. Reduce plastic waste with our bottle exchange program.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="why" class="why-choose">
+        <div class="why-choose-container">
+            <div class="why-choose-image">
+                💧🏆✨
+            </div>
+            <div class="why-choose-content">
+                <h2 class="section-title" style="text-align: left; margin: 0 0 20px 0;">Why Choose Pure Water Station?</h2>
+                <ul class="why-choose-list">
+                    <li><strong>Trusted by 10,000+ Customers</strong> - Serving the community with pride since 2020</li>
+                    <li><strong>Premium Quality Water</strong> - Tested daily, certified safe and pure</li>
+                    <li><strong>Fast & Reliable Delivery</strong> - Dedicated delivery team, on-time guarantees</li>
+                    <li><strong>Competitive Pricing</strong> - Best rates without compromising on quality</li>
+                    <li><strong>Easy Ordering System</strong> - Order anytime, anywhere through our platform</li>
+                    <li><strong>Excellent Customer Service</strong> - Available 24/7 to assist you</li>
+                    <li><strong>Flexible Payment Options</strong> - Multiple payment methods for your convenience</li>
+                    <li><strong>Environmental Commitment</strong> - Supporting sustainable practices</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Ready to Order?</h2>
+            <p>Join thousands of satisfied customers enjoying pure, fresh water delivered to their doorstep.</p>
+            <div class="cta-buttons">
+                <button type="button" class="btn btn-primary" onclick="openLogin()">Login to Order</button>
+                <a href="/register.html" class="btn btn-secondary">Sign Up Today</a>
+            </div>
+        </div>
+    </section>
+
+    <div id="loginModal" class="login-modal">
+        <div class="login-box">
+            <span class="close-login" onclick="closeLogin()">&times;</span>
+
+            <h2>Login</h2>
+            <p>Customer / Admin / Delivery Personnel</p>
+
+            <div id="loginMessage"></div>
+
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+
+                <span class="show-password" onclick="toggleLoginPassword()">Show Password</span>
+
+                <button type="submit" class="modal-login-btn">Login</button>
+            </form>
+
+            <p style="margin-top:15px;">
+                No account? <a href="/register.html">Register</a>
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>💧 Pure Water Station</h4>
+                <p>Your trusted water refilling partner providing premium quality water delivery services.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="#products">Products</a><br>
+                <a href="#services">Services</a><br>
+                <a href="#" onclick="openLogin(); return false;">Login</a><br>
+                <a href="/register.html">Register</a>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p>📞 Phone: (555) 123-4567</p>
+                <p>📧 Email: info@purewaterstation.com</p>
+                <p>📍 Location: Various Barangays</p>
+            </div>
+        </div>
+        <div class="footer-divider">
+            <p>&copy; 2026 Pure Water Station. All rights reserved. | Serving the community with fresh, pure water.</p>
+        </div>
+    </footer>
+
+    <script>
+        function openLogin() {
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+
+        function closeLogin() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('loginMessage').innerText = '';
+        }
+
+        function toggleLoginPassword() {
+            const password = document.getElementById('loginPassword');
+            const showText = document.querySelector('.show-password');
+
+            if (password.type === 'password') {
+                password.type = 'text';
+                showText.innerText = 'Hide Password';
+            } else {
+                password.type = 'password';
+                showText.innerText = 'Show Password';
+            }
+        }
+
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLogin();
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const message = document.getElementById('loginMessage');
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            try {
+                const res = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    message.style.color = 'red';
+                    message.innerText = data.error || 'Login failed';
+                    return;
+                }
+
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                redirectToDashboard(data.user.role);
+
+            } catch (error) {
+                message.style.color = 'red';
+                message.innerText = 'Server error';
+            }
+        });
+
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const decoded = parseJwt(token);
+                    if (decoded && decoded.role) {
+                        redirectToDashboard(decoded.role);
+                    }
+                } catch (e) {
+                    localStorage.removeItem('token');
+                }
+            }
+        });
+
+        function parseJwt(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(
+                atob(base64)
+                    .split('')
+                    .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                    .join('')
+            );
+            return JSON.parse(jsonPayload);
+        }
+
+        function redirectToDashboard(role) {
+            const dashboards = {
+                'customer': '/customer-dashboard.html',
+                'delivery': '/delivery-dashboard.html',
+                'admin': '/admin-dashboard.html'
+            };
+            const dashboard = dashboards[role] || '/customer-dashboard.html';
+            window.location.href = dashboard;
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+name: Node.js API Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run linting
+      run: npm run lint --if-present
+
+    - name: Run tests
+      env:
+        NODE_ENV: test
+        AIVEN_DB_HOST: localhost
+        AIVEN_DB_USER: root
+        AIVEN_DB_PASSWORD: root
+        AIVEN_DB_NAME: testdb
+        JWT_SECRET: test-secret-key
+        PAYMONGO_SECRET_KEY: test-key
+      run: npm test --if-present
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Deploy to Aiven (placeholder)
+      run: |
+        echo "Deploying to Aiven..."
+        # Add your deployment script here
+        # Example: docker push to container registry, then deploy to Aiven app platform

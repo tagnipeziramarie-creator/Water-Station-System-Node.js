@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - Water Refilling System</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 430px;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #0072ff;
+    }
+
+    .show-password {
+      display: block;
+      text-align: left;
+      color: #0072ff;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      margin: 5px 0 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0072ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      font-size: 15px;
+    }
+
+    button:hover {
+      background: #005ecb;
+    }
+
+    .back-btn {
+      background: #6c757d;
+    }
+
+    .back-btn:hover {
+      background: #5a6268;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .login-link {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .login-link a {
+      color: #0072ff;
+      font-weight: bold;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Customer Registration</h2>
+
+    <form id="registerForm">
+      <input type="text" id="name" placeholder="Full Name" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+
+      <span class="show-password" onclick="togglePassword()">Show password</span>
+
+      <input type="text" id="phone" placeholder="Phone" />
+      <input type="text" id="address" placeholder="Address" />
+      <input type="text" id="barangay" placeholder="Barangay" />
+
+      <button type="submit" id="registerBtn">Register</button>
+      <button type="button" class="back-btn" onclick="goBack()">Back to Login</button>
+    </form>
+
+    <p id="message"></p>
+
+    <div class="login-link">
+      Already have an account? <a href="/login.html">Login here</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('registerForm');
+    const message = document.getElementById('message');
+    const registerBtn = document.getElementById('registerBtn');
+
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const showText = document.querySelector('.show-password');
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        showText.textContent = 'Hide password';
+      } else {
+        passwordInput.type = 'password';
+        showText.textContent = 'Show password';
+      }
+    }
+
+    function goBack() {
+      window.location.href = '/login.html';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const data = {
+        name: document.getElementById('name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        barangay: document.getElementById('barangay').value.trim()
+      };
+
+      registerBtn.disabled = true;
+      registerBtn.textContent = 'Registering...';
+
+      try {
+        const res = await fetch('/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          message.textContent = result.message || 'Registered successfully!';
+          message.className = 'success';
+          form.reset();
+
+          setTimeout(() => {
+            window.location.href = '/login.html';
+          }, 1200);
+        } else {
+          message.textContent = result.error || 'Registration failed';
+          message.className = 'error';
+        }
+
+      } catch (err) {
+        message.textContent = 'Server error. Please try again.';
+        message.className = 'error';
+      } finally {
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'Register';
+      }
+    });
+  </script>
+</body>
+</html>

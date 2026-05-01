@@ -1,0 +1,9 @@
+# Node.js dependencies should be installed locally
+# This file helps set up the git environment for Node.js projects
+
+**/node_modules/
+**/.env
+**/.env.local
+coverage/
+dist/
+build/

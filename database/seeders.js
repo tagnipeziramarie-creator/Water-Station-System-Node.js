@@ -1,7 +1,7 @@
 import db from '../src/config/database.js';
-import User from '../src/models/User.js';
-import Inventory from '../src/models/Inventory.js';
-import WaterProduct from '../src/models/WaterProduct.js';
+import { createUser } from '../src/models/User.js';
+import { createInventory } from '../src/models/Inventory.js';
+import { createWaterProduct } from '../src/models/WaterProduct.js';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 
@@ -12,8 +12,9 @@ const seedDatabase = async () => {
     // Create test users
     const adminPassword = await bcrypt.hash('admin123', 10);
     const customerPassword = await bcrypt.hash('customer123', 10);
+    const deliveryPassword = await bcrypt.hash('delivery123', 10);
 
-    await User.create({
+    await createUser({
       userId: uuidv4(),
       name: 'Admin User',
       email: 'admin@waterstation.local',
@@ -24,7 +25,7 @@ const seedDatabase = async () => {
       barangay: 'Barangay 1',
     });
 
-    await User.create({
+    await createUser({
       userId: uuidv4(),
       name: 'Test Customer',
       email: 'customer@waterstation.local',
@@ -35,8 +36,19 @@ const seedDatabase = async () => {
       barangay: 'Barangay 2',
     });
 
+    await createUser({
+      userId: uuidv4(),
+      name: 'Delivery Staff',
+      email: 'delivery@waterstation.local',
+      password: deliveryPassword,
+      phone: '09112233445',
+      role: 'delivery',
+      address: '789 Depot Rd',
+      barangay: 'Barangay 3',
+    });
+
     // Create water products
-    await WaterProduct.create({
+    await createWaterProduct({
       product_id: 'PROD-001',
       name: 'Pure Water',
       description: 'High quality pure water',
@@ -45,7 +57,7 @@ const seedDatabase = async () => {
       is_active: true,
     });
 
-    await WaterProduct.create({
+    await createWaterProduct({
       product_id: 'PROD-002',
       name: 'Mineral Water',
       description: 'Mineral enriched water',
@@ -55,7 +67,7 @@ const seedDatabase = async () => {
     });
 
     // Create inventory
-    await Inventory.create({
+    await createInventory({
       product_id: 'PROD-001',
       container_size: '5L',
       quantity_on_hand: 100,
@@ -65,7 +77,7 @@ const seedDatabase = async () => {
       selling_price: 150.00,
     });
 
-    await Inventory.create({
+    await createInventory({
       product_id: 'PROD-001',
       container_size: '10L',
       quantity_on_hand: 80,
@@ -80,7 +92,7 @@ const seedDatabase = async () => {
     console.error('❌ Seeding failed:', error);
     process.exit(1);
   } finally {
-    await db.close();
+    await db.end();
   }
 };
 

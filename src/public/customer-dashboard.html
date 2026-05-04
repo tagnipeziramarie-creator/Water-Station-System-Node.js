@@ -1,463 +1,1332 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Dashboard - Water Station</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Customer Dashboard - Water Station</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+:root{
+    --primary:#2563eb;
+    --secondary:#06b6d4;
+    --danger:#dc2626;
+    --dark:#0f172a;
+    --muted:#64748b;
+    --white:#fff;
+    --border:#e2e8f0;
+    --shadow:0 10px 30px rgba(15,23,42,.08);
+    --shadow-hover:0 18px 45px rgba(15,23,42,.14);
+}
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            background: white;
-            padding: 20px 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
+body{
+    font-family:"Segoe UI",Tahoma,sans-serif;
+    background:linear-gradient(180deg,#eff6ff,#f8fafc,#fff);
+    min-height:100vh;
+    color:var(--dark);
+    padding:24px;
+}
 
-        .header h1 {
-            color: #333;
-            font-size: 28px;
-        }
+.container{max-width:1250px;margin:auto}
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
+.header{
+    background:rgba(255,255,255,.95);
+    border:1px solid var(--border);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    padding:26px;
+    margin-bottom:24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:18px;
+}
 
-        .user-name {
-            text-align: right;
-        }
+.header-left{display:flex;align-items:center;gap:16px}
 
-        .user-name p {
-            color: #666;
-            font-size: 14px;
-        }
+.logo-box{
+    width:58px;height:58px;border-radius:18px;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+    color:white;font-size:28px;
+}
 
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
+.header h1{font-size:28px}
 
-        .logout-btn:hover {
-            background: #c82333;
-        }
+.header-subtitle{
+    color:var(--muted);
+    font-size:14px;
+    margin-top:4px;
+}
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+.user-info{display:flex;align-items:center;gap:14px}
 
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
+.user-name{text-align:right}
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
+.user-name strong{font-size:15px}
 
-        .stat-number {
-            font-size: 32px;
-            font-weight: bold;
-            color: #667eea;
-            margin: 10px 0;
-        }
+.user-name p{
+    color:var(--muted);
+    font-size:13px;
+    margin-top:3px;
+}
 
-        .stat-label {
-            color: #666;
-            font-size: 14px;
-        }
+.logout-btn{
+    border:none;
+    background:#fee2e2;
+    color:#991b1b;
+    padding:11px 18px;
+    border-radius:999px;
+    cursor:pointer;
+    font-weight:700;
+}
 
-        .section {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
+.logout-btn:hover{
+    background:var(--danger);
+    color:white;
+}
 
-        .section h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 22px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
+.hero-panel{
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+    border-radius:24px;
+    box-shadow:0 18px 45px rgba(37,99,235,.22);
+    padding:26px;
+    color:white;
+    margin-bottom:24px;
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:20px;
+    align-items:center;
+}
 
-        .orders-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+.hero-panel h2{font-size:25px;margin-bottom:8px}
 
-        .orders-table th {
-            background: #f8f9fa;
-            padding: 15px;
-            text-align: left;
-            color: #333;
-            font-weight: 600;
-            border-bottom: 2px solid #ddd;
-        }
+.hero-panel p{font-size:15px;line-height:1.6}
 
-        .orders-table td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
+.hero-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    flex-wrap:wrap;
+}
 
-        .orders-table tr:hover {
-            background: #f8f9fa;
-        }
+.hero-btn{
+    border:1px solid rgba(255,255,255,.35);
+    background:rgba(255,255,255,.18);
+    color:white;
+    padding:12px 18px;
+    border-radius:999px;
+    cursor:pointer;
+    font-weight:700;
+}
 
-        .status-badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
+.hero-btn:hover{background:rgba(255,255,255,.28)}
 
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
+.profile-section{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    padding:24px;
+    margin-bottom:24px;
+}
 
-        .status-confirmed {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
+.profile-section h2{font-size:20px;margin-bottom:14px}
 
-        .status-in-transit {
-            background: #cce5ff;
-            color: #004085;
-        }
+.profile-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr auto;
+    gap:14px;
+    align-items:end;
+}
 
-        .status-completed {
-            background: #d4edda;
-            color: #155724;
-        }
+.form-group label{
+    display:block;
+    font-size:13px;
+    font-weight:800;
+    color:#334155;
+    margin-bottom:7px;
+}
 
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
+.form-group input,
+.form-group textarea,
+.form-group select{
+    width:100%;
+    padding:13px 14px;
+    border:1px solid var(--border);
+    border-radius:14px;
+    font-size:15px;
+    outline:none;
+}
 
-        .product-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 4px rgba(37,99,235,.12);
+}
 
-        .product-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
-        }
+.save-btn{
+    border:none;
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+    color:white;
+    padding:13px 18px;
+    border-radius:14px;
+    cursor:pointer;
+    font-weight:800;
+}
 
-        .product-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-        }
+.stats-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:24px;
+}
 
-        .product-price {
-            font-size: 20px;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 10px;
-        }
+.stat-card{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:18px;
+    box-shadow:var(--shadow);
+    padding:22px;
+}
 
-        .product-quantity {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
+.stat-icon{
+    width:48px;height:48px;border-radius:16px;
+    background:#eff6ff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:24px;
+    margin-bottom:14px;
+}
 
-        .order-btn {
-            width: 100%;
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
+.stat-label{color:var(--muted);font-size:14px;margin-bottom:8px}
 
-        .order-btn:hover {
-            background: #764ba2;
-        }
+.stat-number{font-size:30px;font-weight:800}
 
-        .empty-message {
-            text-align: center;
-            color: #999;
-            padding: 30px;
-            font-size: 16px;
-        }
+.dashboard-grid{
+    display:grid;
+    grid-template-columns:1.15fr .85fr;
+    gap:24px;
+    align-items:start;
+}
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #667eea;
-            font-size: 18px;
-        }
+.section{
+    background:white;
+    border:1px solid var(--border);
+    padding:26px;
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    margin-bottom:24px;
+}
 
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border: 1px solid #f5c6cb;
-        }
-    </style>
+.section-header{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:center;
+    margin-bottom:18px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--border);
+}
+
+.section h2{font-size:20px}
+
+.section-note{color:var(--muted);font-size:13px}
+
+.empty-message{
+    text-align:center;
+    color:var(--muted);
+    padding:34px 20px;
+    font-size:15px;
+    background:#f8fafc;
+    border:1px dashed #cbd5e1;
+    border-radius:18px;
+}
+
+.table-wrap{
+    overflow-x:auto;
+    border-radius:16px;
+    border:1px solid var(--border);
+}
+
+.orders-table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:650px;
+}
+
+.orders-table th{
+    background:#f8fafc;
+    padding:14px 16px;
+    text-align:left;
+    font-size:13px;
+}
+
+.orders-table td{
+    padding:15px 16px;
+    border-top:1px solid #f1f5f9;
+    font-size:14px;
+}
+
+.status-badge{
+    display:inline-flex;
+    padding:7px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+}
+
+.status-pending{background:#fef3c7;color:#92400e}
+.status-confirmed{background:#dbeafe;color:#1e40af}
+.status-in-transit{background:#cffafe;color:#155e75}
+.status-completed{background:#dcfce7;color:#166534}
+
+.products-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:18px;
+}
+
+.product-card{
+    background:linear-gradient(180deg,#fff,#f8fafc);
+    border:1px solid var(--border);
+    padding:20px;
+    border-radius:20px;
+    transition:.25s;
+}
+
+.product-card:hover{
+    border-color:rgba(37,99,235,.45);
+    box-shadow:var(--shadow-hover);
+    transform:translateY(-4px);
+}
+
+.product-icon{
+    width:48px;height:48px;border-radius:16px;
+    background:#e0f2fe;
+    display:flex;align-items:center;justify-content:center;
+    font-size:25px;
+    margin-bottom:14px;
+}
+
+.product-name{font-weight:800;margin-bottom:8px}
+
+.product-price{
+    font-size:22px;
+    font-weight:900;
+    color:var(--primary);
+    margin-bottom:8px;
+}
+
+.product-quantity{
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:16px;
+}
+
+.order-btn{
+    width:100%;
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+    color:white;
+    border:none;
+    padding:12px;
+    border-radius:14px;
+    cursor:pointer;
+    font-weight:800;
+}
+
+.order-btn:disabled{opacity:.6;cursor:not-allowed}
+
+.inventory-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:14px;
+    margin-bottom:18px;
+}
+
+.inventory-card{
+    background:#f8fafc;
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:16px;
+}
+
+.inventory-card strong{
+    display:block;
+    font-size:15px;
+    margin-bottom:6px;
+}
+
+.inventory-card span{
+    color:var(--primary);
+    font-size:24px;
+    font-weight:900;
+}
+
+.inventory-card p{
+    color:var(--muted);
+    font-size:13px;
+    margin-top:4px;
+}
+
+.login-gate,
+.modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:10000;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(15,23,42,.58);
+    backdrop-filter:blur(6px);
+}
+
+.login-gate.is-open,
+.modal-overlay.is-open{display:flex}
+
+body.login-gate-open .container{
+    filter:blur(2px);
+    pointer-events:none;
+}
+
+.login-gate-card,
+.modal-card{
+    width:100%;
+    max-width:500px;
+    background:white;
+    border-radius:26px;
+    padding:30px;
+    box-shadow:0 24px 70px rgba(0,0,0,.3);
+}
+
+.login-logo{
+    width:64px;height:64px;
+    margin:0 auto 16px;
+    border-radius:22px;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+    color:white;
+    font-size:30px;
+}
+
+.login-gate-card h2{text-align:center;margin-bottom:8px}
+
+.subtitle{
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:20px;
+}
+
+.login-gate-card button[type="submit"],
+.btn-primary{
+    width:100%;
+    padding:13px;
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
+    color:white;
+    border:none;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:800;
+    cursor:pointer;
+}
+
+.login-gate-links{
+    text-align:center;
+    margin-top:18px;
+    font-size:14px;
+}
+
+.login-gate-links a{
+    color:var(--primary);
+    font-weight:800;
+    text-decoration:none;
+}
+
+#loginGateMessage{
+    min-height:22px;
+    text-align:center;
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+.modal-header{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+}
+
+.modal-close{
+    border:none;
+    background:#f1f5f9;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:18px;
+    font-weight:900;
+}
+
+.modal-actions{
+    display:flex;
+    gap:12px;
+    margin-top:18px;
+}
+
+.btn-secondary{
+    flex:1;
+    border:none;
+    background:#f1f5f9;
+    color:#334155;
+    padding:12px;
+    border-radius:14px;
+    cursor:pointer;
+    font-weight:800;
+}
+
+.selected-product-box{
+    background:#f8fafc;
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:15px;
+    margin-bottom:16px;
+}
+
+.total-box{
+    background:linear-gradient(135deg,#eff6ff,#e0f2fe);
+    border:1px solid #bfdbfe;
+    border-radius:18px;
+    padding:16px;
+    margin-top:12px;
+}
+
+.total-box p{
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:5px;
+}
+
+.total-box strong{
+    color:var(--primary);
+    font-size:28px;
+}
+
+.success-toast{
+    position:fixed;
+    right:22px;
+    bottom:22px;
+    background:var(--dark);
+    color:white;
+    padding:14px 18px;
+    border-radius:16px;
+    display:none;
+    z-index:20000;
+}
+
+.success-toast.is-visible{display:block}
+
+.error{
+    background:#fef2f2;
+    color:#991b1b;
+    padding:15px 18px;
+    border-radius:16px;
+    margin-bottom:20px;
+    border:1px solid #fecaca;
+    font-weight:700;
+}
+
+@media(max-width:1000px){
+    .dashboard-grid,.hero-panel{grid-template-columns:1fr}
+    .stats-grid{grid-template-columns:repeat(2,1fr)}
+    .hero-actions{justify-content:flex-start}
+    .profile-grid{grid-template-columns:1fr}
+}
+
+@media(max-width:700px){
+    body{padding:14px}
+    .header{flex-direction:column;align-items:stretch}
+    .user-info{justify-content:space-between}
+    .user-name{text-align:left}
+    .stats-grid{grid-template-columns:1fr}
+    .section-header{flex-direction:column;align-items:flex-start}
+    .modal-actions{flex-direction:column}
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
+
+<div id="loginGate" class="login-gate">
+    <div class="login-gate-card">
+        <div class="login-logo">💧</div>
+        <h2>Customer Sign In</h2>
+        <p class="subtitle">Log in to view your dashboard and place water orders.</p>
+
+        <p id="loginGateMessage"></p>
+
+        <form id="loginGateForm">
+            <div class="form-group">
+                <label for="loginGateEmail">Email Address</label>
+                <input type="email" id="loginGateEmail" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="loginGatePassword">Password</label>
+                <input type="password" id="loginGatePassword" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" id="loginGateSubmit">Sign In</button>
+        </form>
+
+        <div class="login-gate-links">
+            <a href="/register.html">Create an account</a>
+            &nbsp;·&nbsp;
+            <a href="/index.html">Back to home</a>
+        </div>
+    </div>
+</div>
+
+<div id="orderModal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header">
             <div>
-                <h1>🚚 Customer Dashboard</h1>
+                <h3>Place Order</h3>
+                <p>Select a gallon type and quantity.</p>
             </div>
-            <div class="user-info">
-                <div class="user-name">
-                    <strong id="customerName">Loading...</strong>
-                    <p id="customerEmail">Email</p>
-                </div>
-                <button class="logout-btn" onclick="logout()">Logout</button>
+            <button class="modal-close" onclick="closeOrderModal()">×</button>
+        </div>
+
+        <div class="selected-product-box">
+            <strong id="selectedProductName">Select Product</strong>
+            <p id="selectedProductDetails">Choose a product to see price, stock, and total cost.</p>
+        </div>
+
+        <form id="orderForm">
+            <div class="form-group">
+                <label for="productSelect">Product</label>
+                <select id="productSelect" required></select>
+            </div>
+
+            <div class="form-group">
+                <label for="orderQuantity">Quantity</label>
+                <input type="number" id="orderQuantity" min="1" value="1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="orderAddress">Delivery Address</label>
+                <textarea id="orderAddress" rows="4" placeholder="Enter your complete delivery address" required></textarea>
+            </div>
+
+            <div class="total-box">
+                <p>Total Cost</p>
+                <strong id="orderTotal">₱0.00</strong>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeOrderModal()">Cancel</button>
+                <button type="submit" class="btn-primary" id="submitOrderBtn">Submit Order</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="toast" class="success-toast"></div>
+
+<div class="container">
+    <div class="header">
+        <div class="header-left">
+            <div class="logo-box">💧</div>
+            <div>
+                <h1>Customer Dashboard</h1>
+                <p class="header-subtitle">Manage your water orders and view your latest transactions.</p>
             </div>
         </div>
 
-        <div id="errorContainer"></div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div style="font-size: 30px;">📦</div>
-                <div class="stat-label">Total Orders</div>
-                <div class="stat-number" id="totalOrders">0</div>
+        <div class="user-info">
+            <div class="user-name">
+                <strong id="customerName">Guest Customer</strong>
+                <p id="customerEmail">customer@example.com</p>
             </div>
-            <div class="stat-card">
-                <div style="font-size: 30px;">⏳</div>
-                <div class="stat-label">Pending Orders</div>
-                <div class="stat-number" id="pendingOrders">0</div>
-            </div>
-            <div class="stat-card">
-                <div style="font-size: 30px;">✅</div>
-                <div class="stat-label">Completed Orders</div>
-                <div class="stat-number" id="completedOrders">0</div>
-            </div>
-            <div class="stat-card">
-                <div style="font-size: 30px;">💰</div>
-                <div class="stat-label">Total Spent</div>
-                <div class="stat-number" id="totalSpent">₱0.00</div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>🚀 Active Orders</h2>
-            <div id="activeOrdersContainer" class="loading">Loading active orders...</div>
-        </div>
-
-        <div class="section">
-            <h2>📋 Recent Orders</h2>
-            <div id="recentOrdersContainer" class="loading">Loading recent orders...</div>
-        </div>
-
-        <div class="section">
-            <h2>💧 Available Products</h2>
-            <div id="productsContainer" class="loading">Loading available products...</div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
     </div>
 
-    <script>
-        const API_URL = 'http://localhost:3000';
-        const token = localStorage.getItem('token');
+    <div class="hero-panel">
+        <div>
+            <h2 id="welcomeText">Welcome back!</h2>
+            <p>Check your orders, view live gallon inventory, and place a new water order anytime.</p>
+        </div>
+        <div class="hero-actions">
+            <button class="hero-btn" onclick="openOrderModal()">Order Now</button>
+            <button class="hero-btn" onclick="loadDashboard()">Refresh Dashboard</button>
+        </div>
+    </div>
 
-        if (!token) {
-            window.location.href = '/login.html';
-        }
+    <div class="profile-section">
+        <h2>👤 Customer Information</h2>
+        <div class="profile-grid">
+            <div class="form-group">
+                <label for="profileName">Customer Name</label>
+                <input type="text" id="profileName" placeholder="Enter your name">
+            </div>
 
-        // Fetch dashboard data
-        async function loadDashboard() {
-            try {
-                const response = await fetch(`${API_URL}/dashboard/customer`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+            <div class="form-group">
+                <label for="profileEmail">Email Address</label>
+                <input type="email" id="profileEmail" placeholder="Enter your email">
+            </div>
 
-                if (!response.ok) {
-                    throw new Error('Failed to load dashboard');
-                }
+            <button class="save-btn" onclick="saveCustomerProfile()">Save Info</button>
+        </div>
+    </div>
 
-                const data = await response.json();
-                displayDashboard(data.data);
-            } catch (error) {
-                displayError(error.message);
-                console.error('Error:', error);
-            }
-        }
+    <div id="errorContainer"></div>
 
-        function displayDashboard(data) {
-            // Display customer info
-            document.getElementById('customerName').textContent = data.customer.name;
-            document.getElementById('customerEmail').textContent = data.customer.email;
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-number" id="totalOrders">0</div>
+        </div>
 
-            // Display statistics
-            document.getElementById('totalOrders').textContent = data.statistics.totalOrders;
-            document.getElementById('pendingOrders').textContent = data.statistics.pendingOrders;
-            document.getElementById('completedOrders').textContent = data.statistics.completedOrders;
-            document.getElementById('totalSpent').textContent = `₱${parseFloat(data.statistics.totalSpent).toFixed(2)}`;
+        <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-label">Pending Orders</div>
+            <div class="stat-number" id="pendingOrders">0</div>
+        </div>
 
-            // Display active orders
-            displayActiveOrders(data.activeOrders);
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-label">Completed Orders</div>
+            <div class="stat-number" id="completedOrders">0</div>
+        </div>
 
-            // Display recent orders
-            displayRecentOrders(data.recentOrders);
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-label">Total Spent</div>
+            <div class="stat-number" id="totalSpent">₱0.00</div>
+        </div>
+    </div>
 
-            // Display available products
-            displayProducts(data.availableProducts);
-        }
+    <div class="section">
+        <div class="section-header">
+            <h2>📊 Live Gallon Inventory</h2>
+            <p class="section-note">Available gallons in stock</p>
+        </div>
+        <div id="inventoryContainer" class="inventory-grid"></div>
+    </div>
 
-        function displayActiveOrders(orders) {
-            const container = document.getElementById('activeOrdersContainer');
-            
-            if (orders.length === 0) {
-                container.innerHTML = '<div class="empty-message">No active orders at the moment</div>';
-                return;
-            }
+    <div class="dashboard-grid">
+        <div>
+            <div class="section">
+                <div class="section-header">
+                    <h2>🚚 Active Orders</h2>
+                    <p class="section-note">Orders currently being processed or delivered</p>
+                </div>
+                <div id="activeOrdersContainer">
+                    <div class="empty-message">No active orders yet. Once you place an order, it will appear here.</div>
+                </div>
+            </div>
 
-            let html = '<table class="orders-table"><thead><tr><th>Order ID</th><th>Items</th><th>Total</th><th>Status</th><th>Delivery Personnel</th></tr></thead><tbody>';
-            
-            orders.forEach(order => {
-                const status = getStatusBadge(order.status);
-                const deliveryPersonnel = order.delivery?.delivery_personnel?.name || 'N/A';
-                html += `<tr>
-                    <td>#${order.id}</td>
-                    <td>${order.total_items || 1} item(s)</td>
-                    <td>₱${parseFloat(order.total_amount).toFixed(2)}</td>
-                    <td>${status}</td>
-                    <td>${deliveryPersonnel}</td>
-                </tr>`;
-            });
+            <div class="section">
+                <div class="section-header">
+                    <h2>📋 Recent Orders</h2>
+                    <p class="section-note">Your latest order history</p>
+                </div>
+                <div id="recentOrdersContainer">
+                    <div class="empty-message">No recent orders yet. Your previous orders will appear here.</div>
+                </div>
+            </div>
+        </div>
 
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
+        <div>
+            <div class="section" id="productsSection">
+                <div class="section-header">
+                    <h2>💧 Available Products</h2>
+                    <p class="section-note">Select a product to order</p>
+                </div>
+                <div id="productsContainer"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
-        function displayRecentOrders(orders) {
-            const container = document.getElementById('recentOrdersContainer');
-            
-            if (orders.length === 0) {
-                container.innerHTML = '<div class="empty-message">No recent orders</div>';
-                return;
-            }
+<script>
+const API_URL = window.location.origin && window.location.origin !== 'null' ? window.location.origin : '';
 
-            let html = '<table class="orders-table"><thead><tr><th>Order ID</th><th>Date</th><th>Total</th><th>Status</th></tr></thead><tbody>';
-            
-            orders.forEach(order => {
-                const date = new Date(order.createdAt).toLocaleDateString();
-                const status = getStatusBadge(order.status);
-                html += `<tr>
-                    <td>#${order.id}</td>
-                    <td>${date}</td>
-                    <td>₱${parseFloat(order.total_amount).toFixed(2)}</td>
-                    <td>${status}</td>
-                </tr>`;
-            });
+let cachedProducts = [
+    {
+        id: 1,
+        product_id: '5-gallon-round',
+        name: '5-Gallon Round',
+        price: 30,
+        quantity: 50
+    },
+    {
+        id: 2,
+        product_id: '5-gallon-slim',
+        name: '5-Gallon Slim',
+        price: 35,
+        quantity: 40
+    },
+    {
+        id: 3,
+        product_id: '3-gallon',
+        name: '3-Gallon',
+        price: 25,
+        quantity: 60
+    }
+];
 
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
+let selectedProduct = null;
 
-        function displayProducts(products) {
-            const container = document.getElementById('productsContainer');
-            
-            if (products.length === 0) {
-                container.innerHTML = '<div class="empty-message">No products available</div>';
-                return;
-            }
+function authHeaders(){
+    const t = localStorage.getItem('token');
+    return t ? { Authorization:`Bearer ${t}` } : {};
+}
 
-            let html = '<div class="products-grid">';
-            
-            products.forEach(product => {
-                html += `<div class="product-card">
-                    <div class="product-name">${product.name}</div>
-                    <div class="product-price">₱${parseFloat(product.price).toFixed(2)}</div>
-                    <div class="product-quantity">In Stock: ${product.quantity}</div>
-                    <button class="order-btn" onclick="orderProduct(${product.id})">Order Now</button>
-                </div>`;
-            });
+function escapeHTML(value){
+    return String(value || '')
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#039;');
+}
 
-            html += '</div>';
-            container.innerHTML = html;
-        }
+function showToast(message){
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('is-visible');
+    setTimeout(()=>toast.classList.remove('is-visible'),3000);
+}
 
-        function getStatusBadge(status) {
-            const badges = {
-                'pending': '<span class="status-badge status-pending">Pending</span>',
-                'confirmed': '<span class="status-badge status-confirmed">Confirmed</span>',
-                'in_transit': '<span class="status-badge status-in-transit">In Transit</span>',
-                'completed': '<span class="status-badge status-completed">Completed</span>'
-            };
-            return badges[status] || `<span class="status-badge">${status}</span>`;
-        }
+function showLoginGate(message){
+    document.body.classList.add('login-gate-open');
+    document.getElementById('loginGate').classList.add('is-open');
 
-        function displayError(message) {
-            const errorContainer = document.getElementById('errorContainer');
-            errorContainer.innerHTML = `<div class="error">⚠️ ${message}</div>`;
-        }
+    const msg = document.getElementById('loginGateMessage');
+    msg.style.color = message ? '#dc2626' : '';
+    msg.textContent = message || '';
+}
 
-        function orderProduct(productId) {
-            alert(`Order functionality will be implemented. Product ID: ${productId}`);
-            // Redirect to order page or open order modal
-        }
+function hideLoginGate(){
+    document.body.classList.remove('login-gate-open');
+    document.getElementById('loginGate').classList.remove('is-open');
+}
 
-        function logout() {
+function applyCustomerProfile(name,email){
+    const finalName = name && name.trim() ? name.trim() : 'Guest Customer';
+    const finalEmail = email && email.trim() ? email.trim() : 'customer@example.com';
+
+    document.getElementById('customerName').textContent = finalName;
+    document.getElementById('customerEmail').textContent = finalEmail;
+    document.getElementById('profileName').value = finalName === 'Guest Customer' ? '' : finalName;
+    document.getElementById('profileEmail').value = finalEmail === 'customer@example.com' ? '' : finalEmail;
+    document.getElementById('welcomeText').textContent = finalName === 'Guest Customer' ? 'Welcome back!' : `Welcome back, ${finalName}!`;
+}
+
+function saveCustomerProfile(){
+    const name = document.getElementById('profileName').value.trim();
+    const email = document.getElementById('profileEmail').value.trim();
+
+    if(!name){
+        alert('Please enter your name.');
+        return;
+    }
+
+    if(!email){
+        alert('Please enter your email.');
+        return;
+    }
+
+    localStorage.setItem('customerProfile', JSON.stringify({name,email}));
+    applyCustomerProfile(name,email);
+    showToast('Customer information saved.');
+}
+
+function loadSavedProfile(){
+    const saved = localStorage.getItem('customerProfile');
+    const user = localStorage.getItem('user');
+
+    if(saved){
+        const profile = JSON.parse(saved);
+        applyCustomerProfile(profile.name,profile.email);
+        return;
+    }
+
+    if(user){
+        const parsedUser = JSON.parse(user);
+        applyCustomerProfile(parsedUser.name,parsedUser.email);
+        return;
+    }
+
+    applyCustomerProfile('Guest Customer','customer@example.com');
+}
+
+async function loadDashboard(){
+    document.getElementById('errorContainer').innerHTML = '';
+
+    displayProducts(cachedProducts);
+    displayInventory(cachedProducts);
+
+    if(!localStorage.getItem('token')){
+        loadSavedProfile();
+        return;
+    }
+
+    try{
+        const response = await fetch(`${API_URL}/dashboard/customer`,{
+            headers:{...authHeaders()}
+        });
+
+        if(response.status === 401){
             localStorage.removeItem('token');
-            window.location.href = '/login.html';
+            localStorage.removeItem('user');
+            showLoginGate('Session expired. Please sign in again.');
+            return;
         }
 
-        // Load dashboard on page load
-        loadDashboard();
-    </script>
+        if(!response.ok){
+            throw new Error('Failed to load dashboard');
+        }
+
+        const data = await response.json();
+        displayDashboard(data.data);
+    }catch(error){
+        displayError(error.message);
+    }
+}
+
+function displayDashboard(data){
+    const customerName = data.customer?.name || 'Guest Customer';
+    const customerEmail = data.customer?.email || 'customer@example.com';
+
+    localStorage.setItem('customerProfile',JSON.stringify({
+        name:customerName,
+        email:customerEmail
+    }));
+
+    applyCustomerProfile(customerName,customerEmail);
+
+    document.getElementById('totalOrders').textContent = data.statistics?.totalOrders || 0;
+    document.getElementById('pendingOrders').textContent = data.statistics?.pendingOrders || 0;
+    document.getElementById('completedOrders').textContent = data.statistics?.completedOrders || 0;
+    document.getElementById('totalSpent').textContent = `₱${parseFloat(data.statistics?.totalSpent || 0).toFixed(2)}`;
+
+    displayActiveOrders(data.activeOrders || []);
+    displayRecentOrders(data.recentOrders || []);
+
+    if(data.availableProducts && data.availableProducts.length > 0){
+        cachedProducts = data.availableProducts.map((product,index)=>({
+            id: product.id || index + 1,
+            product_id: product.product_id || product.name?.toLowerCase().replaceAll(' ','-') || `product-${index + 1}`,
+            name: product.name,
+            price: Number(product.price || 0),
+            quantity: Number(product.quantity || 0)
+        }));
+    }
+
+    displayProducts(cachedProducts);
+    displayInventory(cachedProducts);
+}
+
+function displayInventory(products){
+    const container = document.getElementById('inventoryContainer');
+
+    let html = '';
+
+    products.forEach(product=>{
+        html += `
+        <div class="inventory-card">
+            <strong>${escapeHTML(product.name)}</strong>
+            <span>${Number(product.quantity || 0)}</span>
+            <p>gallon(s) available</p>
+        </div>`;
+    });
+
+    container.innerHTML = html;
+}
+
+function displayActiveOrders(orders){
+    const container = document.getElementById('activeOrdersContainer');
+
+    if(orders.length === 0){
+        container.innerHTML = '<div class="empty-message">No active orders yet. Once you place an order, it will appear here.</div>';
+        return;
+    }
+
+    let html = `
+    <div class="table-wrap">
+    <table class="orders-table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Delivery Personnel</th>
+        </tr>
+    </thead>
+    <tbody>`;
+
+    orders.forEach(order=>{
+        html += `
+        <tr>
+            <td><strong>#${order.id}</strong></td>
+            <td>${order.total_items || 1} item(s)</td>
+            <td><strong>₱${parseFloat(order.total_amount || 0).toFixed(2)}</strong></td>
+            <td>${getStatusBadge(order.status)}</td>
+            <td>${escapeHTML(order.delivery?.delivery_personnel?.name || 'Not yet assigned')}</td>
+        </tr>`;
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+function displayRecentOrders(orders){
+    const container = document.getElementById('recentOrdersContainer');
+
+    if(orders.length === 0){
+        container.innerHTML = '<div class="empty-message">No recent orders yet. Your previous orders will appear here.</div>';
+        return;
+    }
+
+    let html = `
+    <div class="table-wrap">
+    <table class="orders-table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>`;
+
+    orders.forEach(order=>{
+        const date = new Date(order.createdAt).toLocaleDateString();
+        html += `
+        <tr>
+            <td><strong>#${order.id}</strong></td>
+            <td>${date}</td>
+            <td><strong>₱${parseFloat(order.total_amount || 0).toFixed(2)}</strong></td>
+            <td>${getStatusBadge(order.status)}</td>
+        </tr>`;
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+function displayProducts(products){
+    const container = document.getElementById('productsContainer');
+
+    if(products.length === 0){
+        container.innerHTML = '<div class="empty-message">No products available right now.</div>';
+        updateProductSelect();
+        return;
+    }
+
+    let html = '<div class="products-grid">';
+
+    products.forEach(product=>{
+        const stock = Number(product.quantity || 0);
+        const disabled = stock <= 0 ? 'disabled' : '';
+        const buttonText = stock <= 0 ? 'Out of Stock' : 'Order Now';
+
+        html += `
+        <div class="product-card">
+            <div class="product-icon">💧</div>
+            <div class="product-name">${escapeHTML(product.name)}</div>
+            <div class="product-price">₱${parseFloat(product.price || 0).toFixed(2)}</div>
+            <div class="product-quantity">Available stock: ${stock} gallon(s)</div>
+            <button class="order-btn" ${disabled} onclick="openOrderModal(${product.id})">${buttonText}</button>
+        </div>`;
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
+    updateProductSelect();
+}
+
+function updateProductSelect(){
+    const select = document.getElementById('productSelect');
+
+    if(!cachedProducts.length){
+        select.innerHTML = '<option value="">No products available</option>';
+        return;
+    }
+
+    select.innerHTML = '<option value="">Select product</option>';
+
+    cachedProducts.forEach(product=>{
+        if(Number(product.quantity || 0) > 0){
+            select.innerHTML += `<option value="${product.id}">${escapeHTML(product.name)} - ₱${parseFloat(product.price || 0).toFixed(2)}</option>`;
+        }
+    });
+}
+
+function openOrderModal(rowId){
+    updateProductSelect();
+
+    const modal = document.getElementById('orderModal');
+    const select = document.getElementById('productSelect');
+
+    if(rowId){
+        selectedProduct = cachedProducts.find(p=>Number(p.id) === Number(rowId));
+        select.value = rowId;
+    }else{
+        selectedProduct = null;
+        select.value = '';
+    }
+
+    updateSelectedProductDetails();
+    updateOrderTotal();
+
+    document.getElementById('orderQuantity').value = 1;
+    document.getElementById('orderAddress').value = '';
+
+    modal.classList.add('is-open');
+}
+
+function updateSelectedProductDetails(){
+    const select = document.getElementById('productSelect');
+    selectedProduct = cachedProducts.find(p=>String(p.id) === String(select.value));
+
+    if(!selectedProduct){
+        document.getElementById('selectedProductName').textContent = 'Select Product';
+        document.getElementById('selectedProductDetails').textContent = 'Choose a product to see price, stock, and total cost.';
+        updateOrderTotal();
+        return;
+    }
+
+    document.getElementById('selectedProductName').textContent = selectedProduct.name;
+    document.getElementById('selectedProductDetails').textContent =
+        `Price: ₱${parseFloat(selectedProduct.price || 0).toFixed(2)} · Stock: ${selectedProduct.quantity || 0} gallon(s)`;
+
+    updateOrderTotal();
+}
+
+function updateOrderTotal(){
+    const qty = parseInt(document.getElementById('orderQuantity').value,10) || 0;
+    const price = selectedProduct ? Number(selectedProduct.price || 0) : 0;
+    const total = qty * price;
+
+    document.getElementById('orderTotal').textContent = `₱${total.toFixed(2)}`;
+}
+
+function closeOrderModal(){
+    document.getElementById('orderModal').classList.remove('is-open');
+    selectedProduct = null;
+}
+
+async function orderProduct(productId,qty,address){
+    const sku = productId || selectedProduct?.product_id;
+
+    if(!sku){
+        alert('Please select a product.');
+        return;
+    }
+
+    try{
+        const res = await fetch(`${API_URL}/orders`,{
+            method:'POST',
+            headers:{
+                ...authHeaders(),
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({
+                product:sku,
+                quantity:qty,
+                delivery_address:address.trim()
+            })
+        });
+
+        const body = await res.json().catch(()=>({}));
+
+        if(!res.ok){
+            throw new Error(body.error || body.message || 'Order failed');
+        }
+
+        selectedProduct.quantity = Number(selectedProduct.quantity || 0) - qty;
+
+        closeOrderModal();
+        showToast(body.message || 'Order placed successfully.');
+        displayProducts(cachedProducts);
+        displayInventory(cachedProducts);
+        await loadDashboard();
+    }catch(e){
+        alert(e.message || 'Could not place order.');
+    }
+}
+
+document.getElementById('productSelect').addEventListener('change',function(){
+    updateSelectedProductDetails();
+    updateOrderTotal();
+});
+
+document.getElementById('orderQuantity').addEventListener('input',updateOrderTotal);
+
+document.getElementById('orderForm').addEventListener('submit',async function(e){
+    e.preventDefault();
+
+    updateSelectedProductDetails();
+
+    if(!selectedProduct){
+        alert('Please select a product.');
+        return;
+    }
+
+    const qty = parseInt(document.getElementById('orderQuantity').value,10);
+    const address = document.getElementById('orderAddress').value.trim();
+
+    if(!qty || qty < 1){
+        alert('Please enter a valid quantity.');
+        return;
+    }
+
+    if(!address){
+        alert('Delivery address is required.');
+        return;
+    }
+
+    const stock = Number(selectedProduct.quantity || 0);
+
+    if(qty > stock){
+        alert(`Only ${stock} gallon(s) are available.`);
+        return;
+    }
+
+    const btn = document.getElementById('submitOrderBtn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    await orderProduct(selectedProduct.product_id,qty,address);
+
+    btn.disabled = false;
+    btn.textContent = 'Submit Order';
+});
+
+function getStatusBadge(status){
+    const badges = {
+        pending:'<span class="status-badge status-pending">● Pending</span>',
+        confirmed:'<span class="status-badge status-confirmed">● Confirmed</span>',
+        in_transit:'<span class="status-badge status-in-transit">● In Transit</span>',
+        delivered:'<span class="status-badge status-completed">● Delivered</span>',
+        completed:'<span class="status-badge status-completed">● Completed</span>'
+    };
+
+    return badges[status] || `<span class="status-badge">${escapeHTML(status || 'Unknown')}</span>`;
+}
+
+function displayError(message){
+    document.getElementById('errorContainer').innerHTML =
+        `<div class="error">⚠️ ${escapeHTML(message)}</div>`;
+}
+
+function logout(){
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+
+    applyCustomerProfile('Guest Customer','customer@example.com');
+
+    document.getElementById('totalOrders').textContent = '0';
+    document.getElementById('pendingOrders').textContent = '0';
+    document.getElementById('completedOrders').textContent = '0';
+    document.getElementById('totalSpent').textContent = '₱0.00';
+
+    document.getElementById('activeOrdersContainer').innerHTML =
+        '<div class="empty-message">No active orders yet. Once you place an order, it will appear here.</div>';
+
+    document.getElementById('recentOrdersContainer').innerHTML =
+        '<div class="empty-message">No recent orders yet. Your previous orders will appear here.</div>';
+
+    displayProducts(cachedProducts);
+    displayInventory(cachedProducts);
+
+    showLoginGate('');
+}
+
+document.getElementById('loginGateForm').addEventListener('submit',async function(e){
+    e.preventDefault();
+
+    const msg = document.getElementById('loginGateMessage');
+    const btn = document.getElementById('loginGateSubmit');
+    const email = document.getElementById('loginGateEmail').value.trim();
+    const password = document.getElementById('loginGatePassword').value.trim();
+
+    btn.disabled = true;
+    btn.textContent = 'Signing in...';
+    msg.textContent = '';
+
+    try{
+        const res = await fetch(`${API_URL}/auth/login`,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({email,password})
+        });
+
+        const data = await res.json().catch(()=>({}));
+
+        if(!res.ok){
+            msg.style.color = '#dc2626';
+            msg.textContent = data.error || data.message || 'Login failed';
+            return;
+        }
+
+        localStorage.setItem('token',data.token);
+        localStorage.setItem('user',JSON.stringify(data.user));
+
+        const userName = data.user?.name || 'Guest Customer';
+        const userEmail = data.user?.email || email;
+
+        localStorage.setItem('customerProfile',JSON.stringify({
+            name:userName,
+            email:userEmail
+        }));
+
+        applyCustomerProfile(userName,userEmail);
+
+        hideLoginGate();
+        await loadDashboard();
+    }catch(err){
+        msg.style.color = '#dc2626';
+        msg.textContent = 'Could not reach the server.';
+    }finally{
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+    }
+});
+
+document.getElementById('orderModal').addEventListener('click',function(e){
+    if(e.target.id === 'orderModal'){
+        closeOrderModal();
+    }
+});
+
+window.addEventListener('keydown',function(e){
+    if(e.key === 'Escape'){
+        closeOrderModal();
+    }
+});
+
+loadSavedProfile();
+displayProducts(cachedProducts);
+displayInventory(cachedProducts);
+
+if(localStorage.getItem('token')){
+    hideLoginGate();
+    loadDashboard();
+}else{
+    showLoginGate('');
+}
+</script>
+
 </body>
 </html>

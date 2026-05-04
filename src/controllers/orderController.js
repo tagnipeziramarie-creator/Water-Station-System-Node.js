@@ -1,19 +1,26 @@
 import { v4 as uuidv4 } from 'uuid';
 import { createOrder as createOrderDB, findOrdersByCustomerId, findOrderById } from '../models/Order.js';
-import { findInventoryByProductId, decrementQuantity } from '../models/Inventory.js';
+import { getTotalStockByProductId, decrementProductStockFifo } from '../models/Inventory.js';
+import { createDelivery } from '../models/Delivery.js';
+import { createPayment } from '../models/Payment.js';
 
 export const createOrder = async (req, res, next) => {
   try {
     const { product, quantity, delivery_address, total_price } = req.body;
     const userId = req.user.userId;
 
-    // Check inventory
-    const inventory = await findInventoryByProductId(product);
-    if (!inventory || inventory.quantity_on_hand < quantity) {
+    const stock = await getTotalStockByProductId(product);
+    if (stock < quantity) {
       return res.status(400).json({ error: 'Insufficient inventory' });
     }
 
-    // Create order
+    const fifo = await decrementProductStockFifo(product, quantity);
+    if (!fifo.ok) {
+      return res.status(400).json({ error: fifo.error || 'Insufficient inventory' });
+    }
+
+    const lineTotal = Number(total_price ?? fifo.lineTotal);
+
     const orderId = uuidv4();
     const order = await createOrderDB({
       orderId,
@@ -23,15 +30,28 @@ export const createOrder = async (req, res, next) => {
       product,
       quantity,
       delivery_address,
-      total_price: total_price || quantity * inventory.selling_price,
+      total_amount: lineTotal,
+      total_price: lineTotal,
       payment: 'pending',
     });
 
-    // Decrease inventory
-    await decrementQuantity(inventory.id, quantity);
+    await createDelivery({
+      order_id: orderId,
+      delivery_personnel_id: null,
+      delivery_status: 'pending',
+      delivery_address,
+      payment_received: false,
+    });
+
+    await createPayment({
+      order_id: orderId,
+      payment_method: 'COD',
+      payment_status: 'pending',
+      amount: lineTotal,
+    });
 
     res.status(201).json({
-      message: 'Order created successfully',
+      message: 'Order created successfully (COD). Pay when the order is delivered.',
       order,
     });
   } catch (error) {

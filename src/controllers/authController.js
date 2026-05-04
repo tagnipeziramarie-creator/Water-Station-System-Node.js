@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { findUserByEmail, createUser } from '../models/User.js';
+import { getJwtSecret } from '../config/jwt.js';
 
 // ===================================
 // REGISTER
@@ -38,7 +39,7 @@ export const register = async (req, res, next) => {
         email: user.email,
         role: user.role,
       },
-      process.env.JWT_SECRET || 'temporary_secret_key',
+      getJwtSecret(),
       { expiresIn: '7d' }
     );
 
@@ -89,7 +90,7 @@ export const login = async (req, res, next) => {
         email: user.email,
         role: user.role,
       },
-      process.env.JWT_SECRET || 'temporary_secret_key',
+      getJwtSecret(),
       { expiresIn: '7d' }
     );
 

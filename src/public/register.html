@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Register - Water Refilling System</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Register - Pure Water Station</title>
   <style>
     * {
       margin: 0;
@@ -12,155 +11,319 @@
       box-sizing: border-box;
     }
 
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 430px;
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      text-align: center;
-    }
-
-    h2 {
-      margin-bottom: 20px;
+      min-height: 100dvh;
+      margin: 0;
       color: #333;
     }
 
-    input {
+    /* Full-page backdrop (popup-on-blur look) */
+    .register-backdrop {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(145deg, rgba(102, 126, 234, 0.92) 0%, rgba(118, 75, 162, 0.92) 100%);
+      backdrop-filter: blur(6px);
+      z-index: 0;
+    }
+
+    .register-shell {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+        max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+      padding-top: max(24px, env(safe-area-inset-top));
+    }
+
+    .register-topbar {
       width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border: 2px solid #ddd;
-      border-radius: 6px;
-      font-size: 15px;
+      max-width: 440px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
-    input:focus {
-      outline: none;
-      border-color: #0072ff;
+    @media (max-width: 360px) {
+      .register-topbar {
+        justify-content: center;
+        text-align: center;
+      }
+
+      .register-brand {
+        order: -1;
+        width: 100%;
+        justify-content: center;
+      }
     }
 
-    .show-password {
-      display: block;
-      text-align: left;
-      color: #0072ff;
-      cursor: pointer;
-      font-weight: bold;
+    .register-topbar a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
       font-size: 14px;
-      margin: 5px 0 10px;
+      opacity: 0.95;
     }
 
-    button {
+    .register-topbar a:hover {
+      text-decoration: underline;
+    }
+
+    .register-brand {
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Popup card */
+    .register-popup {
+      width: 100%;
+      max-width: 440px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
+      padding: clamp(20px, 4vw, 32px);
+      max-height: min(90vh, 720px);
+      max-height: min(90dvh, 720px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      flex-shrink: 1;
+    }
+
+    .register-popup h2 {
+      text-align: center;
+      margin-bottom: 6px;
+      font-size: clamp(1.25rem, 4vw, 1.5rem);
+      color: #222;
+    }
+
+    .register-popup .subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 18px;
+      line-height: 1.45;
+    }
+
+    .register-popup label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 4px;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .register-popup label:first-of-type {
+      margin-top: 0;
+    }
+
+    .register-popup input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+
+    .register-popup input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    .toggle-password-btn {
+      display: block;
+      margin-top: 8px;
+      margin-bottom: 4px;
+      padding: 0;
+      border: none;
+      background: none;
+      color: #667eea;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+    }
+
+    .toggle-password-btn:hover {
+      text-decoration: underline;
+    }
+
+    .btn-primary-full {
+      width: 100%;
+      padding: 14px;
+      margin-top: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-primary-full:hover {
+      opacity: 0.95;
+    }
+
+    .btn-primary-full:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary-full {
       width: 100%;
       padding: 12px;
-      background: #0072ff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
       margin-top: 10px;
+      background: #f1f3f5;
+      color: #495057;
+      border: none;
+      border-radius: 10px;
       font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
     }
 
-    button:hover {
-      background: #005ecb;
-    }
-
-    .back-btn {
-      background: #6c757d;
-    }
-
-    .back-btn:hover {
-      background: #5a6268;
+    .btn-secondary-full:hover {
+      background: #e9ecef;
     }
 
     #message {
-      margin-top: 15px;
-      font-weight: bold;
+      margin-top: 14px;
+      font-weight: 600;
+      font-size: 14px;
+      text-align: center;
+      min-height: 22px;
     }
 
-    .success {
-      color: green;
+    #message.success {
+      color: #198754;
     }
 
-    .error {
-      color: red;
+    #message.error {
+      color: #c0392b;
     }
 
     .login-link {
-      margin-top: 15px;
+      margin-top: 18px;
       font-size: 14px;
+      text-align: center;
+      color: #555;
     }
 
     .login-link a {
-      color: #0072ff;
-      font-weight: bold;
+      color: #667eea;
+      font-weight: 700;
       text-decoration: none;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 380px) {
+      .register-popup {
+        border-radius: 12px;
+        padding: 18px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h2>Customer Registration</h2>
+  <div class="register-backdrop" aria-hidden="true"></div>
 
-    <form id="registerForm">
-      <input type="text" id="name" placeholder="Full Name" required />
-      <input type="email" id="email" placeholder="Email" required />
-      <input type="password" id="password" placeholder="Password" required />
-
-      <span class="show-password" onclick="togglePassword()">Show password</span>
-
-      <input type="text" id="phone" placeholder="Phone" />
-      <input type="text" id="address" placeholder="Address" />
-      <input type="text" id="barangay" placeholder="Barangay" />
-
-      <button type="submit" id="registerBtn">Register</button>
-      <button type="button" class="back-btn" onclick="goBack()">Back to Login</button>
-    </form>
-
-    <p id="message"></p>
-
-    <div class="login-link">
-      Already have an account? <a href="/login.html">Login here</a>
+  <div class="register-shell">
+    <div class="register-topbar">
+      <a href="/index.html">← Home</a>
+      <span class="register-brand"><span aria-hidden="true">💧</span> Pure Water</span>
+      <a href="/login.html">Login</a>
     </div>
+
+    <main class="register-popup" role="dialog" aria-labelledby="regTitle">
+      <h2 id="regTitle">Create account</h2>
+      <p class="subtitle">Customer registration — order refills and track COD deliveries.</p>
+
+      <form id="registerForm">
+        <label for="name">Full name</label>
+        <input type="text" id="name" name="name" placeholder="Full name" required autocomplete="name" />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Email" required autocomplete="email" />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password" />
+
+        <button type="button" class="toggle-password-btn" id="toggleRegPasswordBtn">Show password</button>
+
+        <label for="phone">Phone <span style="font-weight:400;color:#888">(optional)</span></label>
+        <input type="tel" id="phone" name="phone" placeholder="Phone" autocomplete="tel" />
+
+        <label for="address">Address</label>
+        <input type="text" id="address" name="address" placeholder="Street / area" autocomplete="street-address" />
+
+        <label for="barangay">Barangay</label>
+        <input type="text" id="barangay" name="barangay" placeholder="Barangay" />
+
+        <button type="submit" class="btn-primary-full" id="registerBtn">Register</button>
+        <button type="button" class="btn-secondary-full" id="backToHomeBtn">Back to home</button>
+      </form>
+
+      <p id="message" aria-live="polite"></p>
+
+      <div class="login-link">
+        Already registered? <a href="/login.html">Sign in</a> · <a href="/customer-dashboard.html">Customer dashboard</a>
+      </div>
+    </main>
   </div>
 
   <script>
+    const API_URL = window.location.origin && window.location.origin !== 'null' ? window.location.origin : '';
+
     const form = document.getElementById('registerForm');
     const message = document.getElementById('message');
     const registerBtn = document.getElementById('registerBtn');
 
-    function togglePassword() {
+    document.getElementById('toggleRegPasswordBtn').addEventListener('click', function () {
       const passwordInput = document.getElementById('password');
-      const showText = document.querySelector('.show-password');
-
+      const btn = document.getElementById('toggleRegPasswordBtn');
       if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
-        showText.textContent = 'Hide password';
+        btn.textContent = 'Hide password';
       } else {
         passwordInput.type = 'password';
-        showText.textContent = 'Show password';
+        btn.textContent = 'Show password';
       }
-    }
+    });
 
-    function goBack() {
-      window.location.href = '/login.html';
-    }
+    document.getElementById('backToHomeBtn').addEventListener('click', function () {
+      window.location.href = '/index.html';
+    });
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const data = {
@@ -169,39 +332,47 @@
         password: document.getElementById('password').value.trim(),
         phone: document.getElementById('phone').value.trim(),
         address: document.getElementById('address').value.trim(),
-        barangay: document.getElementById('barangay').value.trim()
+        barangay: document.getElementById('barangay').value.trim(),
       };
 
       registerBtn.disabled = true;
-      registerBtn.textContent = 'Registering...';
+      registerBtn.textContent = 'Registering…';
+      message.textContent = '';
+      message.className = '';
 
       try {
-        const res = await fetch('/auth/register', {
+        const res = await fetch(`${API_URL}/auth/register`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
         });
 
-        const result = await res.json();
+        const result = await res.json().catch(function () {
+          return {};
+        });
 
         if (res.ok) {
-          message.textContent = result.message || 'Registered successfully!';
           message.className = 'success';
+          message.textContent = result.message || 'Registered! Redirecting…';
           form.reset();
-
-          setTimeout(() => {
-            window.location.href = '/login.html';
-          }, 1200);
+          if (result.token) {
+            localStorage.setItem('token', result.token);
+            localStorage.setItem('user', JSON.stringify(result.user || {}));
+          }
+          setTimeout(function () {
+            window.location.href = '/customer-dashboard.html';
+          }, 900);
         } else {
-          message.textContent = result.error || 'Registration failed';
           message.className = 'error';
+          var errMsg = result.error;
+          if (!errMsg && result.errors && result.errors.length) {
+            errMsg = result.errors[0].msg || result.errors[0].message;
+          }
+          message.textContent = errMsg || 'Registration failed';
         }
-
       } catch (err) {
-        message.textContent = 'Server error. Please try again.';
         message.className = 'error';
+        message.textContent = 'Could not reach the server.';
       } finally {
         registerBtn.disabled = false;
         registerBtn.textContent = 'Register';

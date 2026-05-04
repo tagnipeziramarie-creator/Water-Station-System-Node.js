@@ -9,8 +9,16 @@ export const createDelivery = async (deliveryData) => {
       INSERT INTO deliveries (order_id, delivery_personnel_id, delivery_status, scheduled_date, delivered_date, delivery_address, delivery_notes, payment_received, payment_amount, createdAt, updatedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `;
-    const [result] = await connection.execute(query, [
-      order_id, delivery_personnel_id, delivery_status || 'pending', scheduled_date, delivered_date, delivery_address, delivery_notes, payment_received || false, payment_amount
+    const [result] =     await connection.execute(query, [
+      order_id,
+      delivery_personnel_id ?? null,
+      delivery_status || 'pending',
+      scheduled_date ?? null,
+      delivered_date ?? null,
+      delivery_address ?? null,
+      delivery_notes ?? null,
+      payment_received || false,
+      payment_amount ?? null,
     ]);
     connection.release();
     return { id: result.insertId, ...deliveryData };

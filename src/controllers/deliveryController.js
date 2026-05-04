@@ -1,5 +1,6 @@
 import { findDeliveriesByPersonnelId, findDeliveryById, updateDelivery } from '../models/Delivery.js';
 import { createDeliveryAssignment } from '../models/DeliveryAssignment.js';
+import { updateOrder } from '../models/Order.js';
 
 export const getDashboard = async (req, res, next) => {
   try {
@@ -96,6 +97,8 @@ export const assignPersonnel = async (req, res, next) => {
     }
 
     await updateDelivery(id, { delivery_personnel_id });
+
+    await updateOrder(delivery.order_id, { order_status: 'confirmed' });
 
     // Create assignment record
     await createDeliveryAssignment({

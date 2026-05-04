@@ -12,7 +12,7 @@ export const getCustomerDashboard = async (req, res, next) => {
     connection = await pool.getConnection();
 
     const [customerResult] = await connection.execute(
-      'SELECT id, name, email, phone, address, barangay FROM users WHERE id = ? AND role = ?',
+      `SELECT userId AS id, name, email, phone, address, barangay FROM users WHERE userId = ? AND role = ?`,
       [userId, 'customer']
     );
 
@@ -38,17 +38,66 @@ export const getCustomerDashboard = async (req, res, next) => {
     );
 
     const [totalSpentResult] = await connection.execute(
-      "SELECT SUM(total_price) AS total FROM orders WHERE customer_id = ? AND order_status = 'delivered'",
+      "SELECT SUM(COALESCE(total_amount, total_price)) AS total FROM orders WHERE customer_id = ? AND order_status = 'delivered'",
       [userId]
     );
 
-    const [recentOrders] = await connection.execute(
-      'SELECT * FROM orders WHERE customer_id = ? ORDER BY createdAt DESC LIMIT 5',
+    const [activeRows] = await connection.execute(
+      `SELECT 
+        o.orderId AS id,
+        o.order_status,
+        o.createdAt,
+        COALESCE(o.total_amount, o.total_price) AS total_price,
+        d.delivery_status,
+        dp.name AS personnel_name
+      FROM orders o
+      LEFT JOIN deliveries d ON d.order_id = o.orderId
+      LEFT JOIN users dp ON dp.userId = d.delivery_personnel_id
+      WHERE o.customer_id = ?
+        AND o.order_status NOT IN ('delivered', 'cancelled')
+      ORDER BY o.createdAt DESC`,
       [userId]
     );
+
+    const activeOrders = activeRows.map((row) => {
+      let status = row.order_status;
+      if (row.delivery_status === 'in_transit') status = 'in_transit';
+      return {
+        id: row.id,
+        status,
+        total_amount: parseFloat(row.total_price || 0),
+        total_items: 1,
+        delivery: row.personnel_name
+          ? { delivery_personnel: { name: row.personnel_name } }
+          : null,
+      };
+    });
+
+    const [recentRows] = await connection.execute(
+      `SELECT orderId AS id, order_status AS status, createdAt,
+       COALESCE(total_amount, total_price) AS total_amount
+       FROM orders WHERE customer_id = ? ORDER BY createdAt DESC LIMIT 5`,
+      [userId]
+    );
+
+    const recentOrders = recentRows.map((row) => ({
+      ...row,
+      total_amount: parseFloat(row.total_amount || 0),
+      createdAt: row.createdAt,
+    }));
 
     const [availableProducts] = await connection.execute(
-      'SELECT * FROM water_products WHERE is_active = 1'
+      `SELECT 
+        wp.id,
+        wp.product_id,
+        wp.name,
+        wp.description,
+        wp.price,
+        COALESCE(SUM(i.quantity_on_hand), 0) AS quantity
+      FROM water_products wp
+      LEFT JOIN inventories i ON i.product_id = wp.product_id
+      WHERE wp.is_active = 1
+      GROUP BY wp.id, wp.product_id, wp.name, wp.description, wp.price`
     );
 
     res.status(200).json({
@@ -59,11 +108,12 @@ export const getCustomerDashboard = async (req, res, next) => {
           totalOrders: totalOrdersResult[0].count,
           pendingOrders: pendingOrdersResult[0].count,
           completedOrders: completedOrdersResult[0].count,
-          totalSpent: parseFloat(totalSpentResult[0].total || 0).toFixed(2)
+          totalSpent: parseFloat(totalSpentResult[0].total || 0).toFixed(2),
         },
+        activeOrders,
         recentOrders,
-        availableProducts
-      }
+        availableProducts,
+      },
     });
   } catch (error) {
     next(error);
@@ -83,7 +133,7 @@ export const getDeliveryDashboard = async (req, res, next) => {
     connection = await pool.getConnection();
 
     const [personnelResult] = await connection.execute(
-      'SELECT id, name, email, phone FROM users WHERE id = ? AND role = ?',
+      `SELECT userId AS id, name, email, phone FROM users WHERE userId = ? AND role = ?`,
       [userId, 'delivery']
     );
 
@@ -108,10 +158,86 @@ export const getDeliveryDashboard = async (req, res, next) => {
       [userId]
     );
 
-    const [activeDeliveries] = await connection.execute(
-      "SELECT * FROM deliveries WHERE delivery_personnel_id = ? AND delivery_status IN ('pending', 'in_transit') ORDER BY createdAt DESC",
+    const [inTransitResult] = await connection.execute(
+      "SELECT COUNT(*) AS count FROM deliveries WHERE delivery_personnel_id = ? AND delivery_status = 'in_transit'",
       [userId]
     );
+
+    const [activeRows] = await connection.execute(
+      `SELECT 
+        d.id,
+        d.order_id,
+        d.delivery_status,
+        d.createdAt,
+        o.orderId,
+        o.total_price,
+        COALESCE(o.total_amount, o.total_price) AS total_amount,
+        o.delivery_address AS order_address,
+        c.name AS customer_name,
+        c.phone AS customer_phone,
+        c.address AS customer_address,
+        c.barangay AS customer_barangay
+      FROM deliveries d
+      INNER JOIN orders o ON o.orderId = d.order_id
+      INNER JOIN users c ON c.userId = o.customer_id
+      WHERE d.delivery_personnel_id = ?
+        AND d.delivery_status IN ('pending', 'in_transit')
+      ORDER BY d.createdAt DESC`,
+      [userId]
+    );
+
+    const activeDeliveries = activeRows.map((row) => ({
+      id: row.id,
+      status: row.delivery_status,
+      order: {
+        id: row.orderId,
+        customer: {
+          name: row.customer_name,
+          phone: row.customer_phone,
+          address: row.customer_address || row.order_address,
+          barangay: row.customer_barangay,
+        },
+      },
+    }));
+
+    const [todayRows] = await connection.execute(
+      `SELECT 
+        d.id,
+        d.order_id,
+        d.delivery_status,
+        d.createdAt,
+        o.orderId,
+        COALESCE(o.total_amount, o.total_price) AS total_amount,
+        o.delivery_address AS order_address,
+        c.name AS customer_name,
+        c.phone AS customer_phone,
+        c.address AS customer_address,
+        c.barangay AS customer_barangay
+      FROM deliveries d
+      INNER JOIN orders o ON o.orderId = d.order_id
+      INNER JOIN users c ON c.userId = o.customer_id
+      WHERE d.delivery_personnel_id = ?
+        AND (
+          DATE(COALESCE(d.scheduled_date, d.createdAt)) = CURDATE()
+          OR DATE(d.createdAt) = CURDATE()
+        )
+      ORDER BY d.createdAt DESC`,
+      [userId]
+    );
+
+    const todayDeliveries = todayRows.map((row) => ({
+      id: row.id,
+      status: row.delivery_status,
+      order: {
+        id: row.orderId,
+        customer: {
+          name: row.customer_name,
+          phone: row.customer_phone,
+          address: row.customer_address || row.order_address,
+          barangay: row.customer_barangay,
+        },
+      },
+    }));
 
     res.status(200).json({
       success: true,
@@ -120,10 +246,12 @@ export const getDeliveryDashboard = async (req, res, next) => {
         statistics: {
           totalDeliveries: totalDeliveriesResult[0].count,
           completedDeliveries: completedDeliveriesResult[0].count,
-          pendingDeliveries: pendingDeliveriesResult[0].count
+          pendingDeliveries: pendingDeliveriesResult[0].count,
+          inTransitDeliveries: inTransitResult[0].count,
         },
-        activeDeliveries
-      }
+        activeDeliveries,
+        todayDeliveries,
+      },
     });
   } catch (error) {
     next(error);
@@ -141,9 +269,7 @@ export const getAdminDashboard = async (req, res, next) => {
   try {
     connection = await pool.getConnection();
 
-    const [totalUsersResult] = await connection.execute(
-      'SELECT COUNT(*) AS count FROM users'
-    );
+    const [totalUsersResult] = await connection.execute('SELECT COUNT(*) AS count FROM users');
 
     const [customersResult] = await connection.execute(
       "SELECT COUNT(*) AS count FROM users WHERE role = 'customer'"
@@ -153,9 +279,7 @@ export const getAdminDashboard = async (req, res, next) => {
       "SELECT COUNT(*) AS count FROM users WHERE role = 'delivery'"
     );
 
-    const [totalOrdersResult] = await connection.execute(
-      'SELECT COUNT(*) AS count FROM orders'
-    );
+    const [totalOrdersResult] = await connection.execute('SELECT COUNT(*) AS count FROM orders');
 
     const [pendingOrdersResult] = await connection.execute(
       "SELECT COUNT(*) AS count FROM orders WHERE order_status = 'pending'"
@@ -173,23 +297,126 @@ export const getAdminDashboard = async (req, res, next) => {
       "SELECT SUM(total_price) AS total FROM orders WHERE order_status = 'delivered'"
     );
 
-    const [totalDeliveriesResult] = await connection.execute(
-      'SELECT COUNT(*) AS count FROM deliveries'
-    );
+    const [totalDeliveriesResult] = await connection.execute('SELECT COUNT(*) AS count FROM deliveries');
 
     const [successfulDeliveriesResult] = await connection.execute(
       "SELECT COUNT(*) AS count FROM deliveries WHERE delivery_status = 'delivered'"
     );
 
-    const [recentOrders] = await connection.execute(
+    const [todayOrdersResult] = await connection.execute(
+      'SELECT COUNT(*) AS count FROM orders WHERE DATE(order_date) = CURDATE()'
+    );
+
+    const [recentOrderRows] = await connection.execute(
       `SELECT 
-        orders.*, 
-        users.name AS customer_name, 
-        users.email AS customer_email
-       FROM orders
-       LEFT JOIN users ON orders.customer_id = users.id
-       ORDER BY orders.createdAt DESC
-       LIMIT 10`
+        o.orderId AS id,
+        o.order_status AS status,
+        o.createdAt,
+        COALESCE(o.total_amount, o.total_price) AS total_amount,
+        u.name AS customer_name,
+        u.email AS customer_email
+      FROM orders o
+      LEFT JOIN users u ON o.customer_id = u.userId
+      ORDER BY o.createdAt DESC
+      LIMIT 10`
+    );
+
+    const recentOrders = recentOrderRows.map((row) => ({
+      id: row.id,
+      status: row.status,
+      total_amount: parseFloat(row.total_amount || 0),
+      createdAt: row.createdAt,
+      customer: row.customer_name
+        ? { name: row.customer_name, email: row.customer_email }
+        : null,
+    }));
+
+    const [topCustomerRows] = await connection.execute(
+      `SELECT 
+        u.name,
+        u.email,
+        u.phone,
+        COUNT(o.orderId) AS orderCount,
+        COALESCE(SUM(o.total_price), 0) AS totalSpent
+      FROM users u
+      INNER JOIN orders o ON o.customer_id = u.userId
+      WHERE u.role = 'customer'
+      GROUP BY u.userId, u.name, u.email, u.phone
+      ORDER BY totalSpent DESC
+      LIMIT 5`
+    );
+
+    const topCustomers = topCustomerRows.map((row) => ({
+      dataValues: {
+        orderCount: row.orderCount,
+        totalSpent: parseFloat(row.totalSpent || 0),
+      },
+      customer: {
+        name: row.name,
+        email: row.email,
+        phone: row.phone,
+      },
+    }));
+
+    const [deliveryPerfRows] = await connection.execute(
+      `SELECT 
+        u.name,
+        u.email,
+        u.phone,
+        COUNT(d.id) AS assignmentCount,
+        SUM(CASE WHEN d.delivery_status = 'delivered' THEN 1 ELSE 0 END) AS completedCount
+      FROM users u
+      LEFT JOIN deliveries d ON d.delivery_personnel_id = u.userId
+      WHERE u.role = 'delivery'
+      GROUP BY u.userId, u.name, u.email, u.phone`
+    );
+
+    const deliveryPerformance = deliveryPerfRows.map((row) => ({
+      dataValues: {
+        assignmentCount: row.assignmentCount || 0,
+        completedCount: row.completedCount || 0,
+      },
+      delivery_personnel: {
+        name: row.name,
+        email: row.email,
+        phone: row.phone,
+      },
+    }));
+
+    const [inventoryRows] = await connection.execute(
+      `SELECT 
+        wp.name,
+        wp.price,
+        COALESCE(SUM(i.quantity_on_hand), 0) AS quantity
+      FROM water_products wp
+      LEFT JOIN inventories i ON i.product_id = wp.product_id
+      WHERE wp.is_active = 1
+      GROUP BY wp.id, wp.name, wp.price`
+    );
+
+    const inventoryStatus = inventoryRows.map((row) => ({
+      name: row.name,
+      price: parseFloat(row.price || 0),
+      quantity: Number(row.quantity || 0),
+    }));
+
+    const [unassignedRows] = await connection.execute(
+      `SELECT 
+        d.id AS delivery_id,
+        d.order_id,
+        o.delivery_address,
+        c.name AS customer_name,
+        c.phone AS customer_phone
+      FROM deliveries d
+      INNER JOIN orders o ON o.orderId = d.order_id
+      INNER JOIN users c ON c.userId = o.customer_id
+      WHERE d.delivery_personnel_id IS NULL
+        AND d.delivery_status = 'pending'
+      ORDER BY d.createdAt DESC`
+    );
+
+    const [deliveryStaffRows] = await connection.execute(
+      `SELECT userId AS id, name, email FROM users WHERE role = 'delivery' ORDER BY name ASC`
     );
 
     res.status(200).json({
@@ -205,10 +432,16 @@ export const getAdminDashboard = async (req, res, next) => {
           cancelledOrders: cancelledOrdersResult[0].count,
           totalRevenue: parseFloat(totalRevenueResult[0].total || 0).toFixed(2),
           totalDeliveries: totalDeliveriesResult[0].count,
-          successfulDeliveries: successfulDeliveriesResult[0].count
+          successfulDeliveries: successfulDeliveriesResult[0].count,
+          todayOrders: todayOrdersResult[0].count,
         },
-        recentOrders
-      }
+        recentOrders,
+        topCustomers,
+        deliveryPerformance,
+        inventoryStatus,
+        unassignedDeliveries: unassignedRows,
+        deliveryStaff: deliveryStaffRows,
+      },
     });
   } catch (error) {
     next(error);
@@ -225,10 +458,14 @@ export const updateDeliveryStatus = async (req, res, next) => {
 
   try {
     const { deliveryId } = req.params;
-    const { status } = req.body;
+    let { status } = req.body;
     const userId = req.user.userId;
 
-    const validStatuses = ['pending', 'in_transit', 'delivered', 'cancelled'];
+    if (status === 'completed') {
+      status = 'delivered';
+    }
+
+    const validStatuses = ['pending', 'in_transit', 'delivered', 'cancelled', 'failed', 'rescheduled'];
 
     if (!validStatuses.includes(status)) {
       throw new AppError('Invalid delivery status', 400);
@@ -245,23 +482,37 @@ export const updateDeliveryStatus = async (req, res, next) => {
       throw new AppError('Delivery not found or unauthorized', 404);
     }
 
-    await connection.execute(
-      'UPDATE deliveries SET delivery_status = ?, updatedAt = NOW() WHERE id = ?',
-      [status, deliveryId]
-    );
+    const deliveryRow = deliveryResult[0];
+    const orderId = deliveryRow.order_id;
+
+    await connection.execute('UPDATE deliveries SET delivery_status = ?, updatedAt = NOW() WHERE id = ?', [
+      status,
+      deliveryId,
+    ]);
 
     if (status === 'delivered') {
-      const orderId = deliveryResult[0].order_id;
+      await connection.execute('UPDATE deliveries SET delivered_date = NOW() WHERE id = ?', [deliveryId]);
 
       await connection.execute(
-        "UPDATE orders SET order_status = 'delivered', updatedAt = NOW() WHERE id = ?",
+        `UPDATE orders SET order_status = 'delivered', payment = 'paid', updatedAt = NOW() WHERE orderId = ?`,
+        [orderId]
+      );
+
+      await connection.execute(
+        `UPDATE payments SET payment_status = 'completed', paid_at = NOW(), updatedAt = NOW()
+         WHERE order_id = ? AND payment_method IN ('COD', 'cash_on_delivery')`,
+        [orderId]
+      );
+    } else if (status === 'in_transit') {
+      await connection.execute(
+        `UPDATE orders SET order_status = 'confirmed', updatedAt = NOW() WHERE orderId = ? AND order_status = 'pending'`,
         [orderId]
       );
     }
 
     res.status(200).json({
       success: true,
-      message: 'Delivery status updated successfully'
+      message: 'Delivery status updated successfully',
     });
   } catch (error) {
     next(error);

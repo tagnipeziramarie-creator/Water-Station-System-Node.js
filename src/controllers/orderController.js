@@ -19,12 +19,6 @@ import { createPayment } from '../models/Payment.js';
 ========================================================= */
 export const createOrder = async (req, res, next) => {
   try {
-    /*
-      Accept both naming styles:
-      - product / product_id / productId
-      - delivery_address / deliveryAddress
-      - total_price / totalAmount / total_amount
-    */
     const product =
       req.body.product ||
       req.body.product_id ||
@@ -48,10 +42,6 @@ export const createOrder = async (req, res, next) => {
       req.user?.userId ||
       req.user?.id;
 
-    /*
-      This prevents MySQL error:
-      "Bind parameters must not contain undefined"
-    */
     if (!userId) {
       return res.status(401).json({
         error: 'User not authenticated'
@@ -99,6 +89,25 @@ export const createOrder = async (req, res, next) => {
       Number(total_price ?? fifo.lineTotal ?? 0);
 
     const orderId = uuidv4();
+
+    /* =====================================================
+       DEBUG CHECK:
+       This will show in your terminal what values are being
+       sent to MySQL. If one value says undefined, that is the
+       cause of the error.
+    ===================================================== */
+    console.log('ORDER DATA TO SAVE:', {
+      orderId,
+      customer_id: userId,
+      order_date: new Date(),
+      order_status: 'pending',
+      product,
+      quantity,
+      delivery_address,
+      total_amount: lineTotal,
+      total_price: lineTotal,
+      payment: 'pending',
+    });
 
     const order = await createOrderDB({
       orderId,

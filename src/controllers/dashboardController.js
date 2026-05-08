@@ -12,7 +12,9 @@ export const getCustomerDashboard = async (req, res, next) => {
     connection = await pool.getConnection();
 
     const [customerResult] = await connection.execute(
-      `SELECT userId AS id, name, email, phone, address, barangay FROM users WHERE userId = ? AND role = ?`,
+      `SELECT userId AS id, name, email, phone, address, barangay 
+       FROM users 
+       WHERE userId = ? AND role = ?`,
       [userId, 'customer']
     );
 
@@ -62,6 +64,7 @@ export const getCustomerDashboard = async (req, res, next) => {
     const activeOrders = activeRows.map((row) => {
       let status = row.order_status;
       if (row.delivery_status === 'in_transit') status = 'in_transit';
+
       return {
         id: row.id,
         status,
@@ -74,9 +77,15 @@ export const getCustomerDashboard = async (req, res, next) => {
     });
 
     const [recentRows] = await connection.execute(
-      `SELECT orderId AS id, order_status AS status, createdAt,
-       COALESCE(total_amount, total_price) AS total_amount
-       FROM orders WHERE customer_id = ? ORDER BY createdAt DESC LIMIT 5`,
+      `SELECT 
+        orderId AS id,
+        order_status AS status,
+        createdAt,
+        COALESCE(total_amount, total_price) AS total_amount
+       FROM orders 
+       WHERE customer_id = ? 
+       ORDER BY createdAt DESC 
+       LIMIT 5`,
       [userId]
     );
 
@@ -88,7 +97,7 @@ export const getCustomerDashboard = async (req, res, next) => {
 
     const [availableProducts] = await connection.execute(
       `SELECT 
-        wp.id,
+        wp.product_id AS id,
         wp.product_id,
         wp.name,
         wp.description,
@@ -97,7 +106,7 @@ export const getCustomerDashboard = async (req, res, next) => {
       FROM water_products wp
       LEFT JOIN inventories i ON i.product_id = wp.product_id
       WHERE wp.is_active = 1
-      GROUP BY wp.id, wp.product_id, wp.name, wp.description, wp.price`
+      GROUP BY wp.product_id, wp.name, wp.description, wp.price`
     );
 
     res.status(200).json({
@@ -133,7 +142,9 @@ export const getDeliveryDashboard = async (req, res, next) => {
     connection = await pool.getConnection();
 
     const [personnelResult] = await connection.execute(
-      `SELECT userId AS id, name, email, phone FROM users WHERE userId = ? AND role = ?`,
+      `SELECT userId AS id, name, email, phone 
+       FROM users 
+       WHERE userId = ? AND role = ?`,
       [userId, 'delivery']
     );
 
@@ -170,7 +181,6 @@ export const getDeliveryDashboard = async (req, res, next) => {
         d.delivery_status,
         d.createdAt,
         o.orderId,
-        o.total_price,
         COALESCE(o.total_amount, o.total_price) AS total_amount,
         o.delivery_address AS order_address,
         c.name AS customer_name,
@@ -191,6 +201,7 @@ export const getDeliveryDashboard = async (req, res, next) => {
       status: row.delivery_status,
       order: {
         id: row.orderId,
+        total_amount: parseFloat(row.total_amount || 0),
         customer: {
           name: row.customer_name,
           phone: row.customer_phone,
@@ -230,6 +241,7 @@ export const getDeliveryDashboard = async (req, res, next) => {
       status: row.delivery_status,
       order: {
         id: row.orderId,
+        total_amount: parseFloat(row.total_amount || 0),
         customer: {
           name: row.customer_name,
           phone: row.customer_phone,
@@ -269,7 +281,9 @@ export const getAdminDashboard = async (req, res, next) => {
   try {
     connection = await pool.getConnection();
 
-    const [totalUsersResult] = await connection.execute('SELECT COUNT(*) AS count FROM users');
+    const [totalUsersResult] = await connection.execute(
+      'SELECT COUNT(*) AS count FROM users'
+    );
 
     const [customersResult] = await connection.execute(
       "SELECT COUNT(*) AS count FROM users WHERE role = 'customer'"
@@ -279,7 +293,9 @@ export const getAdminDashboard = async (req, res, next) => {
       "SELECT COUNT(*) AS count FROM users WHERE role = 'delivery'"
     );
 
-    const [totalOrdersResult] = await connection.execute('SELECT COUNT(*) AS count FROM orders');
+    const [totalOrdersResult] = await connection.execute(
+      'SELECT COUNT(*) AS count FROM orders'
+    );
 
     const [pendingOrdersResult] = await connection.execute(
       "SELECT COUNT(*) AS count FROM orders WHERE order_status = 'pending'"
@@ -294,17 +310,31 @@ export const getAdminDashboard = async (req, res, next) => {
     );
 
     const [totalRevenueResult] = await connection.execute(
-      "SELECT SUM(total_price) AS total FROM orders WHERE order_status = 'delivered'"
+      "SELECT SUM(COALESCE(total_amount, total_price)) AS total FROM orders WHERE order_status = 'delivered'"
     );
 
-    const [totalDeliveriesResult] = await connection.execute('SELECT COUNT(*) AS count FROM deliveries');
+    const [totalDeliveriesResult] = await connection.execute(
+      'SELECT COUNT(*) AS count FROM deliveries'
+    );
 
     const [successfulDeliveriesResult] = await connection.execute(
       "SELECT COUNT(*) AS count FROM deliveries WHERE delivery_status = 'delivered'"
     );
 
+    const [pendingDeliveriesResult] = await connection.execute(
+      "SELECT COUNT(*) AS count FROM deliveries WHERE delivery_status = 'pending'"
+    );
+
+    const [inTransitDeliveriesResult] = await connection.execute(
+      "SELECT COUNT(*) AS count FROM deliveries WHERE delivery_status = 'in_transit'"
+    );
+
+    const [failedDeliveriesResult] = await connection.execute(
+      "SELECT COUNT(*) AS count FROM deliveries WHERE delivery_status = 'failed'"
+    );
+
     const [todayOrdersResult] = await connection.execute(
-      'SELECT COUNT(*) AS count FROM orders WHERE DATE(order_date) = CURDATE()'
+      'SELECT COUNT(*) AS count FROM orders WHERE DATE(COALESCE(order_date, createdAt)) = CURDATE()'
     );
 
     const [recentOrderRows] = await connection.execute(
@@ -337,7 +367,7 @@ export const getAdminDashboard = async (req, res, next) => {
         u.email,
         u.phone,
         COUNT(o.orderId) AS orderCount,
-        COALESCE(SUM(o.total_price), 0) AS totalSpent
+        COALESCE(SUM(COALESCE(o.total_amount, o.total_price)), 0) AS totalSpent
       FROM users u
       INNER JOIN orders o ON o.customer_id = u.userId
       WHERE u.role = 'customer'
@@ -385,16 +415,19 @@ export const getAdminDashboard = async (req, res, next) => {
 
     const [inventoryRows] = await connection.execute(
       `SELECT 
+        wp.product_id,
         wp.name,
         wp.price,
         COALESCE(SUM(i.quantity_on_hand), 0) AS quantity
       FROM water_products wp
       LEFT JOIN inventories i ON i.product_id = wp.product_id
       WHERE wp.is_active = 1
-      GROUP BY wp.id, wp.name, wp.price`
+      GROUP BY wp.product_id, wp.name, wp.price
+      ORDER BY wp.name ASC`
     );
 
     const inventoryStatus = inventoryRows.map((row) => ({
+      product_id: row.product_id,
       name: row.name,
       price: parseFloat(row.price || 0),
       quantity: Number(row.quantity || 0),
@@ -416,7 +449,10 @@ export const getAdminDashboard = async (req, res, next) => {
     );
 
     const [deliveryStaffRows] = await connection.execute(
-      `SELECT userId AS id, name, email FROM users WHERE role = 'delivery' ORDER BY name ASC`
+      `SELECT userId AS id, name, email 
+       FROM users 
+       WHERE role = 'delivery' 
+       ORDER BY name ASC`
     );
 
     res.status(200).json({
@@ -433,6 +469,9 @@ export const getAdminDashboard = async (req, res, next) => {
           totalRevenue: parseFloat(totalRevenueResult[0].total || 0).toFixed(2),
           totalDeliveries: totalDeliveriesResult[0].count,
           successfulDeliveries: successfulDeliveriesResult[0].count,
+          pendingDeliveries: pendingDeliveriesResult[0].count,
+          inTransitDeliveries: inTransitDeliveriesResult[0].count,
+          failedDeliveries: failedDeliveriesResult[0].count,
           todayOrders: todayOrdersResult[0].count,
         },
         recentOrders,
@@ -465,7 +504,14 @@ export const updateDeliveryStatus = async (req, res, next) => {
       status = 'delivered';
     }
 
-    const validStatuses = ['pending', 'in_transit', 'delivered', 'cancelled', 'failed', 'rescheduled'];
+    const validStatuses = [
+      'pending',
+      'in_transit',
+      'delivered',
+      'cancelled',
+      'failed',
+      'rescheduled',
+    ];
 
     if (!validStatuses.includes(status)) {
       throw new AppError('Invalid delivery status', 400);
@@ -485,27 +531,35 @@ export const updateDeliveryStatus = async (req, res, next) => {
     const deliveryRow = deliveryResult[0];
     const orderId = deliveryRow.order_id;
 
-    await connection.execute('UPDATE deliveries SET delivery_status = ?, updatedAt = NOW() WHERE id = ?', [
-      status,
-      deliveryId,
-    ]);
+    await connection.execute(
+      'UPDATE deliveries SET delivery_status = ?, updatedAt = NOW() WHERE id = ?',
+      [status, deliveryId]
+    );
 
     if (status === 'delivered') {
-      await connection.execute('UPDATE deliveries SET delivered_date = NOW() WHERE id = ?', [deliveryId]);
+      await connection.execute(
+        'UPDATE deliveries SET delivered_date = NOW() WHERE id = ?',
+        [deliveryId]
+      );
 
       await connection.execute(
-        `UPDATE orders SET order_status = 'delivered', payment = 'paid', updatedAt = NOW() WHERE orderId = ?`,
+        `UPDATE orders 
+         SET order_status = 'delivered', payment = 'paid', updatedAt = NOW() 
+         WHERE orderId = ?`,
         [orderId]
       );
 
       await connection.execute(
-        `UPDATE payments SET payment_status = 'completed', paid_at = NOW(), updatedAt = NOW()
+        `UPDATE payments 
+         SET payment_status = 'completed', paid_at = NOW(), updatedAt = NOW()
          WHERE order_id = ? AND payment_method IN ('COD', 'cash_on_delivery')`,
         [orderId]
       );
     } else if (status === 'in_transit') {
       await connection.execute(
-        `UPDATE orders SET order_status = 'confirmed', updatedAt = NOW() WHERE orderId = ? AND order_status = 'pending'`,
+        `UPDATE orders 
+         SET order_status = 'confirmed', updatedAt = NOW() 
+         WHERE orderId = ? AND order_status = 'pending'`,
         [orderId]
       );
     }

@@ -2,115 +2,214 @@ import pool from '../config/database.js';
 
 // Create water product
 export const createWaterProduct = async (productData) => {
-  const { product_id, name, description, container_sizes, price, is_active } = productData;
+  const {
+    product_id,
+    name,
+    description,
+    container_sizes,
+    price,
+    is_active,
+  } = productData;
+
+  let connection;
+
   try {
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
+
     const query = `
-      INSERT INTO water_products (product_id, name, description, container_sizes, price, is_active, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
+      INSERT INTO water_products
+      (product_id, name, description, container_sizes, price, is_active)
+      VALUES (?, ?, ?, ?, ?, ?)
     `;
+
     const [result] = await connection.execute(query, [
-      product_id, name, description, 
-      typeof container_sizes === 'string' ? container_sizes : JSON.stringify(container_sizes),
-      price, is_active !== false
+      product_id,
+      name,
+      description,
+      typeof container_sizes === 'string'
+        ? container_sizes
+        : JSON.stringify(container_sizes),
+      price,
+      is_active !== false,
     ]);
-    connection.release();
-    return { id: result.insertId, ...productData };
+
+    return {
+      insertId: result.insertId,
+      ...productData,
+    };
   } catch (error) {
     throw error;
+  } finally {
+    if (connection) connection.release();
   }
 };
 
-// Find product by ID
-export const findProductById = async (id) => {
-  try {
-    const connection = await pool.getConnection();
-    const query = 'SELECT * FROM water_products WHERE id = ?';
-    const [rows] = await connection.execute(query, [id]);
-    connection.release();
-    return rows.length > 0 ? rows[0] : null;
-  } catch (error) {
-    throw error;
-  }
-};
+// Find product by product_id
+export const findProductById = async (productId) => {
+  let connection;
 
-// Find product by product ID
-export const findProductByProductId = async (productId) => {
   try {
-    const connection = await pool.getConnection();
-    const query = 'SELECT * FROM water_products WHERE product_id = ?';
+    connection = await pool.getConnection();
+
+    const query = `
+      SELECT *
+      FROM water_products
+      WHERE product_id = ?
+      LIMIT 1
+    `;
+
     const [rows] = await connection.execute(query, [productId]);
-    connection.release();
+
     return rows.length > 0 ? rows[0] : null;
   } catch (error) {
     throw error;
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+// Find product by product_id
+export const findProductByProductId = async (productId) => {
+  let connection;
+
+  try {
+    connection = await pool.getConnection();
+
+    const query = `
+      SELECT *
+      FROM water_products
+      WHERE product_id = ?
+      LIMIT 1
+    `;
+
+    const [rows] = await connection.execute(query, [productId]);
+
+    return rows.length > 0 ? rows[0] : null;
+  } catch (error) {
+    throw error;
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 // Get all active products
 export const getAllActiveProducts = async () => {
+  let connection;
+
   try {
-    const connection = await pool.getConnection();
-    const query = 'SELECT * FROM water_products WHERE is_active = true';
+    connection = await pool.getConnection();
+
+    const query = `
+      SELECT *
+      FROM water_products
+      WHERE is_active = true
+    `;
+
     const [rows] = await connection.execute(query);
-    connection.release();
+
     return rows;
   } catch (error) {
     throw error;
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 // Get all products
 export const getAllProducts = async () => {
+  let connection;
+
   try {
-    const connection = await pool.getConnection();
-    const query = 'SELECT * FROM water_products';
+    connection = await pool.getConnection();
+
+    const query = `
+      SELECT *
+      FROM water_products
+      ORDER BY name ASC
+    `;
+
     const [rows] = await connection.execute(query);
-    connection.release();
+
     return rows;
   } catch (error) {
     throw error;
+  } finally {
+    if (connection) connection.release();
   }
 };
 
-// Update product
-export const updateProduct = async (id, updateData) => {
+// Update product using product_id
+export const updateProduct = async (productId, updateData) => {
+  let connection;
+
   try {
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
+
+    const allowedFields = [
+      'name',
+      'description',
+      'container_sizes',
+      'price',
+      'is_active',
+    ];
+
     const fields = [];
     const values = [];
-    
+
     for (const [key, value] of Object.entries(updateData)) {
-      if (key === 'container_sizes' && typeof value === 'object') {
+      if (!allowedFields.includes(key)) continue;
+
+      if (key === 'container_sizes') {
         fields.push(`${key} = ?`);
-        values.push(JSON.stringify(value));
+        values.push(
+          typeof value === 'string' ? value : JSON.stringify(value)
+        );
       } else {
         fields.push(`${key} = ?`);
         values.push(value);
       }
     }
-    
-    fields.push('updatedAt = NOW()');
-    values.push(id);
-    
-    const query = `UPDATE water_products SET ${fields.join(', ')} WHERE id = ?`;
+
+    if (fields.length === 0) {
+      return false;
+    }
+
+    values.push(productId);
+
+    const query = `
+      UPDATE water_products
+      SET ${fields.join(', ')}
+      WHERE product_id = ?
+    `;
+
     const [result] = await connection.execute(query, values);
-    connection.release();
+
     return result.affectedRows > 0;
   } catch (error) {
     throw error;
+  } finally {
+    if (connection) connection.release();
   }
 };
 
-// Delete product
-export const deleteProduct = async (id) => {
+// Delete product using product_id
+export const deleteProduct = async (productId) => {
+  let connection;
+
   try {
-    const connection = await pool.getConnection();
-    const query = 'DELETE FROM water_products WHERE id = ?';
-    const [result] = await connection.execute(query, [id]);
-    connection.release();
+    connection = await pool.getConnection();
+
+    const query = `
+      DELETE FROM water_products
+      WHERE product_id = ?
+    `;
+
+    const [result] = await connection.execute(query, [productId]);
+
     return result.affectedRows > 0;
   } catch (error) {
     throw error;
+  } finally {
+    if (connection) connection.release();
   }
 };

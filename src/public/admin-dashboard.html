@@ -1,893 +1,490 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <!-- =========================================================
-     META / PAGE SETTINGS
+     HEAD SECTION: Page settings, title, and CSS styles
 ========================================================= -->
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-<!-- Page Title -->
 <title>Admin Dashboard - Water Station</title>
 
 <style>
 
 /* =========================================================
-   ROOT VARIABLES / GLOBAL COLORS
+   CSS SECTION: Design, layout, sidebar, tables, cards, and responsiveness
 ========================================================= */
+
+/* Root variables: reusable colors, shadows, and radius values */
 :root {
-  --primary:#0ea5e9;
-  --primary-dark:#0369a1;
-  --secondary:#14b8a6;
-  --dark:#0f172a;
-  --muted:#64748b;
-  --light:#f8fafc;
-  --border:#e2e8f0;
-  --success:#16a34a;
-  --warning:#f59e0b;
-  --danger:#dc2626;
-  --shadow-sm:0 4px 14px rgba(15,23,42,.08);
-  --shadow-md:0 12px 30px rgba(15,23,42,.12);
-  --radius:18px;
-}
-
-/* =========================================================
-   GLOBAL RESET
-========================================================= */
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box
-}
-
-/* =========================================================
-   BODY / MAIN BACKGROUND
-========================================================= */
-body{
-  font-family:"Segoe UI",Tahoma,Verdana,sans-serif;
-  background:
-  radial-gradient(circle at top left,rgba(14,165,233,.18),transparent 32%),
-  radial-gradient(circle at top right,rgba(20,184,166,.16),transparent 32%),
-  #f8fafc;
-
-  color:var(--dark);
-  min-height:100vh
-}
-
-/* =========================================================
-   MAIN LAYOUT GRID
-========================================================= */
-.layout{
-  display:grid;
-  grid-template-columns:270px 1fr;
-  min-height:100vh
-}
-
-/* =========================================================
-   SIDEBAR SECTION
-========================================================= */
-.sidebar{
-  background:#0f172a;
-  color:white;
-  padding:24px 18px;
-  position:sticky;
-  top:0;
-  height:100vh
-}
-
-/* =========================================================
-   BRAND / LOGO AREA
-========================================================= */
-.brand{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  margin-bottom:28px;
-  padding:0 8px
-}
-
-.brand-icon{
-  width:44px;
-  height:44px;
-  display:grid;
-  place-items:center;
-  border-radius:15px;
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
-  font-size:23px
-}
-
-.brand h2{
-  font-size:18px
-}
-
-.brand p{
-  color:#94a3b8;
-  font-size:12px
-}
-
-/* =========================================================
-   SIDEBAR NAVIGATION BUTTONS
-========================================================= */
-.nav-menu{
-  display:grid;
-  gap:8px
-}
-
-.nav-menu button{
-  color:#cbd5e1;
-  background:none;
-  border:none;
-  text-align:left;
-  padding:12px 14px;
-  border-radius:14px;
-  font-weight:700;
-  font-size:14px;
-  cursor:pointer
-}
-
-/* Active & Hover Effect */
-.nav-menu button:hover,
-.nav-menu button.active{
-  background:rgba(14,165,233,.16);
-  color:white
-}
-
-/* =========================================================
-   SIDEBAR FOOTER / LOGOUT
-========================================================= */
-.sidebar-footer{
-  position:absolute;
-  left:18px;
-  right:18px;
-  bottom:22px
-}
-
-/* Logout Button */
-.logout-btn{
-  width:100%;
-  background:rgba(220,38,38,.12);
-  color:#fecaca;
-  border:1px solid rgba(248,113,113,.35);
-  padding:12px 18px;
-  border-radius:14px;
-  cursor:pointer;
-  font-weight:800
-}
-
-.logout-btn:hover{
-  background:var(--danger);
-  color:white
-}
-
-/* =========================================================
-   MAIN CONTENT AREA
-========================================================= */
-.main{
-  padding:26px;
-  overflow-x:hidden
-}
-
-/* =========================================================
-   TOP HEADER / TOPBAR
-========================================================= */
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:rgba(255,255,255,.9);
-  border:1px solid var(--border);
-  border-radius:24px;
-  padding:22px 26px;
-  box-shadow:var(--shadow-sm);
-  margin-bottom:24px
-}
-
-.topbar h1{
-  font-size:28px;
-  color:#082f49
-}
-
-.topbar p{
-  color:var(--muted);
-  font-size:14px;
-  margin-top:4px
-}
-
-/* =========================================================
-   GLOBAL BUTTON STYLES
-========================================================= */
-.refresh-btn,
-.save-btn,
-.assign-btn,
-.cancel-btn{
-  border:none;
-  border-radius:999px;
-  font-weight:900;
-  cursor:pointer
-}
-
-/* Refresh Dashboard Button */
-.refresh-btn{
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
-  color:white;
-  padding:12px 18px
-}
-
-/* =========================================================
-   LAST UPDATED TEXT
-========================================================= */
-.last-updated{
-  font-size:12px;
-  color:var(--muted);
-  text-align:right;
-  margin-top:6px
-}
-
-/* =========================================================
-   PAGE VISIBILITY SYSTEM
-========================================================= */
-.page{
-  display:none
-}
-
-.page.active{
-  display:block
-}
-
-/* =========================================================
-   DASHBOARD STATISTICS GRID
-========================================================= */
-.stats-grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(160px,1fr));
-  gap:18px;
-  margin-bottom:24px
-}
-
-/* Statistic Cards */
-.stat-card{
-  background:white;
-  padding:20px;
-  border-radius:var(--radius);
-  border:1px solid var(--border);
-  box-shadow:var(--shadow-sm);
-  position:relative;
-  overflow:hidden
-}
-
-/* Colored top line */
-.stat-card::before{
-  content:"";
-  position:absolute;
-  inset:0 0 auto 0;
-  height:4px;
-  background:linear-gradient(90deg,var(--primary),var(--secondary))
-}
-
-/* Icon */
-.stat-icon{
-  font-size:26px;
-  margin-bottom:10px
-}
-
-/* Label */
-.stat-label{
-  color:var(--muted);
-  font-size:12px;
-  text-transform:uppercase;
-  font-weight:900
-}
-
-/* Number */
-.stat-number{
-  font-size:30px;
-  font-weight:900;
-  color:#082f49;
-  margin-top:6px
-}
-
-/* =========================================================
-   GENERIC SECTION CARD
-========================================================= */
-.section{
-  background:white;
-  padding:24px;
-  border-radius:24px;
-  border:1px solid var(--border);
-  box-shadow:var(--shadow-sm);
-  margin-bottom:24px
-}
-
-/* Section Header */
-.section-header{
-  margin-bottom:18px;
-  border-bottom:1px solid var(--border);
-  padding-bottom:14px
-}
-
-.section h2{
-  font-size:20px;
-  color:#082f49
-}
-
-.section-desc{
-  color:var(--muted);
-  font-size:14px;
-  margin-top:4px
-}
-
-/* =========================================================
-   2 COLUMN GRID LAYOUT
-========================================================= */
-.grid-2{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(280px,1fr));
-  gap:20px
-}
-
-/* =========================================================
-   CHART BOXES
-========================================================= */
-.chart-box{
-  background:var(--light);
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:18px
-}
-
-.chart-title{
-  font-weight:900;
-  margin-bottom:12px
-}
-
-.chart-container{
-  height:300px
-}
-
-/* =========================================================
-   TABLE STYLES
-========================================================= */
-.table-wrap{
-  width:100%;
-  overflow-x:auto;
-  border:1px solid var(--border);
-  border-radius:16px
-}
-
-.table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:760px
-}
-
-/* Table Headers */
-.table th{
-  background:#f1f5f9;
-  padding:13px 14px;
-  text-align:left;
-  color:#334155;
-  font-weight:900;
-  font-size:13px
-}
-
-/* Table Cells */
-.table td{
-  padding:13px 14px;
-  border-top:1px solid var(--border);
-  font-size:14px
-}
-
-/* =========================================================
-   STATUS BADGES
-========================================================= */
-.badge{
-  display:inline-flex;
-  padding:6px 11px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900
-}
-
-.badge-success{
-  background:#dcfce7;
-  color:#166534
-}
-
-.badge-warning{
-  background:#fef3c7;
-  color:#92400e
-}
-
-.badge-danger{
-  background:#fee2e2;
-  color:#991b1b
-}
-
-.badge-info{
-  background:#e0f2fe;
-  color:#075985
-}
-
-.badge-muted{
-  background:#e2e8f0;
-  color:#475569
-}
-
-/* =========================================================
-   EMPTY / ERROR / NOTICE STATES
-========================================================= */
-.empty-card,
-.empty-message{
-  text-align:center;
-  color:var(--muted);
-  padding:28px
-}
-
-.empty-card{
-  background:#f8fafc;
-  border:1px dashed #cbd5e1;
-  border-radius:18px
-}
-
-/* Error Message */
-.error{
-  background:#fee2e2;
-  color:#991b1b;
-  padding:14px 16px;
-  border-radius:16px;
-  margin-bottom:18px;
-  border:1px solid #fecaca;
-  font-weight:700
-}
-
-/* Notice Message */
-.notice{
-  background:#e0f2fe;
-  color:#075985;
-  padding:14px 16px;
-  border-radius:16px;
-  margin-bottom:18px;
-  border:1px solid #bae6fd;
-  font-weight:700
-}
-
-/* =========================================================
-   INVENTORY SECTION
-========================================================= */
-.inventory-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(290px,1fr));
-  gap:14px
-}
-
-/* Inventory Card */
-.inventory-card{
-  background:#f8fafc;
-  padding:16px;
-  border-radius:18px;
-  border:1px solid var(--border)
-}
-
-/* Product Name */
-.inventory-name{
-  font-weight:900;
-  color:#334155
-}
-
-/* Product Price */
-.inventory-price{
-  color:var(--muted);
-  font-size:13px;
-  margin-top:3px
-}
-
-/* Inventory Form */
-.inventory-form{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:10px;
-  margin-top:14px
-}
-
-/* Quantity Input */
-.inventory-form input{
-  padding:11px;
-  border:1px solid #cbd5e1;
-  border-radius:12px;
-  font-size:15px
-}
-
-/* Save Inventory Button */
-.save-btn{
-  background:#dcfce7;
-  color:#166534;
-  padding:10px 14px
-}
-
-.save-btn:hover{
-  background:var(--success);
-  color:white
-}
-
-/* Assign Delivery Button */
-.assign-btn{
-  background:#e0f2fe;
-  color:#075985;
-  padding:8px 12px
-}
-
-.assign-btn:hover{
-  background:var(--primary);
-  color:white
-}
-
-/* Cancel Order Button */
-.cancel-btn{
-  background:#fee2e2;
-  color:#991b1b;
-  padding:8px 12px
-}
-
-.cancel-btn:hover{
-  background:var(--danger);
-  color:white
-}
-
-/* Delivery Staff Dropdown */
-.select-staff{
-  padding:9px;
-  border-radius:12px;
-  border:1px solid #cbd5e1
-}
-
-/* Low Stock State */
-.stock-low{
-  background:#fffbeb;
-  border-color:#fde68a
-}
-
-/* Out of Stock State */
-.stock-out{
-  background:#fef2f2;
-  border-color:#fecaca
-}
-
-/* =========================================================
-   RESPONSIVE DESIGN
-========================================================= */
-@media(max-width:1100px){
-
-  .layout{
-    grid-template-columns:1fr
-  }
-
-  .sidebar{
-    position:relative;
-    height:auto
-  }
-
-  .sidebar-footer{
-    position:static;
-    margin-top:18px
-  }
-
-  .nav-menu{
-    grid-template-columns:repeat(auto-fit,minmax(150px,1fr))
-  }
-
-  .stats-grid{
-    grid-template-columns:repeat(2,1fr)
-  }
-
-  .grid-2{
-    grid-template-columns:1fr
-  }
-}
-
-@media(max-width:650px){
-
-  .main{
-    padding:16px
-  }
-
-  .topbar{
-    flex-direction:column;
-    align-items:stretch
-  }
-
-  .stats-grid{
-    grid-template-columns:1fr
-  }
-
-  .section{
-    padding:18px
-  }
-}
-
+  --primary:#0ea5e9;--primary-dark:#0369a1;--secondary:#14b8a6;--dark:#0f172a;
+  --muted:#64748b;--light:#f8fafc;--border:#e2e8f0;--success:#16a34a;
+  --warning:#f59e0b;--danger:#dc2626;--shadow-sm:0 4px 14px rgba(15,23,42,.08);
+  --shadow-md:0 12px 30px rgba(15,23,42,.12);--radius:18px;
+}
+
+/* Global reset */
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* Body background and font */
+body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient(circle at top left,rgba(14,165,233,.18),transparent 32%),radial-gradient(circle at top right,rgba(20,184,166,.16),transparent 32%),#f8fafc;color:var(--dark);min-height:100vh}
+
+/* Main layout with sidebar and content */
+.layout{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
+
+/* Sidebar area */
+.sidebar{background:#0f172a;color:white;padding:24px 18px;position:sticky;top:0;height:100vh}
+
+/* Brand/logo section */
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:28px;padding:0 8px}
+.brand-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(135deg,var(--primary),var(--secondary));font-size:23px}
+.brand h2{font-size:18px}.brand p{color:#94a3b8;font-size:12px}
+
+/* Sidebar navigation menu */
+.nav-menu{display:grid;gap:8px}
+.nav-menu button{color:#cbd5e1;background:none;border:none;text-align:left;padding:12px 14px;border-radius:14px;font-weight:700;font-size:14px;cursor:pointer}
+.nav-menu button:hover,.nav-menu button.active{background:rgba(14,165,233,.16);color:white}
+
+/* Sidebar footer/logout area */
+.sidebar-footer{position:absolute;left:18px;right:18px;bottom:22px}
+.logout-btn{width:100%;background:rgba(220,38,38,.12);color:#fecaca;border:1px solid rgba(248,113,113,.35);padding:12px 18px;border-radius:14px;cursor:pointer;font-weight:800}
+.logout-btn:hover{background:var(--danger);color:white}
+
+/* Main content area */
+.main{padding:26px;overflow-x:hidden}
+
+/* Topbar header */
+.topbar{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:24px;padding:22px 26px;box-shadow:var(--shadow-sm);margin-bottom:24px}
+.topbar h1{font-size:28px;color:#082f49}.topbar p{color:var(--muted);font-size:14px;margin-top:4px}
+
+/* Buttons */
+.refresh-btn,.save-btn,.assign-btn,.cancel-btn{border:none;border-radius:999px;font-weight:900;cursor:pointer}
+.refresh-btn{background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;padding:12px 18px}
+
+/* Last updated text */
+.last-updated{font-size:12px;color:var(--muted);text-align:right;margin-top:6px}
+
+/* Page switching */
+.page{display:none}.page.active{display:block}
+
+/* Dashboard statistic cards */
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:18px;margin-bottom:24px}
+.stat-card{background:white;padding:20px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.stat-card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--primary),var(--secondary))}
+.stat-icon{font-size:26px;margin-bottom:10px}.stat-label{color:var(--muted);font-size:12px;text-transform:uppercase;font-weight:900}.stat-number{font-size:30px;font-weight:900;color:#082f49;margin-top:6px}
+
+/* Section containers */
+.section{background:white;padding:24px;border-radius:24px;border:1px solid var(--border);box-shadow:var(--shadow-sm);margin-bottom:24px}
+.section-header{margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:14px}
+.section h2{font-size:20px;color:#082f49}.section-desc{color:var(--muted);font-size:14px;margin-top:4px}
+
+/* Chart layout */
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:20px}
+.chart-box{background:var(--light);border:1px solid var(--border);border-radius:18px;padding:18px}.chart-title{font-weight:900;margin-bottom:12px}.chart-container{height:300px}
+
+/* Tables */
+.table-wrap{width:100%;overflow-x:auto;border:1px solid var(--border);border-radius:16px}.table{width:100%;border-collapse:collapse;min-width:760px}
+.table th{background:#f1f5f9;padding:13px 14px;text-align:left;color:#334155;font-weight:900;font-size:13px}.table td{padding:13px 14px;border-top:1px solid var(--border);font-size:14px}
+
+/* Badges */
+.badge{display:inline-flex;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:900}.badge-success{background:#dcfce7;color:#166534}.badge-warning{background:#fef3c7;color:#92400e}.badge-danger{background:#fee2e2;color:#991b1b}.badge-info{background:#e0f2fe;color:#075985}.badge-muted{background:#e2e8f0;color:#475569}
+
+/* Empty, error, and notice states */
+.empty-card,.empty-message{text-align:center;color:var(--muted);padding:28px}.empty-card{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:18px}
+.error{background:#fee2e2;color:#991b1b;padding:14px 16px;border-radius:16px;margin-bottom:18px;border:1px solid #fecaca;font-weight:700}.notice{background:#e0f2fe;color:#075985;padding:14px 16px;border-radius:16px;margin-bottom:18px;border:1px solid #bae6fd;font-weight:700}
+
+/* Inventory section */
+.inventory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}.inventory-card{background:#f8fafc;padding:16px;border-radius:18px;border:1px solid var(--border)}
+.inventory-name{font-weight:900;color:#334155}.inventory-price{color:var(--muted);font-size:13px;margin-top:3px}
+.inventory-form{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px}.inventory-form input{padding:11px;border:1px solid #cbd5e1;border-radius:12px;font-size:15px}
+.save-btn{background:#dcfce7;color:#166534;padding:10px 14px}.save-btn:hover{background:var(--success);color:white}
+.assign-btn{background:#e0f2fe;color:#075985;padding:8px 12px}.assign-btn:hover{background:var(--primary);color:white}
+.cancel-btn{background:#fee2e2;color:#991b1b;padding:8px 12px}.cancel-btn:hover{background:var(--danger);color:white}
+.select-staff{padding:9px;border-radius:12px;border:1px solid #cbd5e1}
+.stock-low{background:#fffbeb;border-color:#fde68a}.stock-out{background:#fef2f2;border-color:#fecaca}
+
+/* Responsive design */
+@media(max-width:1100px){.layout{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.sidebar-footer{position:static;margin-top:18px}.nav-menu{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.stats-grid{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}}
+@media(max-width:650px){.main{padding:16px}.topbar{flex-direction:column;align-items:stretch}.stats-grid{grid-template-columns:1fr}.section{padding:18px}}
 </style>
 </head>
 
 <body>
 
-<!-- =========================================================
-     MAIN LAYOUT CONTAINER
-========================================================= -->
+<!-- Main layout wrapper -->
 <div class="layout">
 
-<!-- =========================================================
-     SIDEBAR NAVIGATION
-========================================================= -->
+<!-- Sidebar section -->
 <aside class="sidebar">
 
-  <!-- Brand / Logo -->
-  <div class="brand">
-    <div class="brand-icon">💧</div>
+  <!-- Brand/logo -->
+  <div class="brand"><div class="brand-icon">💧</div><div><h2>Water Station</h2><p>Admin Dashboard</p></div></div>
 
-    <div>
-      <h2>Water Station</h2>
-      <p>Admin Dashboard</p>
-    </div>
-  </div>
-
-  <!-- Navigation Buttons -->
+  <!-- Sidebar navigation buttons -->
   <div class="nav-menu">
-
-    <button class="active" data-page="overviewPage">
-      📊 Overview
-    </button>
-
-    <button data-page="ordersPage">
-      📑 Orders
-    </button>
-
-    <button data-page="assignPage">
-      📌 Assign Delivery
-    </button>
-
-    <button data-page="inventoryPage">
-      📦 Inventory
-    </button>
-
-    <button data-page="customersPage">
-      ⭐ Customers
-    </button>
-
-    <button data-page="deliveryPage">
-      🚚 Delivery Staff
-    </button>
-
+    <button class="active" data-page="overviewPage">📊 Overview</button>
+    <button data-page="ordersPage">📑 Orders</button>
+    <button data-page="assignPage">📌 Assign Delivery</button>
+    <button data-page="inventoryPage">📦 Inventory</button>
+    <button data-page="customersPage">⭐ Customers</button>
+    <button data-page="deliveryPage">🚚 Delivery Staff</button>
   </div>
 
-  <!-- Logout Area -->
-  <div class="sidebar-footer">
-    <button class="logout-btn" onclick="logout()">
-      Logout
-    </button>
-  </div>
-
+  <!-- Logout button -->
+  <div class="sidebar-footer"><button class="logout-btn" onclick="logout()">Logout</button></div>
 </aside>
 
-<!-- =========================================================
-     MAIN CONTENT AREA
-========================================================= -->
+<!-- Main dashboard content -->
 <main class="main">
 
-<!-- =========================================================
-     TOP HEADER SECTION
-========================================================= -->
+<!-- Topbar -->
 <header class="topbar">
-
-  <!-- Page Title -->
-  <div>
-    <h1 id="pageTitle">Overview</h1>
-
-    <p id="pageSubtitle">
-      System summary and real-time records.
-    </p>
-  </div>
-
-  <!-- Refresh Button -->
-  <div>
-
-    <button
-      class="refresh-btn"
-      id="refreshBtn"
-      onclick="loadDashboard()"
-    >
-      Refresh Data
-    </button>
-
-    <!-- Last Update Timestamp -->
-    <div class="last-updated" id="lastUpdated">
-      Not updated yet
-    </div>
-
-  </div>
+  <div><h1 id="pageTitle">Overview</h1><p id="pageSubtitle">System summary and real-time records.</p></div>
+  <div><button class="refresh-btn" id="refreshBtn" onclick="loadDashboard()">Refresh Data</button><div class="last-updated" id="lastUpdated">Not updated yet</div></div>
 </header>
 
-<!-- Error Messages -->
+<!-- Error and notice message containers -->
 <div id="errorContainer"></div>
-
-<!-- Notice Messages -->
 <div id="noticeContainer"></div>
 
-<!-- =========================================================
-     OVERVIEW PAGE
-========================================================= -->
+<!-- Overview page -->
 <section id="overviewPage" class="page active">
 
-  <!-- Statistics Cards -->
+  <!-- Statistic cards -->
   <div class="stats-grid">
-
-    <div class="stat-card">
-      <div class="stat-icon">👥</div>
-      <div class="stat-label">Total Users</div>
-      <div class="stat-number" id="totalUsers">0</div>
-    </div>
-
+    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total Users</div><div class="stat-number" id="totalUsers">0</div></div>
+    <div class="stat-card"><div class="stat-icon">🛍️</div><div class="stat-label">Total Orders</div><div class="stat-number" id="totalOrders">0</div></div>
+    <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Revenue</div><div class="stat-number" id="totalRevenue">₱0.00</div></div>
+    <div class="stat-card"><div class="stat-icon">🚚</div><div class="stat-label">Deliveries</div><div class="stat-number" id="totalDeliveries">0</div></div>
+    <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-label">Pending</div><div class="stat-number" id="pendingOrders">0</div></div>
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-label">Completed</div><div class="stat-number" id="completedOrders">0</div></div>
+    <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-label">Today</div><div class="stat-number" id="todayOrders">0</div></div>
+    <div class="stat-card"><div class="stat-icon">👤</div><div class="stat-label">Customers</div><div class="stat-number" id="totalCustomers">0</div></div>
   </div>
 
+  <!-- Overview charts -->
+  <section class="section">
+    <div class="section-header"><h2>📈 Overview Charts</h2><p class="section-desc">Charts are based on actual order and delivery records.</p></div>
+    <div class="grid-2">
+      <div class="chart-box"><div class="chart-title">Order Status</div><div class="chart-container"><canvas id="ordersChart"></canvas></div></div>
+      <div class="chart-box"><div class="chart-title">Delivery Status</div><div class="chart-container"><canvas id="deliveryChart"></canvas></div></div>
+    </div>
+  </section>
 </section>
 
-<!-- =========================================================
-     JAVASCRIPT LIBRARY
-========================================================= -->
+<!-- Orders page -->
+<section id="ordersPage" class="page">
+  <section class="section">
+    <div class="section-header"><h2>📑 Manage Orders</h2><p class="section-desc">View and cancel orders before delivery starts.</p></div>
+    <div id="manageOrdersContainer"><div class="empty-card"><strong>No orders found.</strong> Customer orders will appear here.</div></div>
+  </section>
+
+  <section class="section">
+    <div class="section-header"><h2>📋 Recent Orders</h2></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody id="recentOrdersTable"><tr><td colspan="5" class="empty-message">No recent orders yet.</td></tr></tbody></table></div>
+  </section>
+</section>
+
+<!-- Assign delivery page -->
+<section id="assignPage" class="page">
+  <section class="section">
+    <div class="section-header"><h2>📌 Assign Delivery Personnel</h2><p class="section-desc">Select delivery personnel for unassigned deliveries.</p></div>
+    <div id="assignDeliveriesContainer"><div class="empty-card"><strong>No unassigned deliveries.</strong> Orders waiting for delivery assignment will appear here.</div></div>
+  </section>
+</section>
+
+<!-- Inventory page -->
+<section id="inventoryPage" class="page">
+  <section class="section">
+    <div class="section-header"><h2>📦 Edit Gallon Inventory</h2><p class="section-desc">Update how many gallons/containers are available.</p></div>
+    <div id="inventoryContainer"><div class="empty-card"><strong>No inventory shown yet.</strong> Seed or add inventory items first.</div></div>
+  </section>
+</section>
+
+<!-- Customers page -->
+<section id="customersPage" class="page">
+  <section class="section">
+    <div class="section-header"><h2>⭐ Top Customers</h2></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Total Spent</th></tr></thead><tbody id="topCustomersTable"><tr><td colspan="5" class="empty-message">No customer order data yet.</td></tr></tbody></table></div>
+  </section>
+</section>
+
+<!-- Delivery staff page -->
+<section id="deliveryPage" class="page">
+  <section class="section">
+    <div class="section-header"><h2>🚚 Delivery Performance</h2></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Assignments</th><th>Completed</th><th>Success Rate</th></tr></thead><tbody id="deliveryPerformanceTable"><tr><td colspan="6" class="empty-message">No delivery performance data yet.</td></tr></tbody></table></div>
+  </section>
+</section>
+</main>
+</div>
+
+<!-- Chart.js library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 
-/* =========================================================
-   GLOBAL VARIABLES
-========================================================= */
+/* API URL */
+const API_URL = window.location.origin && window.location.origin !== 'null' ? window.location.origin : '';
 
-/* Detect current API URL */
-const API_URL =
-window.location.origin &&
-window.location.origin !== 'null'
-? window.location.origin
-: '';
-
-/* Get stored login token */
+/* Login token */
 const token = localStorage.getItem('token');
 
-/* Chart Variables */
+/* Chart instances */
 let ordersChart, deliveryChart;
 
-/* =========================================================
-   LOGIN VALIDATION
-========================================================= */
+/* Redirect if not logged in */
+if (!token) window.location.href = '/index.html';
 
-/* Redirect user if no token exists */
-if (!token)
-window.location.href = '/index.html';
-
-/* =========================================================
-   SIDEBAR NAVIGATION SYSTEM
-========================================================= */
-
-/* Handle sidebar button clicks */
-document.querySelectorAll('.nav-menu button')
-.forEach(btn => {
-
+/* Sidebar navigation page switching */
+document.querySelectorAll('.nav-menu button').forEach(btn => {
   btn.addEventListener('click', () => {
-
-    /* Remove active class from all buttons */
-    document.querySelectorAll('.nav-menu button')
-    .forEach(b => b.classList.remove('active'));
-
-    /* Hide all pages */
-    document.querySelectorAll('.page')
-    .forEach(p => p.classList.remove('active'));
-
-    /* Activate selected button */
+    document.querySelectorAll('.nav-menu button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
-
-    /* Show selected page */
-    document
-    .getElementById(btn.dataset.page)
-    .classList.add('active');
-
-    /* Update page title */
-    document.getElementById('pageTitle')
-    .textContent =
-    btn.textContent.replace(/[^\w\s]/g, '').trim();
-
+    document.getElementById(btn.dataset.page).classList.add('active');
+    document.getElementById('pageTitle').textContent = btn.textContent.replace(/[^\w\s]/g, '').trim();
   });
-
 });
 
-/* =========================================================
-   LOAD DASHBOARD DATA
-========================================================= */
+/* Loads all dashboard data */
+async function loadDashboard() {
+  setRefreshing(true); clearError(); clearNotice();
+  try {
+    const dashboardRes = await fetch(`${API_URL}/dashboard/admin`, { headers:{Authorization:`Bearer ${token}`} });
+    const dashboardBody = await dashboardRes.json().catch(()=>({}));
+    if (!dashboardRes.ok) throw new Error(dashboardBody.error || dashboardBody.message || 'Failed to load dashboard');
 
-async function loadDashboard(){
-
-  /* Disable refresh button while loading */
-  setRefreshing(true);
-
-  /* Clear messages */
-  clearError();
-  clearNotice();
-
-  try{
-
-    /* Fetch dashboard data */
-    const dashboardRes = await fetch(
-      `${API_URL}/dashboard/admin`,
-      {
-        headers:{
-          Authorization:`Bearer ${token}`
-        }
-      }
-    );
-
-    /* Convert response to JSON */
-    const dashboardBody =
-    await dashboardRes.json().catch(()=>({}));
-
-    /* Check for errors */
-    if(!dashboardRes.ok)
-      throw new Error(
-        dashboardBody.error ||
-        dashboardBody.message ||
-        'Failed to load dashboard'
-      );
-
-    /* Get order data */
     const orders = await getAdminOrders();
-
-    /* Display dashboard */
-    displayDashboard(
-      dashboardBody.data || {},
-      orders
-    );
-
-    /* Update timestamp */
+    displayDashboard(dashboardBody.data || {}, orders);
     updateLastUpdated();
-
-  }catch(e){
-
-    /* Show error */
-    displayError(
-      e.message || 'Dashboard loading failed'
-    );
-
-  }finally{
-
-    /* Enable refresh button */
+  } catch (e) {
+    displayError(e.message || 'Dashboard loading failed');
+  } finally {
     setRefreshing(false);
-
   }
-
 }
 
-/* =========================================================
-   LOGOUT FUNCTION
-========================================================= */
-
-function logout(){
-
-  /* Remove saved login info */
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-
-  /* Redirect to login page */
-  window.location.href='/index.html';
-
+/* Gets admin orders */
+async function getAdminOrders() {
+  const res = await fetch(`${API_URL}/admin/orders?limit=200`, { headers:{Authorization:`Bearer ${token}`} });
+  const body = await res.json().catch(()=>({}));
+  if (!res.ok) { showNotice(body.error || body.message || 'Order list could not be refreshed.'); return []; }
+  return Array.isArray(body.orders) ? body.orders : [];
 }
 
-/* =========================================================
-   AUTO LOAD DASHBOARD
-========================================================= */
+/* Displays data in dashboard sections */
+function displayDashboard(data, orders) {
+  const stats = calculateStats(data.systemStatistics || {}, orders);
+  totalUsers.textContent = safeNumber(stats.totalUsers);
+  totalOrders.textContent = safeNumber(stats.totalOrders);
+  totalRevenue.textContent = formatCurrency(stats.totalRevenue);
+  totalDeliveries.textContent = safeNumber(stats.totalDeliveries);
+  pendingOrders.textContent = safeNumber(stats.pendingOrders);
+  completedOrders.textContent = safeNumber(stats.completedOrders);
+  todayOrders.textContent = safeNumber(stats.todayOrders);
+  totalCustomers.textContent = safeNumber(stats.totalCustomers);
 
-/* Load dashboard once page opens */
+  displayCharts(stats);
+  renderManageOrders(orders);
+  displayAssignDeliveries(data.unassignedDeliveries || [], data.deliveryStaff || []);
+  displayInventory(data.inventoryStatus || []);
+  displayTopCustomers(data.topCustomers || []);
+  displayDeliveryPerformance(data.deliveryPerformance || []);
+  displayRecentOrders(data.recentOrders || orders.slice(0,10));
+}
+
+/* Calculates totals and counts */
+function calculateStats(apiStats, orders) {
+  return {
+    totalUsers:numberOr(apiStats.totalUsers,0),
+    totalOrders:numberOr(apiStats.totalOrders,orders.length),
+    totalRevenue:numberOr(apiStats.totalRevenue,orders.reduce((s,o)=>normalizeStatus(o.order_status)!=='cancelled'?s+Number(o.total_price||o.total_amount||0):s,0)),
+    totalDeliveries:numberOr(apiStats.totalDeliveries,orders.filter(o=>o.delivery_status).length),
+    successfulDeliveries:numberOr(apiStats.successfulDeliveries,countDelivery(orders,['delivered','completed'])),
+    pendingDeliveries:numberOr(apiStats.pendingDeliveries,countDelivery(orders,['pending'])),
+    inTransitDeliveries:numberOr(apiStats.inTransitDeliveries,countDelivery(orders,['in_transit'])),
+    failedDeliveries:numberOr(apiStats.failedDeliveries,countDelivery(orders,['failed'])),
+    pendingOrders:numberOr(apiStats.pendingOrders,countOrder(orders,['pending','confirmed'])),
+    completedOrders:numberOr(apiStats.completedOrders,countOrder(orders,['delivered','completed'])),
+    cancelledOrders:numberOr(apiStats.cancelledOrders,countOrder(orders,['cancelled'])),
+    todayOrders:numberOr(apiStats.todayOrders,orders.filter(o=>isToday(o.createdAt||o.created_at||o.order_date)).length),
+    totalCustomers:numberOr(apiStats.totalCustomers,0)
+  };
+}
+
+/* Renders manage orders table */
+function renderManageOrders(orders) {
+  const c = manageOrdersContainer;
+  if (!orders.length) { c.innerHTML = `<div class="empty-card"><strong>No orders found.</strong> Customer orders will appear here.</div>`; return; }
+  c.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>Order</th><th>Customer</th><th>Product / Qty</th><th>Total</th><th>Status</th><th>Delivery</th><th>Action</th></tr></thead><tbody>` +
+    orders.map(o => {
+      const os=normalizeStatus(o.order_status||o.status||'pending'), ds=normalizeStatus(o.delivery_status||'—');
+      const canCancel=['pending','confirmed'].includes(os)&&(!o.delivery_status||ds==='pending'||ds==='—');
+      return `<tr><td><strong>#${escapeHtml(o.id||o.order_id)}</strong></td><td>${escapeHtml(o.customer_name||'N/A')}<br><small>${escapeHtml(o.customer_email||'')}</small></td><td>${escapeHtml(o.product||o.product_name||'Product')} × ${escapeHtml(o.quantity||0)}</td><td>${formatCurrency(o.total_price||o.total_amount||0)}</td><td>${badge(os)}</td><td>${badge(ds)}</td><td>${canCancel?`<button class="cancel-btn" onclick="adminCancelOrder('${escapeForJs(o.id||o.order_id)}')">Cancel</button>`:`<span class="badge badge-muted">No Action</span>`}</td></tr>`;
+    }).join('') + `</tbody></table></div>`;
+}
+
+/* Displays unassigned delivery records */
+function displayAssignDeliveries(rows, staff) {
+  const c = assignDeliveriesContainer;
+  if (!rows.length) { c.innerHTML = `<div class="empty-card"><strong>No unassigned deliveries.</strong> Orders waiting for delivery assignment will appear here.</div>`; return; }
+  if (!staff.length) { c.innerHTML = `<div class="empty-card"><strong>No delivery staff available.</strong> Add a delivery account first.</div>`; return; }
+  c.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>Delivery #</th><th>Order</th><th>Customer</th><th>Address</th><th>Assign To</th></tr></thead><tbody>` +
+    rows.map(r => {
+      const sid=`staff_${r.delivery_id}`;
+      const options=staff.map(s=>`<option value="${escapeHtml(s.id||s.userId||s.user_id)}">${escapeHtml(s.name)} (${escapeHtml(s.email)})</option>`).join('');
+      return `<tr><td>#${escapeHtml(r.delivery_id)}</td><td>#${escapeHtml(r.order_id)}</td><td>${escapeHtml(r.customer_name||'N/A')}<br><small>${escapeHtml(r.customer_phone||'')}</small></td><td>${escapeHtml(r.delivery_address||'N/A')}</td><td><select id="${sid}" class="select-staff">${options}</select> <button class="assign-btn" onclick="assignStaff('${escapeForJs(r.delivery_id)}','${sid}')">Assign</button></td></tr>`;
+    }).join('') + `</tbody></table></div>`;
+}
+
+/* Displays inventory items */
+function displayInventory(items) {
+  const c = inventoryContainer;
+  if (!items.length) { c.innerHTML = `<div class="empty-card"><strong>No inventory items.</strong> Add inventory first.</div>`; return; }
+  c.innerHTML = `<div class="inventory-grid">` + items.map((item, i) => {
+    const qty = Number(item.quantity || item.quantity_on_hand || 0);
+    const price = Number(item.price || item.selling_price || 0);
+    const productId = item.product_id || item.id || item.name;
+    const cls = qty===0?'stock-out':qty<10?'stock-low':'';
+    return `<div class="inventory-card ${cls}">
+      <div class="inventory-name">${escapeHtml(item.name||item.product_name||item.product_id||'Item')}</div>
+      <div class="inventory-price">${formatCurrency(price)} per unit</div>
+      <div style="margin-top:8px">${qty===0?badge('out'):qty<10?badge('low'):badge('stock')}</div>
+      <form class="inventory-form" onsubmit="updateInventory(event,'${escapeForJs(productId)}')">
+        <input type="number" min="0" id="qty_${i}" value="${qty}" placeholder="How many gallons?">
+        <button class="save-btn" type="submit">Save</button>
+      </form>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+/* Updates product inventory quantity */
+async function updateInventory(e, productId) {
+  e.preventDefault();
+  const qty = e.target.querySelector('input').value;
+  try {
+    const res = await fetch(`${API_URL}/admin/inventory/${encodeURIComponent(productId)}`, {
+      method:'PATCH',
+      headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},
+      body:JSON.stringify({ quantity_on_hand:Number(qty), quantity:Number(qty) })
+    });
+    const body = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(body.error || body.message || 'Inventory update failed. Add backend PATCH /admin/inventory/:productId route.');
+    alert('Inventory updated successfully.');
+    loadDashboard();
+  } catch(err) { alert(err.message); }
+}
+
+/* Assigns delivery staff */
+async function assignStaff(deliveryId, selectId) {
+  const personnelId = document.getElementById(selectId)?.value;
+  if (!personnelId) return alert('Select delivery staff first.');
+  try {
+    const res = await fetch(`${API_URL}/delivery/assign/${encodeURIComponent(deliveryId)}`, {
+      method:'PATCH',
+      headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},
+      body:JSON.stringify({delivery_personnel_id:personnelId})
+    });
+    const body = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(body.error || body.message || 'Assign failed');
+    alert('Delivery assigned successfully.');
+    loadDashboard();
+  } catch(e) { alert(e.message); }
+}
+
+/* Cancels an admin order */
+async function adminCancelOrder(orderId) {
+  if (!confirm('Cancel this order?')) return;
+  const res = await fetch(`${API_URL}/admin/orders/${encodeURIComponent(orderId)}/cancel`,{method:'PATCH',headers:{Authorization:`Bearer ${token}`}});
+  const body = await res.json().catch(()=>({}));
+  if (!res.ok) return alert(body.error || body.message || 'Cancel failed');
+  alert('Order cancelled successfully.');
+  loadDashboard();
+}
+
+/* Displays charts */
+function displayCharts(s) {
+  const orderData=[s.pendingOrders,s.completedOrders,s.cancelledOrders];
+  const deliveryData=[s.pendingDeliveries,s.inTransitDeliveries,s.successfulDeliveries,s.failedDeliveries];
+
+  if (ordersChart) ordersChart.destroy();
+  ordersChart = new Chart(ordersChartCanvas(),{type:'doughnut',data:{labels:['Pending/Confirmed','Completed/Delivered','Cancelled'],datasets:[{data:orderData,backgroundColor:['#fef3c7','#dcfce7','#fee2e2'],borderColor:['#f59e0b','#16a34a','#dc2626'],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+
+  if (deliveryChart) deliveryChart.destroy();
+  deliveryChart = new Chart(deliveryChartCanvas(),{type:'bar',data:{labels:['Pending','In Transit','Delivered','Failed'],datasets:[{data:deliveryData,backgroundColor:['#fef3c7','#e0f2fe','#dcfce7','#fee2e2'],borderColor:['#f59e0b','#0284c7','#16a34a','#dc2626'],borderWidth:2,borderRadius:12}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,ticks:{precision:0}}},plugins:{legend:{display:false}}}});
+}
+
+/* Gets order chart canvas */
+function ordersChartCanvas(){return document.getElementById('ordersChart').getContext('2d')}
+
+/* Gets delivery chart canvas */
+function deliveryChartCanvas(){return document.getElementById('deliveryChart').getContext('2d')}
+
+/* Displays top customers */
+function displayTopCustomers(customers){topCustomersTable.innerHTML=customers.length?customers.map(c=>{const info=c.customer||c;return `<tr><td>${escapeHtml(info.name||'N/A')}</td><td>${escapeHtml(info.email||'N/A')}</td><td>${escapeHtml(info.phone||'N/A')}</td><td><span class="badge badge-info">${safeNumber(c.dataValues?.orderCount||c.orderCount||0)}</span></td><td>${formatCurrency(c.dataValues?.totalSpent||c.totalSpent||0)}</td></tr>`}).join(''):`<tr><td colspan="5" class="empty-message">No customer order data yet.</td></tr>`}
+
+/* Displays delivery staff performance */
+function displayDeliveryPerformance(p){deliveryPerformanceTable.innerHTML=p.length?p.map(x=>{const info=x.delivery_personnel||x;const a=x.dataValues?.assignmentCount||x.assignmentCount||0;const c=x.dataValues?.completedCount||x.completedCount||0;return `<tr><td>${escapeHtml(info.name||'N/A')}</td><td>${escapeHtml(info.email||'N/A')}</td><td>${escapeHtml(info.phone||'N/A')}</td><td>${safeNumber(a)}</td><td>${safeNumber(c)}</td><td><strong>${a>0?((c/a)*100).toFixed(1):0}%</strong></td></tr>`}).join(''):`<tr><td colspan="6" class="empty-message">No delivery performance data yet.</td></tr>`}
+
+/* Displays recent orders */
+function displayRecentOrders(o){recentOrdersTable.innerHTML=o.length?o.slice(0,10).map(x=>`<tr><td>#${escapeHtml(x.id||x.order_id||'N/A')}</td><td>${escapeHtml(x.customer?.name||x.customer_name||'N/A')}</td><td>${formatCurrency(x.total_amount||x.total_price||0)}</td><td>${badge(x.status||x.order_status||'pending')}</td><td>${escapeHtml(x.createdAt?new Date(x.createdAt).toLocaleDateString():'N/A')}</td></tr>`).join(''):`<tr><td colspan="5" class="empty-message">No recent orders yet.</td></tr>`}
+
+/* Creates badge based on status */
+function badge(s){s=normalizeStatus(s);const b={pending:['badge-warning','Pending'],confirmed:['badge-info','Confirmed'],in_transit:['badge-info','In Transit'],delivered:['badge-success','Delivered'],completed:['badge-success','Completed'],cancelled:['badge-danger','Cancelled'],failed:['badge-danger','Failed'],out:['badge-danger','Out of Stock'],low:['badge-warning','Low Stock'],stock:['badge-success','In Stock'],'—':['badge-muted','—']};const v=b[s]||['badge-muted',s];return `<span class="badge ${v[0]}">${escapeHtml(v[1])}</span>`}
+
+/* Counts order statuses */
+function countOrder(o,s){return o.filter(x=>s.includes(normalizeStatus(x.order_status||x.status))).length}
+
+/* Counts delivery statuses */
+function countDelivery(o,s){return o.filter(x=>s.includes(normalizeStatus(x.delivery_status))).length}
+
+/* Checks if date is today */
+function isToday(d){if(!d)return false;return new Date(d).toDateString()===new Date().toDateString()}
+
+/* Changes refresh button text */
+function setRefreshing(v){refreshBtn.disabled=v;refreshBtn.textContent=v?'Refreshing...':'Refresh Data'}
+
+/* Shows error message */
+function displayError(m){errorContainer.innerHTML=`<div class="error">⚠️ ${escapeHtml(m)}</div>`}
+
+/* Clears error message */
+function clearError(){errorContainer.innerHTML=''}
+
+/* Shows notice message */
+function showNotice(m){noticeContainer.innerHTML=`<div class="notice">ℹ️ ${escapeHtml(m)}</div>`}
+
+/* Clears notice message */
+function clearNotice(){noticeContainer.innerHTML=''}
+
+/* Updates last updated text */
+function updateLastUpdated(){lastUpdated.textContent=`Last updated: ${new Date().toLocaleString()}`}
+
+/* Logs out the user */
+function logout(){localStorage.removeItem('token');localStorage.removeItem('user');window.location.href='/index.html'}
+
+/* Formats currency into Philippine Peso */
+function formatCurrency(v){return Number(v||0).toLocaleString('en-PH',{style:'currency',currency:'PHP'})}
+
+/* Safely formats number */
+function safeNumber(v){return Number(v||0).toLocaleString()}
+
+/* Converts value to number or fallback */
+function numberOr(v,f){const n=Number(v);return Number.isFinite(n)?n:Number(f||0)}
+
+/* Normalizes status text */
+function normalizeStatus(s){if(s===null||s===undefined||s==='')return'unknown';return String(s).toLowerCase().trim()}
+
+/* Escapes HTML output */
+function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;")}
+
+/* Escapes JavaScript string */
+function escapeForJs(v){return String(v??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
+
+/* Initial dashboard load */
 loadDashboard();
 
 /* Auto refresh every 30 seconds */
 setInterval(loadDashboard,30000);
-
 </script>
-
 </body>
 </html>

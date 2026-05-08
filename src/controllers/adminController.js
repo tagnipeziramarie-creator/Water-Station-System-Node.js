@@ -330,3 +330,55 @@ export const cancelAdminOrder = async (req, res, next) => {
     if (connection) connection.release();
   }
 };
+
+// ===================================
+// UPDATE INVENTORY
+// ===================================
+export const updateInventory = async (req, res, next) => {
+  let connection;
+
+  try {
+
+    const { productId } = req.params;
+
+    const {
+      quantity,
+      quantity_on_hand
+    } = req.body;
+
+    const finalQuantity =
+      quantity ?? quantity_on_hand;
+
+    connection = await pool.getConnection();
+
+    await connection.execute(
+      `
+      UPDATE inventories
+      SET quantity_on_hand = ?,
+          updatedAt = NOW()
+      WHERE product_id = ?
+      `,
+      [finalQuantity, productId]
+    );
+
+    res.json({
+      success: true,
+      message: 'Inventory updated successfully'
+    });
+
+  } catch (error) {
+
+    console.error(
+      '❌ updateInventory error:',
+      error
+    );
+
+    next(error);
+
+  } finally {
+
+    if (connection)
+      connection.release();
+
+  }
+};

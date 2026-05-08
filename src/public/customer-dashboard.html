@@ -758,27 +758,9 @@ body.login-gate-open .container{
 const API_URL = window.location.origin && window.location.origin !== 'null' ? window.location.origin : '';
 
 let cachedProducts = [
-    {
-        id: 1,
-        product_id: '5-gallon-round',
-        name: '5-Gallon Round',
-        price: 30,
-        quantity: 50
-    },
-    {
-        id: 2,
-        product_id: '5-gallon-slim',
-        name: '5-Gallon Slim',
-        price: 35,
-        quantity: 40
-    },
-    {
-        id: 3,
-        product_id: '3-gallon',
-        name: '3-Gallon',
-        price: 25,
-        quantity: 60
-    }
+    { id: 1, product_id: '5-gallon-round', name: '5-Gallon Round', price: 30, quantity: 50 },
+    { id: 2, product_id: '5-gallon-slim', name: '5-Gallon Slim', price: 35, quantity: 40 },
+    { id: 3, product_id: '3-gallon', name: '3-Gallon', price: 25, quantity: 60 }
 ];
 
 let selectedProduct = null;
@@ -795,6 +777,11 @@ function escapeHTML(value){
         .replace(/>/g,'&gt;')
         .replace(/"/g,'&quot;')
         .replace(/'/g,'&#039;');
+}
+
+function shortOrderId(id){
+    if(!id) return 'N/A';
+    return String(id).replaceAll('-','').slice(0,8).toUpperCase();
 }
 
 function showToast(message){
@@ -833,15 +820,8 @@ function saveCustomerProfile(){
     const name = document.getElementById('profileName').value.trim();
     const email = document.getElementById('profileEmail').value.trim();
 
-    if(!name){
-        alert('Please enter your name.');
-        return;
-    }
-
-    if(!email){
-        alert('Please enter your email.');
-        return;
-    }
+    if(!name){ alert('Please enter your name.'); return; }
+    if(!email){ alert('Please enter your email.'); return; }
 
     localStorage.setItem('customerProfile', JSON.stringify({name,email}));
     applyCustomerProfile(name,email);
@@ -936,7 +916,6 @@ function displayDashboard(data){
 
 function displayInventory(products){
     const container = document.getElementById('inventoryContainer');
-
     let html = '';
 
     products.forEach(product=>{
@@ -976,7 +955,7 @@ function displayActiveOrders(orders){
     orders.forEach(order=>{
         html += `
         <tr>
-            <td><strong>#${order.id}</strong></td>
+            <td><strong>#${shortOrderId(order.id)}</strong></td>
             <td>${order.total_items || 1} item(s)</td>
             <td><strong>₱${parseFloat(order.total_amount || 0).toFixed(2)}</strong></td>
             <td>${getStatusBadge(order.status)}</td>
@@ -1013,7 +992,7 @@ function displayRecentOrders(orders){
         const date = new Date(order.createdAt).toLocaleDateString();
         html += `
         <tr>
-            <td><strong>#${order.id}</strong></td>
+            <td><strong>#${shortOrderId(order.id)}</strong></td>
             <td>${date}</td>
             <td><strong>₱${parseFloat(order.total_amount || 0).toFixed(2)}</strong></td>
             <td>${getStatusBadge(order.status)}</td>

@@ -31,6 +31,16 @@
         html {
             scroll-behavior: smooth;
         }
+        /* ===================================
+        SYSTEM LOGO
+        =================================== */
+        .system-logo{
+            width:65px;
+            height:65px;
+            object-fit:contain;
+            border-radius:70%;
+            margin-right:20px;
+        }
 
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -858,9 +868,18 @@
 
 <body>
     <nav>
-        <div class="logo">
-            <span class="logo-icon">💧</span>
-            <span>Pure Water Station</span>
+                <div class="logo">
+
+            <!-- System Logo -->
+            <img
+                src="/images/logo.png"
+                alt="Water Station Logo"
+                class="system-logo"
+            >
+
+            <!-- System Name -->
+            <span>Irashi_Pretty Water Station</span>
+
         </div>
 
         <div class="nav-links">

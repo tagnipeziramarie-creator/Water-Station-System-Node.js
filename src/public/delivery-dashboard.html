@@ -409,6 +409,58 @@
             word-break: break-word;
         }
 
+        /* =========================================
+           VALID ID SECTION
+           Added so delivery personnel can view
+           the valid ID attached by the customer.
+        ========================================= */
+        .valid-id-box {
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+        }
+
+        .valid-id-title {
+            font-size: 13px;
+            font-weight: 900;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+
+        .valid-id-content {
+            color: #334155;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .valid-id-preview {
+            margin-top: 10px;
+            max-width: 260px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            display: block;
+        }
+
+        .valid-id-link {
+            display: inline-flex;
+            margin-top: 10px;
+            padding: 9px 13px;
+            border-radius: 999px;
+            background: white;
+            color: #075985;
+            border: 1px solid #bae6fd;
+            text-decoration: none;
+            font-weight: 900;
+            font-size: 13px;
+        }
+
+        .valid-id-empty {
+            color: #64748b;
+            font-style: italic;
+        }
+
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -769,17 +821,29 @@
     </div>
 
     <script>
+        /* =========================================
+           API BASE URL
+        ========================================= */
         const API_URL = window.location.origin && window.location.origin !== 'null'
             ? window.location.origin
             : '';
 
+        /* =========================================
+           LOGIN TOKEN
+        ========================================= */
         const token = localStorage.getItem('token');
+
+        /* Current delivery selected in update modal */
         let currentDeliveryId = null;
 
+        /* Redirect if no token */
         if (!token) {
             window.location.href = '/index.html';
         }
 
+        /* =========================================
+           LOAD DELIVERY DASHBOARD
+        ========================================= */
         async function loadDashboard() {
             clearMessages();
 
@@ -803,6 +867,9 @@
             }
         }
 
+        /* =========================================
+           DISPLAY DASHBOARD DATA
+        ========================================= */
         function displayDashboard(data) {
             const personnel = data.deliveryPersonnel || {};
             const statistics = data.statistics || {};
@@ -819,6 +886,9 @@
             displayTodayDeliveries(data.todayDeliveries || []);
         }
 
+        /* =========================================
+           DISPLAY ACTIVE DELIVERIES
+        ========================================= */
         function displayActiveDeliveries(deliveries) {
             const container = document.getElementById('activeDeliveriesContainer');
 
@@ -837,6 +907,9 @@
             container.innerHTML = html;
         }
 
+        /* =========================================
+           DISPLAY TODAY DELIVERIES
+        ========================================= */
         function displayTodayDeliveries(deliveries) {
             const container = document.getElementById('todayDeliveriesContainer');
 
@@ -855,17 +928,20 @@
             container.innerHTML = html;
         }
 
+        /* =========================================
+           DELIVERY CARD TEMPLATE
+        ========================================= */
         function deliveryCardTemplate(delivery, showCompleteButton) {
             const order = delivery.order || {};
             const customer = order.customer || {};
-            const status = delivery.status || 'pending';
+            const status = delivery.status || delivery.delivery_status || 'pending';
 
             return `
                 <div class="delivery-card">
                     <div class="delivery-header">
                         <div>
                             <div class="delivery-id">Delivery #${escapeHtml(delivery.id)}</div>
-                            <div class="order-id">Order #${escapeHtml(order.id || 'N/A')}</div>
+                            <div class="order-id">Order #${escapeHtml(order.id || order.orderId || order.order_id || 'N/A')}</div>
                         </div>
 
                         ${getStatusBadge(status)}
@@ -874,24 +950,26 @@
                     <div class="customer-info">
                         <div class="customer-info-row">
                             <span class="customer-info-label">Customer</span>
-                            <span class="customer-info-value">${escapeHtml(customer.name || 'N/A')}</span>
+                            <span class="customer-info-value">${escapeHtml(customer.name || order.customer_name || 'N/A')}</span>
                         </div>
 
                         <div class="customer-info-row">
                             <span class="customer-info-label">Phone</span>
-                            <span class="customer-info-value">${escapeHtml(customer.phone || 'N/A')}</span>
+                            <span class="customer-info-value">${escapeHtml(customer.phone || order.customer_phone || 'N/A')}</span>
                         </div>
 
                         <div class="customer-info-row">
                             <span class="customer-info-label">Address</span>
-                            <span class="customer-info-value">${escapeHtml(customer.address || 'N/A')}</span>
+                            <span class="customer-info-value">${escapeHtml(customer.address || order.delivery_address || delivery.delivery_address || 'N/A')}</span>
                         </div>
 
                         <div class="customer-info-row">
                             <span class="customer-info-label">Barangay</span>
-                            <span class="customer-info-value">${escapeHtml(customer.barangay || 'N/A')}</span>
+                            <span class="customer-info-value">${escapeHtml(customer.barangay || order.barangay || 'N/A')}</span>
                         </div>
                     </div>
+
+                    ${validIdTemplate(order)}
 
                     <div class="action-buttons">
                         <button class="btn btn-primary" onclick="openStatusModal('${escapeForJs(delivery.id)}', '${escapeForJs(status)}')">
@@ -908,6 +986,94 @@
             `;
         }
 
+        /* =========================================
+           VALID ID TEMPLATE
+
+           This displays the valid ID attached by customer.
+           It supports:
+           - valid_id_name only
+           - valid_id_data text
+           - valid_id_data as base64 image/pdf
+        ========================================= */
+        function validIdTemplate(order) {
+            const validIdName =
+                order.valid_id_name ||
+                order.validIdName ||
+                '';
+
+            const validIdType =
+                order.valid_id_type ||
+                order.validIdType ||
+                '';
+
+            const validIdData =
+                order.valid_id_data ||
+                order.validIdData ||
+                '';
+
+            if (!validIdName && !validIdData) {
+                return `
+                    <div class="valid-id-box">
+                        <div class="valid-id-title">🪪 Customer Valid ID</div>
+                        <div class="valid-id-content valid-id-empty">No valid ID attached.</div>
+                    </div>
+                `;
+            }
+
+            let previewHTML = '';
+
+            if (String(validIdData).startsWith('data:image')) {
+                previewHTML = `
+                    <img
+                        class="valid-id-preview"
+                        src="${escapeHtml(validIdData)}"
+                        alt="Customer Valid ID"
+                    >
+                    <a
+                        class="valid-id-link"
+                        href="${escapeHtml(validIdData)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View Full Image
+                    </a>
+                `;
+            } else if (String(validIdData).startsWith('data:application/pdf')) {
+                previewHTML = `
+                    <a
+                        class="valid-id-link"
+                        href="${escapeHtml(validIdData)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Open Valid ID PDF
+                    </a>
+                `;
+            } else {
+                previewHTML = `
+                    <div class="valid-id-content">
+                        ${escapeHtml(validIdData || 'Uploaded valid ID file is recorded.')}
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="valid-id-box">
+                    <div class="valid-id-title">🪪 Customer Valid ID</div>
+
+                    <div class="valid-id-content">
+                        <strong>File:</strong> ${escapeHtml(validIdName || 'Valid ID attached')}
+                        ${validIdType ? `<br><strong>Type:</strong> ${escapeHtml(validIdType)}` : ''}
+                    </div>
+
+                    ${previewHTML}
+                </div>
+            `;
+        }
+
+        /* =========================================
+           STATUS BADGE
+        ========================================= */
         function getStatusBadge(status) {
             const cleanStatus = String(status || 'unknown').toLowerCase();
 
@@ -922,18 +1088,27 @@
             return badges[cleanStatus] || `<span class="status-badge status-muted">${escapeHtml(status)}</span>`;
         }
 
+        /* =========================================
+           OPEN STATUS MODAL
+        ========================================= */
         function openStatusModal(deliveryId, currentStatus) {
             currentDeliveryId = deliveryId;
             document.getElementById('newStatus').value = currentStatus || '';
             document.getElementById('statusModal').classList.add('show');
         }
 
+        /* =========================================
+           CLOSE STATUS MODAL
+        ========================================= */
         function closeStatusModal() {
             document.getElementById('statusModal').classList.remove('show');
             currentDeliveryId = null;
             document.getElementById('statusForm').reset();
         }
 
+        /* =========================================
+           MARK DELIVERY COMPLETE
+        ========================================= */
         async function markComplete(deliveryId) {
             if (!confirm('Mark this delivery as delivered?')) {
                 return;
@@ -942,6 +1117,9 @@
             await updateDeliveryStatus(deliveryId, 'delivered');
         }
 
+        /* =========================================
+           STATUS FORM SUBMIT
+        ========================================= */
         document.getElementById('statusForm').addEventListener('submit', async function (event) {
             event.preventDefault();
 
@@ -955,6 +1133,9 @@
             await updateDeliveryStatus(currentDeliveryId, newStatus);
         });
 
+        /* =========================================
+           UPDATE DELIVERY STATUS
+        ========================================= */
         async function updateDeliveryStatus(deliveryId, status) {
             try {
                 const response = await fetch(`${API_URL}/dashboard/delivery/${encodeURIComponent(deliveryId)}/status`, {
@@ -981,11 +1162,17 @@
             }
         }
 
+        /* =========================================
+           DISPLAY ERROR
+        ========================================= */
         function displayError(message) {
             const errorContainer = document.getElementById('errorContainer');
             errorContainer.innerHTML = `<div class="error">⚠️ ${escapeHtml(message)}</div>`;
         }
 
+        /* =========================================
+           DISPLAY SUCCESS
+        ========================================= */
         function displaySuccess(message) {
             const messageContainer = document.getElementById('messageContainer');
             messageContainer.innerHTML = `<div class="success-message">✅ ${escapeHtml(message)}</div>`;
@@ -995,20 +1182,32 @@
             }, 3500);
         }
 
+        /* =========================================
+           CLEAR MESSAGES
+        ========================================= */
         function clearMessages() {
             document.getElementById('errorContainer').innerHTML = '';
         }
 
+        /* =========================================
+           LOGOUT
+        ========================================= */
         function logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/index.html';
         }
 
+        /* =========================================
+           SAFE NUMBER FORMATTER
+        ========================================= */
         function safeNumber(value) {
             return Number(value || 0).toLocaleString();
         }
 
+        /* =========================================
+           ESCAPE HTML
+        ========================================= */
         function escapeHtml(value) {
             return String(value ?? '')
                 .replaceAll('&', '&amp;')
@@ -1018,22 +1217,34 @@
                 .replaceAll("'", '&#039;');
         }
 
+        /* =========================================
+           ESCAPE JAVASCRIPT STRING
+        ========================================= */
         function escapeForJs(value) {
             return String(value ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         }
 
+        /* =========================================
+           CLOSE MODAL WHEN CLICKING OUTSIDE
+        ========================================= */
         document.getElementById('statusModal').addEventListener('click', function (event) {
             if (event.target === this) {
                 closeStatusModal();
             }
         });
 
+        /* =========================================
+           ESC KEY CLOSE MODAL
+        ========================================= */
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') {
                 closeStatusModal();
             }
         });
 
+        /* =========================================
+           SIDEBAR ACTIVE LINK
+        ========================================= */
         document.querySelectorAll('.nav-menu a').forEach((link) => {
             link.addEventListener('click', function () {
                 document.querySelectorAll('.nav-menu a').forEach((item) => item.classList.remove('active'));
@@ -1041,7 +1252,12 @@
             });
         });
 
+        /* =========================================
+           INITIAL LOAD
+        ========================================= */
         loadDashboard();
+
+        /* Auto refresh every 30 seconds */
         setInterval(loadDashboard, 30000);
     </script>
 </body>

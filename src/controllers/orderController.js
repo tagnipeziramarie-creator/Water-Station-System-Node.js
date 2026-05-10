@@ -1,4 +1,13 @@
-import { v4 as uuidv4 } from 'uuid';
+/* =========================================================
+   CUSTOM ORDER ID GENERATOR
+   Avoids crypto/uuid deployment errors on Render
+========================================================= */
+const generateOrderId = () => {
+  return `ORD-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 10)
+    .toUpperCase()}`;
+};
 
 import {
   createOrder as createOrderDB,
@@ -22,7 +31,10 @@ import { createPayment } from '../models/Payment.js';
 ========================================================= */
 export const createOrder = async (req, res, next) => {
   try {
-    /* Get logged-in user */
+
+    /* =========================================
+       GET LOGGED-IN USER
+    ========================================= */
     const userId =
       req.user?.userId ||
       req.user?.id;
@@ -33,7 +45,9 @@ export const createOrder = async (req, res, next) => {
       });
     }
 
-    /* Get delivery address */
+    /* =========================================
+       GET DELIVERY ADDRESS
+    ========================================= */
     const delivery_address =
       req.body.delivery_address ||
       req.body.deliveryAddress ||
@@ -45,27 +59,48 @@ export const createOrder = async (req, res, next) => {
       });
     }
 
-    /* Get multiple order items from frontend */
+    /* =========================================
+       GET MULTIPLE ORDER ITEMS
+    ========================================= */
     const items =
       req.body.items ||
       req.body.order_items ||
       [];
 
-    /* If multiple items exist, use them */
+    /* =========================================
+       SUPPORT SINGLE PRODUCT ORDER
+    ========================================= */
     const finalItems = Array.isArray(items) && items.length > 0
       ? items
       : [
           {
-            product_id: req.body.product_id || req.body.productId || req.body.product,
-            product: req.body.product_id || req.body.productId || req.body.product,
+            product_id:
+              req.body.product_id ||
+              req.body.productId ||
+              req.body.product,
+
+            product:
+              req.body.product_id ||
+              req.body.productId ||
+              req.body.product,
+
             name: req.body.product,
+
             quantity: Number(req.body.quantity || 1),
+
             price: Number(req.body.price || 0),
-            subtotal: Number(req.body.total_price || req.body.total_amount || 0)
+
+            subtotal: Number(
+              req.body.total_price ||
+              req.body.total_amount ||
+              0
+            )
           }
         ];
 
-    /* Validate order items */
+    /* =========================================
+       VALIDATE ITEMS
+    ========================================= */
     if (!finalItems.length) {
       return res.status(400).json({
         error: 'Order items are required'
@@ -73,8 +108,13 @@ export const createOrder = async (req, res, next) => {
     }
 
     for (const item of finalItems) {
-      const productId = item.product_id || item.product;
-      const quantity = Number(item.quantity || 0);
+
+      const productId =
+        item.product_id ||
+        item.product;
+
+      const quantity =
+        Number(item.quantity || 0);
 
       if (!productId) {
         return res.status(400).json({
@@ -89,12 +129,20 @@ export const createOrder = async (req, res, next) => {
       }
     }
 
-    /* Check inventory for each selected gallon */
+    /* =========================================
+       CHECK INVENTORY
+    ========================================= */
     for (const item of finalItems) {
-      const productId = item.product_id || item.product;
-      const quantity = Number(item.quantity || 0);
 
-      const stock = await getTotalStockByProductId(productId);
+      const productId =
+        item.product_id ||
+        item.product;
+
+      const quantity =
+        Number(item.quantity || 0);
+
+      const stock =
+        await getTotalStockByProductId(productId);
 
       if (stock < quantity) {
         return res.status(400).json({
@@ -103,43 +151,84 @@ export const createOrder = async (req, res, next) => {
       }
     }
 
-    /* Deduct inventory for each selected gallon */
+    /* =========================================
+       DEDUCT INVENTORY
+    ========================================= */
     for (const item of finalItems) {
-      const productId = item.product_id || item.product;
-      const quantity = Number(item.quantity || 0);
 
-      const fifo = await decrementProductStockFifo(productId, quantity);
+      const productId =
+        item.product_id ||
+        item.product;
+
+      const quantity =
+        Number(item.quantity || 0);
+
+      const fifo =
+        await decrementProductStockFifo(
+          productId,
+          quantity
+        );
 
       if (!fifo.ok) {
         return res.status(400).json({
-          error: fifo.error || `Insufficient inventory for ${item.name || productId}`
+          error:
+            fifo.error ||
+            `Insufficient inventory for ${item.name || productId}`
         });
       }
     }
 
-    /* Compute total quantity */
-    const totalQuantity = finalItems.reduce((sum, item) => {
-      return sum + Number(item.quantity || 0);
-    }, 0);
+    /* =========================================
+       COMPUTE TOTAL QUANTITY
+    ========================================= */
+    const totalQuantity =
+      finalItems.reduce((sum, item) => {
+        return sum + Number(item.quantity || 0);
+      }, 0);
 
-    /* Compute total amount */
-    const totalAmount = finalItems.reduce((sum, item) => {
-      const quantity = Number(item.quantity || 0);
-      const price = Number(item.price || 0);
-      const subtotal = Number(item.subtotal || 0);
+    /* =========================================
+       COMPUTE TOTAL AMOUNT
+    ========================================= */
+    const totalAmount =
+      finalItems.reduce((sum, item) => {
 
-      return sum + (subtotal > 0 ? subtotal : quantity * price);
-    }, 0);
+        const quantity =
+          Number(item.quantity || 0);
 
-    /* Product summary for orders table */
-    const productSummary = finalItems
-      .map(item => `${item.name || item.product_id || item.product} x${item.quantity}`)
-      .join(', ');
+        const price =
+          Number(item.price || 0);
 
-    /* Generate order ID */
-    const orderId = uuidv4();
+        const subtotal =
+          Number(item.subtotal || 0);
 
-    /* Debug terminal log */
+        return sum + (
+          subtotal > 0
+            ? subtotal
+            : quantity * price
+        );
+
+      }, 0);
+
+    /* =========================================
+       PRODUCT SUMMARY
+    ========================================= */
+    const productSummary =
+      finalItems
+        .map(item =>
+          `${item.name || item.product_id || item.product} x${item.quantity}`
+        )
+        .join(', ');
+
+    /* =========================================
+       GENERATE ORDER ID
+       FIXED (NO UUID / NO CRYPTO)
+    ========================================= */
+    const orderId =
+      generateOrderId();
+
+    /* =========================================
+       DEBUG TERMINAL LOG
+    ========================================= */
     console.log('ORDER DATA TO SAVE:', {
       orderId,
       customer_id: userId,
@@ -149,30 +238,50 @@ export const createOrder = async (req, res, next) => {
       finalItems
     });
 
-    /* Save order */
-    const order = await createOrderDB({
-      orderId,
-      customer_id: userId,
-      order_date: new Date(),
-      order_status: 'pending',
-      product: productSummary,
-      quantity: totalQuantity,
-      delivery_address,
-      total_amount: totalAmount,
-      total_price: totalAmount,
-      payment: 'pending',
+    /* =========================================
+       SAVE ORDER
+    ========================================= */
+    const order =
+      await createOrderDB({
 
-      /* Save multiple items */
-      items: finalItems,
-      order_items: finalItems,
+        orderId,
 
-      /* Save valid ID details but avoid huge base64 if frontend sends it */
-      valid_id_name: req.body.valid_id_name || null,
-      valid_id_type: req.body.valid_id_type || null,
-      valid_id_data: req.body.valid_id_data || null
-    });
+        customer_id: userId,
 
-    /* Create delivery record */
+        order_date: new Date(),
+
+        order_status: 'pending',
+
+        product: productSummary,
+
+        quantity: totalQuantity,
+
+        delivery_address,
+
+        total_amount: totalAmount,
+
+        total_price: totalAmount,
+
+        payment: 'pending',
+
+        /* Multiple items */
+        items: finalItems,
+        order_items: finalItems,
+
+        /* Valid ID */
+        valid_id_name:
+          req.body.valid_id_name || null,
+
+        valid_id_type:
+          req.body.valid_id_type || null,
+
+        valid_id_data:
+          req.body.valid_id_data || null
+      });
+
+    /* =========================================
+       CREATE DELIVERY
+    ========================================= */
     await createDelivery({
       order_id: orderId,
       delivery_personnel_id: null,
@@ -181,7 +290,9 @@ export const createOrder = async (req, res, next) => {
       payment_received: false,
     });
 
-    /* Create payment record */
+    /* =========================================
+       CREATE PAYMENT
+    ========================================= */
     await createPayment({
       order_id: orderId,
       payment_method: 'COD',
@@ -189,13 +300,22 @@ export const createOrder = async (req, res, next) => {
       amount: totalAmount,
     });
 
+    /* =========================================
+       SUCCESS RESPONSE
+    ========================================= */
     res.status(201).json({
-      message: 'Order created successfully (COD). Pay when the order is delivered.',
+      message:
+        'Order created successfully (COD). Pay when the order is delivered.',
       order,
     });
 
   } catch (error) {
-    console.error('❌ createOrder error:', error);
+
+    console.error(
+      '❌ createOrder error:',
+      error
+    );
+
     next(error);
   }
 };
@@ -205,6 +325,7 @@ export const createOrder = async (req, res, next) => {
 ========================================================= */
 export const getOrders = async (req, res, next) => {
   try {
+
     const userId =
       req.user?.userId ||
       req.user?.id;
@@ -215,14 +336,20 @@ export const getOrders = async (req, res, next) => {
       });
     }
 
-    const orders = await findOrdersByCustomerId(userId);
+    const orders =
+      await findOrdersByCustomerId(userId);
 
     res.json({
       orders
     });
 
   } catch (error) {
-    console.error('❌ getOrders error:', error);
+
+    console.error(
+      '❌ getOrders error:',
+      error
+    );
+
     next(error);
   }
 };
@@ -232,6 +359,7 @@ export const getOrders = async (req, res, next) => {
 ========================================================= */
 export const getOrderById = async (req, res, next) => {
   try {
+
     const { id } = req.params;
 
     const userId =
@@ -244,9 +372,13 @@ export const getOrderById = async (req, res, next) => {
       });
     }
 
-    const order = await findOrderById(id);
+    const order =
+      await findOrderById(id);
 
-    if (!order || order.customer_id !== userId) {
+    if (
+      !order ||
+      order.customer_id !== userId
+    ) {
       return res.status(404).json({
         error: 'Order not found'
       });
@@ -257,7 +389,12 @@ export const getOrderById = async (req, res, next) => {
     });
 
   } catch (error) {
-    console.error('❌ getOrderById error:', error);
+
+    console.error(
+      '❌ getOrderById error:',
+      error
+    );
+
     next(error);
   }
 };

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Register - Pure Water Station</title>
+
   <style>
     * {
       margin: 0;
@@ -23,7 +24,6 @@
       color: #333;
     }
 
-    /* Full-page backdrop (popup-on-blur look) */
     .register-backdrop {
       position: fixed;
       inset: 0;
@@ -92,7 +92,6 @@
       gap: 8px;
     }
 
-    /* Popup card */
     .register-popup {
       width: 100%;
       max-width: 440px;
@@ -136,19 +135,29 @@
       margin-top: 0;
     }
 
-    .register-popup input {
+    .register-popup input,
+    .register-popup select {
       width: 100%;
       padding: 12px 14px;
       border: 1px solid #ddd;
       border-radius: 10px;
       font-size: 16px;
       font-family: inherit;
+      background: #fff;
     }
 
-    .register-popup input:focus {
+    .register-popup input:focus,
+    .register-popup select:focus {
       outline: none;
       border-color: #667eea;
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    .field-note {
+      font-size: 12px;
+      color: #777;
+      margin-top: 4px;
+      line-height: 1.35;
     }
 
     .toggle-password-btn {
@@ -265,7 +274,7 @@
 
     <main class="register-popup" role="dialog" aria-labelledby="regTitle">
       <h2 id="regTitle">Create account</h2>
-      <p class="subtitle">Customer registration — order refills and track COD deliveries.</p>
+      <p class="subtitle">Customer registration — order refills and track deliveries.</p>
 
       <form id="registerForm">
         <label for="name">Full name</label>
@@ -279,14 +288,68 @@
 
         <button type="button" class="toggle-password-btn" id="toggleRegPasswordBtn">Show password</button>
 
-        <label for="phone">Phone <span style="font-weight:400;color:#888">(optional)</span></label>
-        <input type="tel" id="phone" name="phone" placeholder="Phone" autocomplete="tel" />
+        <label for="phone">Phone number</label>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          placeholder="Example: 09123456789"
+          required
+          maxlength="11"
+          minlength="11"
+          pattern="[0-9]{11}"
+          inputmode="numeric"
+          autocomplete="tel"
+        />
+        <p class="field-note">Phone number must be exactly 11 digits.</p>
 
-        <label for="address">Address</label>
-        <input type="text" id="address" name="address" placeholder="Street / area" autocomplete="street-address" />
+        <label for="address">Street / Sitio / Purok</label>
+        <input type="text" id="address" name="address" placeholder="Street / Sitio / Purok" required autocomplete="street-address" />
 
         <label for="barangay">Barangay</label>
-        <input type="text" id="barangay" name="barangay" placeholder="Barangay" />
+        <select id="barangay" name="barangay" required>
+          <option value="">Select barangay in Hinunangan</option>
+          <option value="Ambacon">Ambacon</option>
+          <option value="Badiangon">Badiangon</option>
+          <option value="Bangcas A">Bangcas A</option>
+          <option value="Bangcas B">Bangcas B</option>
+          <option value="Biasong">Biasong</option>
+          <option value="Bugho">Bugho</option>
+          <option value="Calag-itan">Calag-itan</option>
+          <option value="Calayugan">Calayugan</option>
+          <option value="Calinao">Calinao</option>
+          <option value="Canipaan">Canipaan</option>
+          <option value="Catublian">Catublian</option>
+          <option value="Ilaya">Ilaya</option>
+          <option value="Ingan">Ingan</option>
+          <option value="Labrador">Labrador</option>
+          <option value="Libas">Libas</option>
+          <option value="Lumbog">Lumbog</option>
+          <option value="Manalog">Manalog</option>
+          <option value="Manlico">Manlico</option>
+          <option value="Matin-ao">Matin-ao</option>
+          <option value="Nava">Nava</option>
+          <option value="Nueva Esperanza">Nueva Esperanza</option>
+          <option value="Otama">Otama</option>
+          <option value="Palongpong">Palongpong</option>
+          <option value="Panalaron">Panalaron</option>
+          <option value="Patong">Patong</option>
+          <option value="Poblacion">Poblacion</option>
+          <option value="Pondol">Pondol</option>
+          <option value="Salog">Salog</option>
+          <option value="Salvacion">Salvacion</option>
+          <option value="San Pablo Island">San Pablo Island</option>
+          <option value="San Pedro Island">San Pedro Island</option>
+          <option value="Santo Niño I">Santo Niño I</option>
+          <option value="Santo Niño II">Santo Niño II</option>
+          <option value="Tahusan">Tahusan</option>
+          <option value="Talisay">Talisay</option>
+          <option value="Tawog">Tawog</option>
+          <option value="Toptop">Toptop</option>
+          <option value="Tuburan">Tuburan</option>
+          <option value="Union">Union</option>
+          <option value="Upper Bantawon">Upper Bantawon</option>
+        </select>
 
         <button type="submit" class="btn-primary-full" id="registerBtn">Register</button>
         <button type="button" class="btn-secondary-full" id="backToHomeBtn">Back to home</button>
@@ -306,10 +369,18 @@
     const form = document.getElementById('registerForm');
     const message = document.getElementById('message');
     const registerBtn = document.getElementById('registerBtn');
+    const phoneInput = document.getElementById('phone');
 
+    // Allow numbers only in phone input
+    phoneInput.addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '').slice(0, 11);
+    });
+
+    // Show or hide password
     document.getElementById('toggleRegPasswordBtn').addEventListener('click', function () {
       const passwordInput = document.getElementById('password');
       const btn = document.getElementById('toggleRegPasswordBtn');
+
       if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
         btn.textContent = 'Hide password';
@@ -319,18 +390,30 @@
       }
     });
 
+    // Back to homepage
     document.getElementById('backToHomeBtn').addEventListener('click', function () {
       window.location.href = '/index.html';
     });
 
+    // Register form submit
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
+
+      const phone = document.getElementById('phone').value.trim();
+
+      // Validate phone number before sending to backend
+      if (!/^\d{11}$/.test(phone)) {
+        message.className = 'error';
+        message.textContent = 'Phone number must be exactly 11 digits.';
+        phoneInput.focus();
+        return;
+      }
 
       const data = {
         name: document.getElementById('name').value.trim(),
         email: document.getElementById('email').value.trim(),
         password: document.getElementById('password').value.trim(),
-        phone: document.getElementById('phone').value.trim(),
+        phone: phone,
         address: document.getElementById('address').value.trim(),
         barangay: document.getElementById('barangay').value.trim(),
       };
@@ -354,20 +437,26 @@
         if (res.ok) {
           message.className = 'success';
           message.textContent = result.message || 'Registered! Redirecting…';
+
           form.reset();
+
           if (result.token) {
             localStorage.setItem('token', result.token);
             localStorage.setItem('user', JSON.stringify(result.user || {}));
           }
+
           setTimeout(function () {
             window.location.href = '/customer-dashboard.html';
           }, 900);
         } else {
           message.className = 'error';
+
           var errMsg = result.error;
+
           if (!errMsg && result.errors && result.errors.length) {
             errMsg = result.errors[0].msg || result.errors[0].message;
           }
+
           message.textContent = errMsg || 'Registration failed';
         }
       } catch (err) {

@@ -6,8 +6,14 @@
 <title>Customer Dashboard - Water Station</title>
 
 <style>
+/* =========================================
+   GLOBAL RESET
+========================================= */
 *{margin:0;padding:0;box-sizing:border-box}
 
+/* =========================================
+   THEME COLORS
+========================================= */
 :root{
     --primary:#2563eb;
     --secondary:#06b6d4;
@@ -20,6 +26,9 @@
     --shadow-hover:0 18px 45px rgba(15,23,42,.14);
 }
 
+/* =========================================
+   PAGE BODY
+========================================= */
 body{
     font-family:"Segoe UI",Tahoma,sans-serif;
     background:linear-gradient(180deg,#eff6ff,#f8fafc,#fff);
@@ -30,6 +39,9 @@ body{
 
 .container{max-width:1250px;margin:auto}
 
+/* =========================================
+   HEADER
+========================================= */
 .header{
     background:rgba(255,255,255,.95);
     border:1px solid var(--border);
@@ -87,6 +99,9 @@ body{
     color:white;
 }
 
+/* =========================================
+   HERO PANEL
+========================================= */
 .hero-panel{
     background:linear-gradient(135deg,var(--primary),var(--secondary));
     border-radius:24px;
@@ -123,6 +138,9 @@ body{
 
 .hero-btn:hover{background:rgba(255,255,255,.28)}
 
+/* =========================================
+   PROFILE SECTION
+========================================= */
 .profile-section{
     background:white;
     border:1px solid var(--border);
@@ -141,6 +159,9 @@ body{
     align-items:end;
 }
 
+/* =========================================
+   FORM ELEMENTS
+========================================= */
 .form-group label{
     display:block;
     font-size:13px;
@@ -158,13 +179,23 @@ body{
     border-radius:14px;
     font-size:15px;
     outline:none;
+    font-family:inherit;
 }
+
+.form-group textarea{resize:vertical}
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus{
     border-color:var(--primary);
     box-shadow:0 0 0 4px rgba(37,99,235,.12);
+}
+
+.form-note{
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.5;
+    margin-top:6px;
 }
 
 .save-btn{
@@ -177,6 +208,9 @@ body{
     font-weight:800;
 }
 
+/* =========================================
+   STAT CARDS
+========================================= */
 .stats-grid{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -204,6 +238,9 @@ body{
 
 .stat-number{font-size:30px;font-weight:800}
 
+/* =========================================
+   DASHBOARD SECTIONS
+========================================= */
 .dashboard-grid{
     display:grid;
     grid-template-columns:1.15fr .85fr;
@@ -244,6 +281,9 @@ body{
     border-radius:18px;
 }
 
+/* =========================================
+   TABLES
+========================================= */
 .table-wrap{
     overflow-x:auto;
     border-radius:16px;
@@ -253,7 +293,7 @@ body{
 .orders-table{
     width:100%;
     border-collapse:collapse;
-    min-width:650px;
+    min-width:760px;
 }
 
 .orders-table th{
@@ -267,8 +307,44 @@ body{
     padding:15px 16px;
     border-top:1px solid #f1f5f9;
     font-size:14px;
+    vertical-align:top;
 }
 
+/* Clean order ID display */
+.order-id-pill{
+    display:inline-flex;
+    align-items:center;
+    background:#eff6ff;
+    color:#1e40af;
+    border:1px solid #bfdbfe;
+    border-radius:999px;
+    padding:6px 11px;
+    font-size:12px;
+    font-weight:900;
+    white-space:nowrap;
+}
+
+/* Clean multiple item display */
+.order-items-list{
+    display:grid;
+    gap:4px;
+}
+
+.order-items-list span{
+    display:block;
+    color:#0f172a;
+    font-weight:700;
+}
+
+.order-items-list small{
+    display:block;
+    color:var(--muted);
+    font-size:12px;
+}
+
+/* =========================================
+   ORDER STATUS BADGES
+========================================= */
 .status-badge{
     display:inline-flex;
     padding:7px 12px;
@@ -281,7 +357,11 @@ body{
 .status-confirmed{background:#dbeafe;color:#1e40af}
 .status-in-transit{background:#cffafe;color:#155e75}
 .status-completed{background:#dcfce7;color:#166534}
+.status-collectable{background:#ede9fe;color:#5b21b6}
 
+/* =========================================
+   PRODUCT CARDS
+========================================= */
 .products-grid{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
@@ -338,6 +418,9 @@ body{
 
 .order-btn:disabled{opacity:.6;cursor:not-allowed}
 
+/* =========================================
+   INVENTORY CARDS
+========================================= */
 .inventory-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
@@ -370,6 +453,9 @@ body{
     margin-top:4px;
 }
 
+/* =========================================
+   LOGIN GATE AND MODAL
+========================================= */
 .login-gate,
 .modal-overlay{
     display:none;
@@ -394,11 +480,13 @@ body.login-gate-open .container{
 .login-gate-card,
 .modal-card{
     width:100%;
-    max-width:500px;
+    max-width:560px;
     background:white;
     border-radius:26px;
     padding:30px;
     box-shadow:0 24px 70px rgba(0,0,0,.3);
+    max-height:90vh;
+    overflow-y:auto;
 }
 
 .login-logo{
@@ -453,6 +541,9 @@ body.login-gate-open .container{
     margin-bottom:10px;
 }
 
+/* =========================================
+   ORDER MODAL
+========================================= */
 .modal-header{
     display:flex;
     justify-content:space-between;
@@ -496,6 +587,33 @@ body.login-gate-open .container{
     margin-bottom:16px;
 }
 
+.order-item-row{
+    display:grid;
+    grid-template-columns:1.4fr .8fr;
+    gap:12px;
+    align-items:center;
+    background:#f8fafc;
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:14px;
+    margin-bottom:10px;
+}
+
+.order-item-info strong{
+    display:block;
+    font-size:15px;
+}
+
+.order-item-info span{
+    display:block;
+    color:var(--muted);
+    font-size:13px;
+    margin-top:4px;
+}
+
+/* =========================================
+   TOTAL BOX
+========================================= */
 .total-box{
     background:linear-gradient(135deg,#eff6ff,#e0f2fe);
     border:1px solid #bfdbfe;
@@ -515,6 +633,9 @@ body.login-gate-open .container{
     font-size:28px;
 }
 
+/* =========================================
+   TOAST AND ERROR
+========================================= */
 .success-toast{
     position:fixed;
     right:22px;
@@ -539,6 +660,9 @@ body.login-gate-open .container{
     font-weight:700;
 }
 
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
 @media(max-width:1000px){
     .dashboard-grid,.hero-panel{grid-template-columns:1fr}
     .stats-grid{grid-template-columns:repeat(2,1fr)}
@@ -554,12 +678,16 @@ body.login-gate-open .container{
     .stats-grid{grid-template-columns:1fr}
     .section-header{flex-direction:column;align-items:flex-start}
     .modal-actions{flex-direction:column}
+    .order-item-row{grid-template-columns:1fr}
 }
 </style>
 </head>
 
 <body>
 
+<!-- =========================================
+     LOGIN GATE
+========================================= -->
 <div id="loginGate" class="login-gate">
     <div class="login-gate-card">
         <div class="login-logo">💧</div>
@@ -590,35 +718,37 @@ body.login-gate-open .container{
     </div>
 </div>
 
+<!-- =========================================
+     ORDER MODAL
+========================================= -->
 <div id="orderModal" class="modal-overlay">
     <div class="modal-card">
         <div class="modal-header">
             <div>
                 <h3>Place Order</h3>
-                <p>Select a gallon type and quantity.</p>
+                <p>Add one or more gallon types in one order.</p>
             </div>
             <button class="modal-close" onclick="closeOrderModal()">×</button>
         </div>
 
         <div class="selected-product-box">
-            <strong id="selectedProductName">Select Product</strong>
-            <p id="selectedProductDetails">Choose a product to see price, stock, and total cost.</p>
+            <strong>Order Items</strong>
+            <p>Enter quantity for each gallon type. Leave 0 if you do not want to include it.</p>
         </div>
 
         <form id="orderForm">
-            <div class="form-group">
-                <label for="productSelect">Product</label>
-                <select id="productSelect" required></select>
-            </div>
-
-            <div class="form-group">
-                <label for="orderQuantity">Quantity</label>
-                <input type="number" id="orderQuantity" min="1" value="1" required>
-            </div>
+            <div id="orderItemsContainer"></div>
 
             <div class="form-group">
                 <label for="orderAddress">Delivery Address</label>
-                <textarea id="orderAddress" rows="4" placeholder="Enter your complete delivery address" required></textarea>
+                <textarea id="orderAddress" rows="4" placeholder="Your registered delivery address will appear here" required readonly></textarea>
+                <p class="form-note">This address is automatically taken from your registration details.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="validIdUpload">Valid ID for Confirmation</label>
+                <input type="file" id="validIdUpload" accept="image/*,.pdf" required>
+                <p class="form-note">Upload a clear photo or PDF of your valid ID for customer confirmation.</p>
             </div>
 
             <div class="total-box">
@@ -634,8 +764,12 @@ body.login-gate-open .container{
     </div>
 </div>
 
+<!-- Toast notification -->
 <div id="toast" class="success-toast"></div>
 
+<!-- =========================================
+     MAIN DASHBOARD
+========================================= -->
 <div class="container">
     <div class="header">
         <div class="header-left">
@@ -755,21 +889,38 @@ body.login-gate-open .container{
 </div>
 
 <script>
+/* =========================================
+   API BASE URL
+========================================= */
 const API_URL = window.location.origin && window.location.origin !== 'null' ? window.location.origin : '';
 
-let cachedProducts = [
-    { id: 1, product_id: '5-gallon-round', name: '5-Gallon Round', price: 30, quantity: 50 },
-    { id: 2, product_id: '5-gallon-slim', name: '5-Gallon Slim', price: 35, quantity: 40 },
-    { id: 3, product_id: '3-gallon', name: '3-Gallon', price: 25, quantity: 60 }
+/* =========================================
+   PRODUCTS
+
+   Important:
+   - Quantity comes from admin/database.
+   - Default quantity is 0, not fake stock.
+========================================= */
+const DEFAULT_PRODUCTS = [
+    { id: 1, product_id: 'gallon-round', name: 'Gallon Round', price: 30, quantity: 0 },
+    { id: 2, product_id: 'gallon-slim', name: 'Gallon Slim', price: 30, quantity: 0 },
+    { id: 3, product_id: '3-gallon', name: '3 Gallon', price: 25, quantity: 0 }
 ];
 
-let selectedProduct = null;
+/* Current product list displayed in dashboard */
+let cachedProducts = [...DEFAULT_PRODUCTS];
 
+/* =========================================
+   AUTHORIZATION HEADER
+========================================= */
 function authHeaders(){
     const t = localStorage.getItem('token');
     return t ? { Authorization:`Bearer ${t}` } : {};
 }
 
+/* =========================================
+   ESCAPE HTML TO AVOID DISPLAY ISSUES
+========================================= */
 function escapeHTML(value){
     return String(value || '')
         .replace(/&/g,'&amp;')
@@ -779,11 +930,27 @@ function escapeHTML(value){
         .replace(/'/g,'&#039;');
 }
 
-function shortOrderId(id){
-    if(!id) return 'N/A';
-    return String(id).replaceAll('-','').slice(0,8).toUpperCase();
+/* =========================================
+   FORMAT MONEY
+========================================= */
+function formatMoney(value){
+    return `₱${Number(value || 0).toFixed(2)}`;
 }
 
+/* =========================================
+   CLEAN ORDER ID DISPLAY
+========================================= */
+function formatOrderId(id){
+    if(!id) return 'ORDER-N/A';
+
+    const cleanId = String(id).replaceAll('-','').toUpperCase();
+
+    return `ORD-${cleanId.slice(0,6)}`;
+}
+
+/* =========================================
+   SHOW TOAST MESSAGE
+========================================= */
 function showToast(message){
     const toast = document.getElementById('toast');
     toast.textContent = message;
@@ -791,6 +958,9 @@ function showToast(message){
     setTimeout(()=>toast.classList.remove('is-visible'),3000);
 }
 
+/* =========================================
+   SHOW LOGIN GATE
+========================================= */
 function showLoginGate(message){
     document.body.classList.add('login-gate-open');
     document.getElementById('loginGate').classList.add('is-open');
@@ -800,11 +970,66 @@ function showLoginGate(message){
     msg.textContent = message || '';
 }
 
+/* =========================================
+   HIDE LOGIN GATE
+========================================= */
 function hideLoginGate(){
     document.body.classList.remove('login-gate-open');
     document.getElementById('loginGate').classList.remove('is-open');
 }
 
+/* =========================================
+   GET REGISTERED ADDRESS
+========================================= */
+function getRegisteredAddress(){
+    const user = localStorage.getItem('user');
+    const savedAddress = localStorage.getItem('customerRegisteredAddress');
+
+    if(savedAddress){
+        return savedAddress;
+    }
+
+    if(user){
+        try{
+            const parsedUser = JSON.parse(user);
+
+            const addressParts = [
+                parsedUser.address,
+                parsedUser.barangay,
+                parsedUser.barangay ? 'Hinunangan, Southern Leyte' : ''
+            ].filter(Boolean);
+
+            if(addressParts.length > 0){
+                return addressParts.join(', ');
+            }
+        }catch(error){
+            return '';
+        }
+    }
+
+    return '';
+}
+
+/* =========================================
+   SAVE REGISTERED ADDRESS FROM USER DATA
+========================================= */
+function saveRegisteredAddressFromUser(userData){
+    if(!userData) return;
+
+    const addressParts = [
+        userData.address,
+        userData.barangay,
+        userData.barangay ? 'Hinunangan, Southern Leyte' : ''
+    ].filter(Boolean);
+
+    if(addressParts.length > 0){
+        localStorage.setItem('customerRegisteredAddress', addressParts.join(', '));
+    }
+}
+
+/* =========================================
+   APPLY CUSTOMER PROFILE TO UI
+========================================= */
 function applyCustomerProfile(name,email){
     const finalName = name && name.trim() ? name.trim() : 'Guest Customer';
     const finalEmail = email && email.trim() ? email.trim() : 'customer@example.com';
@@ -816,6 +1041,9 @@ function applyCustomerProfile(name,email){
     document.getElementById('welcomeText').textContent = finalName === 'Guest Customer' ? 'Welcome back!' : `Welcome back, ${finalName}!`;
 }
 
+/* =========================================
+   SAVE CUSTOMER PROFILE LOCALLY
+========================================= */
 function saveCustomerProfile(){
     const name = document.getElementById('profileName').value.trim();
     const email = document.getElementById('profileEmail').value.trim();
@@ -828,6 +1056,9 @@ function saveCustomerProfile(){
     showToast('Customer information saved.');
 }
 
+/* =========================================
+   LOAD SAVED PROFILE
+========================================= */
 function loadSavedProfile(){
     const saved = localStorage.getItem('customerProfile');
     const user = localStorage.getItem('user');
@@ -841,20 +1072,23 @@ function loadSavedProfile(){
     if(user){
         const parsedUser = JSON.parse(user);
         applyCustomerProfile(parsedUser.name,parsedUser.email);
+        saveRegisteredAddressFromUser(parsedUser);
         return;
     }
 
     applyCustomerProfile('Guest Customer','customer@example.com');
 }
 
+/* =========================================
+   LOAD DASHBOARD DATA
+========================================= */
 async function loadDashboard(){
     document.getElementById('errorContainer').innerHTML = '';
 
-    displayProducts(cachedProducts);
-    displayInventory(cachedProducts);
-
     if(!localStorage.getItem('token')){
         loadSavedProfile();
+        displayProducts(cachedProducts);
+        displayInventory(cachedProducts);
         return;
     }
 
@@ -875,12 +1109,42 @@ async function loadDashboard(){
         }
 
         const data = await response.json();
-        displayDashboard(data.data);
+
+        displayDashboard(data.data || {});
     }catch(error){
         displayError(error.message);
     }
 }
 
+/* =========================================
+   GET PRODUCTS FROM BACKEND
+
+   Fix:
+   - Uses admin/database quantity.
+   - No fake default stock.
+========================================= */
+function getFixedProductsFromBackend(apiProducts){
+    return DEFAULT_PRODUCTS.map(defaultProduct => {
+        const matched = (apiProducts || []).find(apiProduct => {
+            const name = String(apiProduct.name || apiProduct.product_name || '').toLowerCase();
+            const id = String(apiProduct.product_id || '').toLowerCase();
+
+            return (
+                id === defaultProduct.product_id ||
+                name === defaultProduct.name.toLowerCase()
+            );
+        });
+
+        return {
+            ...defaultProduct,
+            quantity: matched ? Number(matched.quantity || matched.quantity_on_hand || 0) : 0
+        };
+    });
+}
+
+/* =========================================
+   DISPLAY DASHBOARD DATA
+========================================= */
 function displayDashboard(data){
     const customerName = data.customer?.name || 'Guest Customer';
     const customerEmail = data.customer?.email || 'customer@example.com';
@@ -890,30 +1154,28 @@ function displayDashboard(data){
         email:customerEmail
     }));
 
+    if(data.customer){
+        saveRegisteredAddressFromUser(data.customer);
+    }
+
     applyCustomerProfile(customerName,customerEmail);
 
     document.getElementById('totalOrders').textContent = data.statistics?.totalOrders || 0;
     document.getElementById('pendingOrders').textContent = data.statistics?.pendingOrders || 0;
     document.getElementById('completedOrders').textContent = data.statistics?.completedOrders || 0;
-    document.getElementById('totalSpent').textContent = `₱${parseFloat(data.statistics?.totalSpent || 0).toFixed(2)}`;
+    document.getElementById('totalSpent').textContent = formatMoney(data.statistics?.totalSpent || 0);
+
+    cachedProducts = getFixedProductsFromBackend(data.availableProducts || []);
 
     displayActiveOrders(data.activeOrders || []);
     displayRecentOrders(data.recentOrders || []);
-
-    if(data.availableProducts && data.availableProducts.length > 0){
-        cachedProducts = data.availableProducts.map((product,index)=>({
-            id: product.id || index + 1,
-            product_id: product.product_id || product.name?.toLowerCase().replaceAll(' ','-') || `product-${index + 1}`,
-            name: product.name,
-            price: Number(product.price || 0),
-            quantity: Number(product.quantity || 0)
-        }));
-    }
-
     displayProducts(cachedProducts);
     displayInventory(cachedProducts);
 }
 
+/* =========================================
+   DISPLAY INVENTORY
+========================================= */
 function displayInventory(products){
     const container = document.getElementById('inventoryContainer');
     let html = '';
@@ -930,6 +1192,84 @@ function displayInventory(products){
     container.innerHTML = html;
 }
 
+/* =========================================
+   PARSE ORDER ITEMS
+
+   Fix:
+   - Displays multiple products correctly.
+   - Supports order_items JSON, items array, or product text.
+========================================= */
+function parseOrderItems(order){
+    if(Array.isArray(order.order_items)){
+        return order.order_items;
+    }
+
+    if(Array.isArray(order.items)){
+        return order.items;
+    }
+
+    if(typeof order.order_items === 'string' && order.order_items.trim()){
+        try{
+            const parsed = JSON.parse(order.order_items);
+            if(Array.isArray(parsed)){
+                return parsed;
+            }
+        }catch(error){
+            return [];
+        }
+    }
+
+    return [];
+}
+
+/* =========================================
+   GET ORDER ITEMS HTML
+========================================= */
+function getOrderItemsHTML(order){
+    const items = parseOrderItems(order);
+
+    if(items.length > 0){
+        return `
+            <div class="order-items-list">
+                ${items.map(item => `
+                    <div>
+                        <span>${escapeHTML(item.name || item.product_id || item.product || 'Item')} x${Number(item.quantity || 0)}</span>
+                        <small>${formatMoney(item.price || 0)} each</small>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    return escapeHTML(order.product || 'Order item(s)');
+}
+
+/* =========================================
+   GET CORRECT ORDER TOTAL
+
+   Fix:
+   - If order_items exist, compute total from items.
+   - Prevents wrong display for new multiple-product orders.
+========================================= */
+function getOrderTotal(order){
+    const items = parseOrderItems(order);
+
+    if(items.length > 0){
+        return items.reduce((sum,item)=>{
+            const quantity = Number(item.quantity || 0);
+            const price = Number(item.price || 0);
+            const subtotal = Number(item.subtotal || 0);
+
+            return sum + (subtotal > 0 ? subtotal : quantity * price);
+        },0);
+    }
+
+    return Number(order.total_amount || order.total_price || 0);
+}
+
+/* =========================================
+   DISPLAY ACTIVE ORDERS
+========================================= */
 function displayActiveOrders(orders){
     const container = document.getElementById('activeOrdersContainer');
 
@@ -955,11 +1295,11 @@ function displayActiveOrders(orders){
     orders.forEach(order=>{
         html += `
         <tr>
-            <td><strong>#${shortOrderId(order.id)}</strong></td>
-            <td>${order.total_items || 1} item(s)</td>
-            <td><strong>₱${parseFloat(order.total_amount || 0).toFixed(2)}</strong></td>
-            <td>${getStatusBadge(order.status)}</td>
-            <td>${escapeHTML(order.delivery?.delivery_personnel?.name || 'Not yet assigned')}</td>
+            <td><span class="order-id-pill">${formatOrderId(order.id || order.orderId || order.order_id)}</span></td>
+            <td>${getOrderItemsHTML(order)}</td>
+            <td><strong>${formatMoney(getOrderTotal(order))}</strong></td>
+            <td>${getStatusBadge(order.status || order.order_status)}</td>
+            <td>${escapeHTML(order.delivery?.delivery_personnel?.name || order.delivery_personnel_name || 'Not yet assigned')}</td>
         </tr>`;
     });
 
@@ -967,6 +1307,9 @@ function displayActiveOrders(orders){
     container.innerHTML = html;
 }
 
+/* =========================================
+   DISPLAY RECENT ORDERS
+========================================= */
 function displayRecentOrders(orders){
     const container = document.getElementById('recentOrdersContainer');
 
@@ -981,6 +1324,7 @@ function displayRecentOrders(orders){
     <thead>
         <tr>
             <th>Order ID</th>
+            <th>Items</th>
             <th>Date</th>
             <th>Total</th>
             <th>Status</th>
@@ -989,13 +1333,15 @@ function displayRecentOrders(orders){
     <tbody>`;
 
     orders.forEach(order=>{
-        const date = new Date(order.createdAt).toLocaleDateString();
+        const date = new Date(order.createdAt || order.order_date).toLocaleDateString();
+
         html += `
         <tr>
-            <td><strong>#${shortOrderId(order.id)}</strong></td>
+            <td><span class="order-id-pill">${formatOrderId(order.id || order.orderId || order.order_id)}</span></td>
+            <td>${getOrderItemsHTML(order)}</td>
             <td>${date}</td>
-            <td><strong>₱${parseFloat(order.total_amount || 0).toFixed(2)}</strong></td>
-            <td>${getStatusBadge(order.status)}</td>
+            <td><strong>${formatMoney(getOrderTotal(order))}</strong></td>
+            <td>${getStatusBadge(order.status || order.order_status)}</td>
         </tr>`;
     });
 
@@ -1003,12 +1349,15 @@ function displayRecentOrders(orders){
     container.innerHTML = html;
 }
 
+/* =========================================
+   DISPLAY PRODUCT CARDS
+========================================= */
 function displayProducts(products){
     const container = document.getElementById('productsContainer');
 
     if(products.length === 0){
         container.innerHTML = '<div class="empty-message">No products available right now.</div>';
-        updateProductSelect();
+        renderOrderItems();
         return;
     }
 
@@ -1017,13 +1366,13 @@ function displayProducts(products){
     products.forEach(product=>{
         const stock = Number(product.quantity || 0);
         const disabled = stock <= 0 ? 'disabled' : '';
-        const buttonText = stock <= 0 ? 'Out of Stock' : 'Order Now';
+        const buttonText = stock <= 0 ? 'Out of Stock' : 'Add to Order';
 
         html += `
         <div class="product-card">
             <div class="product-icon">💧</div>
             <div class="product-name">${escapeHTML(product.name)}</div>
-            <div class="product-price">₱${parseFloat(product.price || 0).toFixed(2)}</div>
+            <div class="product-price">${formatMoney(product.price || 0)}</div>
             <div class="product-quantity">Available stock: ${stock} gallon(s)</div>
             <button class="order-btn" ${disabled} onclick="openOrderModal(${product.id})">${buttonText}</button>
         </div>`;
@@ -1031,89 +1380,146 @@ function displayProducts(products){
 
     html += '</div>';
     container.innerHTML = html;
-    updateProductSelect();
+    renderOrderItems();
 }
 
-function updateProductSelect(){
-    const select = document.getElementById('productSelect');
+/* =========================================
+   RENDER MULTIPLE ORDER ITEMS
+========================================= */
+function renderOrderItems(selectedRowId){
+    const container = document.getElementById('orderItemsContainer');
 
-    if(!cachedProducts.length){
-        select.innerHTML = '<option value="">No products available</option>';
-        return;
-    }
+    if(!container) return;
 
-    select.innerHTML = '<option value="">Select product</option>';
+    let html = '';
 
     cachedProducts.forEach(product=>{
-        if(Number(product.quantity || 0) > 0){
-            select.innerHTML += `<option value="${product.id}">${escapeHTML(product.name)} - ₱${parseFloat(product.price || 0).toFixed(2)}</option>`;
-        }
+        const stock = Number(product.quantity || 0);
+        const selectedQty = selectedRowId && Number(product.id) === Number(selectedRowId) ? 1 : 0;
+
+        html += `
+        <div class="order-item-row">
+            <div class="order-item-info">
+                <strong>${escapeHTML(product.name)} - ${formatMoney(product.price || 0)}</strong>
+                <span>Available stock: ${stock} gallon(s)</span>
+            </div>
+
+            <div class="form-group">
+                <label for="qty_${product.id}">Quantity</label>
+                <input
+                    type="number"
+                    id="qty_${product.id}"
+                    class="multi-qty-input"
+                    data-id="${product.id}"
+                    min="0"
+                    max="${stock}"
+                    value="${selectedQty}"
+                    ${stock <= 0 ? 'disabled' : ''}
+                >
+            </div>
+        </div>`;
     });
+
+    container.innerHTML = html;
+
+    document.querySelectorAll('.multi-qty-input').forEach(input=>{
+        input.addEventListener('input',updateOrderTotal);
+    });
+
+    updateOrderTotal();
 }
 
+/* =========================================
+   GET SELECTED ORDER ITEMS
+========================================= */
+function getSelectedOrderItems(){
+    const items = [];
+
+    document.querySelectorAll('.multi-qty-input').forEach(input=>{
+        const productId = input.getAttribute('data-id');
+        const product = cachedProducts.find(p=>String(p.id) === String(productId));
+        const quantity = parseInt(input.value,10) || 0;
+
+        if(product && quantity > 0){
+            const price = Number(product.price || 0);
+
+            items.push({
+                product:product.product_id,
+                product_id:product.product_id,
+                name:product.name,
+                price:price,
+                quantity:quantity,
+                subtotal:price * quantity
+            });
+        }
+    });
+
+    return items;
+}
+
+/* =========================================
+   UPDATE TOTAL PRICE
+========================================= */
+function updateOrderTotal(){
+    let total = 0;
+
+    document.querySelectorAll('.multi-qty-input').forEach(input=>{
+        const productId = input.getAttribute('data-id');
+        const product = cachedProducts.find(p=>String(p.id) === String(productId));
+        const quantity = parseInt(input.value,10) || 0;
+
+        if(product){
+            total += Number(product.price || 0) * quantity;
+        }
+    });
+
+    document.getElementById('orderTotal').textContent = formatMoney(total);
+}
+
+/* =========================================
+   OPEN ORDER MODAL
+========================================= */
 function openOrderModal(rowId){
-    updateProductSelect();
-
     const modal = document.getElementById('orderModal');
-    const select = document.getElementById('productSelect');
+    const registeredAddress = getRegisteredAddress();
 
-    if(rowId){
-        selectedProduct = cachedProducts.find(p=>Number(p.id) === Number(rowId));
-        select.value = rowId;
-    }else{
-        selectedProduct = null;
-        select.value = '';
-    }
+    renderOrderItems(rowId);
 
-    updateSelectedProductDetails();
-    updateOrderTotal();
-
-    document.getElementById('orderQuantity').value = 1;
-    document.getElementById('orderAddress').value = '';
+    document.getElementById('orderAddress').value = registeredAddress;
+    document.getElementById('validIdUpload').value = '';
 
     modal.classList.add('is-open');
 }
 
-function updateSelectedProductDetails(){
-    const select = document.getElementById('productSelect');
-    selectedProduct = cachedProducts.find(p=>String(p.id) === String(select.value));
+/* =========================================
+   CLOSE ORDER MODAL
+========================================= */
+function closeOrderModal(){
+    document.getElementById('orderModal').classList.remove('is-open');
+}
 
-    if(!selectedProduct){
-        document.getElementById('selectedProductName').textContent = 'Select Product';
-        document.getElementById('selectedProductDetails').textContent = 'Choose a product to see price, stock, and total cost.';
-        updateOrderTotal();
+/* =========================================
+   SUBMIT ORDER TO BACKEND
+========================================= */
+async function orderProduct(items,address,validIdFile){
+    if(!items || items.length === 0){
+        alert('Please add at least one gallon type to your order.');
         return;
     }
 
-    document.getElementById('selectedProductName').textContent = selectedProduct.name;
-    document.getElementById('selectedProductDetails').textContent =
-        `Price: ₱${parseFloat(selectedProduct.price || 0).toFixed(2)} · Stock: ${selectedProduct.quantity || 0} gallon(s)`;
-
-    updateOrderTotal();
-}
-
-function updateOrderTotal(){
-    const qty = parseInt(document.getElementById('orderQuantity').value,10) || 0;
-    const price = selectedProduct ? Number(selectedProduct.price || 0) : 0;
-    const total = qty * price;
-
-    document.getElementById('orderTotal').textContent = `₱${total.toFixed(2)}`;
-}
-
-function closeOrderModal(){
-    document.getElementById('orderModal').classList.remove('is-open');
-    selectedProduct = null;
-}
-
-async function orderProduct(productId,qty,address){
-    const sku = productId || selectedProduct?.product_id;
-
-    if(!sku){
-        alert('Please select a product.');
+    if(!validIdFile){
+        alert('Please upload a valid ID for confirmation.');
         return;
     }
 
     try{
+        const totalAmount = items.reduce((sum,item)=>sum + Number(item.subtotal || 0),0);
+        const totalQuantity = items.reduce((sum,item)=>sum + Number(item.quantity || 0),0);
+
+        const orderSummary = items
+            .map(item=>`${item.name} x${item.quantity}`)
+            .join(', ');
+
         const res = await fetch(`${API_URL}/orders`,{
             method:'POST',
             headers:{
@@ -1121,9 +1527,16 @@ async function orderProduct(productId,qty,address){
                 'Content-Type':'application/json'
             },
             body:JSON.stringify({
-                product:sku,
-                quantity:qty,
-                delivery_address:address.trim()
+                items:items,
+                order_items:items,
+                product:orderSummary,
+                quantity:totalQuantity,
+                total_amount:totalAmount,
+                total_price:totalAmount,
+                delivery_address:address.trim(),
+                valid_id_name:validIdFile.name,
+                valid_id_type:validIdFile.type,
+                valid_id_data:'Uploaded valid ID: ' + validIdFile.name
             })
         });
 
@@ -1133,7 +1546,12 @@ async function orderProduct(productId,qty,address){
             throw new Error(body.error || body.message || 'Order failed');
         }
 
-        selectedProduct.quantity = Number(selectedProduct.quantity || 0) - qty;
+        items.forEach(item=>{
+            const product = cachedProducts.find(p=>String(p.product_id) === String(item.product_id));
+            if(product){
+                product.quantity = Number(product.quantity || 0) - Number(item.quantity || 0);
+            }
+        });
 
         closeOrderModal();
         showToast(body.message || 'Order placed successfully.');
@@ -1145,40 +1563,52 @@ async function orderProduct(productId,qty,address){
     }
 }
 
-document.getElementById('productSelect').addEventListener('change',function(){
-    updateSelectedProductDetails();
-    updateOrderTotal();
-});
-
-document.getElementById('orderQuantity').addEventListener('input',updateOrderTotal);
-
+/* =========================================
+   ORDER FORM SUBMIT
+========================================= */
 document.getElementById('orderForm').addEventListener('submit',async function(e){
     e.preventDefault();
 
-    updateSelectedProductDetails();
+    const items = getSelectedOrderItems();
+    const address = document.getElementById('orderAddress').value.trim();
+    const validIdFile = document.getElementById('validIdUpload').files[0];
 
-    if(!selectedProduct){
-        alert('Please select a product.');
+    if(items.length === 0){
+        alert('Please add at least one gallon type to your order.');
         return;
     }
 
-    const qty = parseInt(document.getElementById('orderQuantity').value,10);
-    const address = document.getElementById('orderAddress').value.trim();
+    for(const item of items){
+        const product = cachedProducts.find(p=>String(p.product_id) === String(item.product_id));
+        const stock = Number(product?.quantity || 0);
 
-    if(!qty || qty < 1){
-        alert('Please enter a valid quantity.');
-        return;
+        if(item.quantity > stock){
+            alert(`Only ${stock} gallon(s) are available for ${item.name}.`);
+            return;
+        }
     }
 
     if(!address){
-        alert('Delivery address is required.');
+        alert('Delivery address is required. Please make sure your registered address is available.');
         return;
     }
 
-    const stock = Number(selectedProduct.quantity || 0);
+    if(!validIdFile){
+        alert('Please upload a valid ID for confirmation.');
+        return;
+    }
 
-    if(qty > stock){
-        alert(`Only ${stock} gallon(s) are available.`);
+    const allowedTypes = ['image/jpeg','image/png','image/jpg','image/webp','application/pdf'];
+
+    if(!allowedTypes.includes(validIdFile.type)){
+        alert('Valid ID must be an image file or PDF.');
+        return;
+    }
+
+    const maxSize = 1 * 1024 * 1024;
+
+    if(validIdFile.size > maxSize){
+        alert('Valid ID file must not exceed 1MB.');
         return;
     }
 
@@ -1186,29 +1616,39 @@ document.getElementById('orderForm').addEventListener('submit',async function(e)
     btn.disabled = true;
     btn.textContent = 'Submitting...';
 
-    await orderProduct(selectedProduct.product_id,qty,address);
+    await orderProduct(items,address,validIdFile);
 
     btn.disabled = false;
     btn.textContent = 'Submit Order';
 });
 
+/* =========================================
+   GET STATUS BADGE
+========================================= */
 function getStatusBadge(status){
     const badges = {
         pending:'<span class="status-badge status-pending">● Pending</span>',
         confirmed:'<span class="status-badge status-confirmed">● Confirmed</span>',
         in_transit:'<span class="status-badge status-in-transit">● In Transit</span>',
         delivered:'<span class="status-badge status-completed">● Delivered</span>',
-        completed:'<span class="status-badge status-completed">● Completed</span>'
+        completed:'<span class="status-badge status-completed">● Completed</span>',
+        collectable:'<span class="status-badge status-collectable">● Collectable</span>',
     };
 
     return badges[status] || `<span class="status-badge">${escapeHTML(status || 'Unknown')}</span>`;
 }
 
+/* =========================================
+   DISPLAY ERROR
+========================================= */
 function displayError(message){
     document.getElementById('errorContainer').innerHTML =
         `<div class="error">⚠️ ${escapeHTML(message)}</div>`;
 }
 
+/* =========================================
+   LOGOUT
+========================================= */
 function logout(){
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -1226,12 +1666,17 @@ function logout(){
     document.getElementById('recentOrdersContainer').innerHTML =
         '<div class="empty-message">No recent orders yet. Your previous orders will appear here.</div>';
 
+    cachedProducts = [...DEFAULT_PRODUCTS];
+
     displayProducts(cachedProducts);
     displayInventory(cachedProducts);
 
     showLoginGate('');
 }
 
+/* =========================================
+   LOGIN FORM SUBMIT
+========================================= */
 document.getElementById('loginGateForm').addEventListener('submit',async function(e){
     e.preventDefault();
 
@@ -1262,6 +1707,8 @@ document.getElementById('loginGateForm').addEventListener('submit',async functio
         localStorage.setItem('token',data.token);
         localStorage.setItem('user',JSON.stringify(data.user));
 
+        saveRegisteredAddressFromUser(data.user);
+
         const userName = data.user?.name || 'Guest Customer';
         const userEmail = data.user?.email || email;
 
@@ -1283,18 +1730,27 @@ document.getElementById('loginGateForm').addEventListener('submit',async functio
     }
 });
 
+/* =========================================
+   CLOSE MODAL WHEN CLICKING OUTSIDE
+========================================= */
 document.getElementById('orderModal').addEventListener('click',function(e){
     if(e.target.id === 'orderModal'){
         closeOrderModal();
     }
 });
 
+/* =========================================
+   ESC KEY CLOSE ORDER MODAL
+========================================= */
 window.addEventListener('keydown',function(e){
     if(e.key === 'Escape'){
         closeOrderModal();
     }
 });
 
+/* =========================================
+   INITIAL PAGE LOAD
+========================================= */
 loadSavedProfile();
 displayProducts(cachedProducts);
 displayInventory(cachedProducts);

@@ -165,9 +165,9 @@ const seedDatabase = async () => {
     console.log('🎉 Seeding completed successfully!');
 
     console.log('\n🔐 Default Accounts:');
-    console.log('Admin → admin@waterstation.local / admin123');
-    console.log('Customer → customer@waterstation.local / customer123');
-    console.log('Delivery → delivery@waterstation.local / delivery123');
+    console.log('Admin → admin@gmail.com / admin123');
+    console.log('Customer → customer@gmail.com / customer123');
+    console.log('Delivery → delivery@gmail.com / delivery123');
 
   } catch (error) {
     console.error('❌ Seeding failed:', error);

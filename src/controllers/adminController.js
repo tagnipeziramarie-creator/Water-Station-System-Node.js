@@ -1,6 +1,9 @@
 import pool from '../config/database.js';
 import { AppError } from '../middleware/errorHandler.js';
 
+// ===================================
+// CHECK IF COLUMN EXISTS
+// ===================================
 const hasColumn = async (connection, tableName, columnName) => {
   const [rows] = await connection.execute(
     `
@@ -17,39 +20,64 @@ const hasColumn = async (connection, tableName, columnName) => {
   return rows.length > 0;
 };
 
+// ===================================
+// ADMIN DASHBOARD
+// ===================================
 export const getAdminDashboard = async (req, res, next) => {
   let connection;
 
   try {
     connection = await pool.getConnection();
 
+    // Get total orders
     const [totalOrdersResult] = await connection.execute(
       'SELECT COUNT(*) AS count FROM orders'
     );
 
+    // Get total delivered revenue
     const [totalRevenueResult] = await connection.execute(
       "SELECT SUM(COALESCE(total_amount, total_price)) AS total FROM orders WHERE order_status = 'delivered'"
     );
 
+    // Get pending deliveries
     const [pendingDeliveriesResult] = await connection.execute(
       "SELECT COUNT(*) AS count FROM deliveries WHERE delivery_status = 'pending'"
     );
 
+    // Get recent orders
     const [recentOrders] = await connection.execute(
       'SELECT * FROM orders ORDER BY createdAt DESC LIMIT 10'
     );
 
-    const [lowStockItems] = await connection.execute(
-      'SELECT * FROM inventories WHERE quantity_on_hand <= reorder_level'
+    // Get inventory records for admin and customer display
+    const [inventoryStatus] = await connection.execute(
+      `
+        SELECT 
+          product_id,
+          container_size AS name,
+          quantity_on_hand,
+          selling_price,
+          createdAt,
+          updatedAt
+        FROM inventories
+        ORDER BY product_id ASC
+      `
     );
 
     res.json({
-      dashboard: {
-        totalOrders: totalOrdersResult[0].count,
-        totalRevenue: parseFloat(totalRevenueResult[0].total || 0).toFixed(2),
-        pendingDeliveries: pendingDeliveriesResult[0].count,
+      success: true,
+      data: {
+        systemStatistics: {
+          totalOrders: totalOrdersResult[0].count,
+          totalRevenue: Number(totalRevenueResult[0].total || 0),
+          pendingDeliveries: pendingDeliveriesResult[0].count,
+        },
         recentOrders,
-        lowStockItems,
+        inventoryStatus,
+        unassignedDeliveries: [],
+        deliveryStaff: [],
+        topCustomers: [],
+        deliveryPerformance: [],
       },
     });
   } catch (error) {
@@ -59,6 +87,9 @@ export const getAdminDashboard = async (req, res, next) => {
   }
 };
 
+// ===================================
+// REPORTS
+// ===================================
 export const getReports = async (req, res, next) => {
   let connection;
 
@@ -295,28 +326,6 @@ export const cancelAdminOrder = async (req, res, next) => {
       [orderId]
     );
 
-    const hasProductColumn = await hasColumn(connection, 'orders', 'product');
-    const hasQuantityColumn = await hasColumn(connection, 'orders', 'quantity');
-
-    if (hasProductColumn && hasQuantityColumn && order.product && order.quantity) {
-      const [bins] = await connection.execute(
-        'SELECT id FROM inventories WHERE product_id = ? ORDER BY id ASC LIMIT 1 FOR UPDATE',
-        [order.product]
-      );
-
-      if (bins.length > 0) {
-        await connection.execute(
-          `
-            UPDATE inventories
-            SET quantity_on_hand = quantity_on_hand + ?,
-                updatedAt = NOW()
-            WHERE id = ?
-          `,
-          [order.quantity, bins[0].id]
-        );
-      }
-    }
-
     await connection.commit();
 
     res.json({
@@ -333,52 +342,109 @@ export const cancelAdminOrder = async (req, res, next) => {
 
 // ===================================
 // UPDATE INVENTORY
+// FIXED: UPDATE IF EXISTS, INSERT IF NOT EXISTS
 // ===================================
 export const updateInventory = async (req, res, next) => {
   let connection;
 
   try {
-
     const { productId } = req.params;
 
     const {
+      product_id,
+      name,
+      price,
+      selling_price,
       quantity,
-      quantity_on_hand
+      quantity_on_hand,
     } = req.body;
 
-    const finalQuantity =
-      quantity ?? quantity_on_hand;
+    // Final product data
+    const finalProductId = product_id || productId;
+    const finalName = name || finalProductId;
+    const finalPrice = Number(price || selling_price || 0);
+    const finalQuantity = Number(quantity_on_hand ?? quantity ?? 0);
 
     connection = await pool.getConnection();
 
+    // Check if inventory item already exists
+    const [existingRows] = await connection.execute(
+      'SELECT id FROM inventories WHERE product_id = ? LIMIT 1',
+      [finalProductId]
+    );
+
+    if (existingRows.length > 0) {
+      // Update existing inventory row
+      await connection.execute(
+        `
+          UPDATE inventories
+          SET container_size = ?,
+              quantity_on_hand = ?,
+              selling_price = ?,
+              updatedAt = NOW()
+          WHERE product_id = ?
+        `,
+        [finalName, finalQuantity, finalPrice, finalProductId]
+      );
+    } else {
+      // Insert new inventory row if it does not exist yet
+      await connection.execute(
+        `
+          INSERT INTO inventories (
+            product_id,
+            container_size,
+            quantity_on_hand,
+            reorder_level,
+            reorder_quantity,
+            cost_per_unit,
+            selling_price,
+            createdAt,
+            updatedAt
+          )
+          VALUES (?, ?, ?, 10, 10, 0, ?, NOW(), NOW())
+        `,
+        [finalProductId, finalName, finalQuantity, finalPrice]
+      );
+    }
+
+    // Also update or create water_products row if table exists
     await connection.execute(
       `
-      UPDATE inventories
-      SET quantity_on_hand = ?,
+        INSERT INTO water_products (
+          product_id,
+          name,
+          price,
+          quantity,
+          is_active,
+          createdAt,
+          updatedAt
+        )
+        VALUES (?, ?, ?, ?, 1, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE
+          name = VALUES(name),
+          price = VALUES(price),
+          quantity = VALUES(quantity),
+          is_active = 1,
           updatedAt = NOW()
-      WHERE product_id = ?
       `,
-      [finalQuantity, productId]
+      [finalProductId, finalName, finalPrice, finalQuantity]
     );
 
     res.json({
       success: true,
-      message: 'Inventory updated successfully'
+      message: 'Inventory updated successfully',
+      product: {
+        product_id: finalProductId,
+        name: finalName,
+        price: finalPrice,
+        quantity: finalQuantity,
+        quantity_on_hand: finalQuantity,
+      },
     });
-
   } catch (error) {
-
-    console.error(
-      '❌ updateInventory error:',
-      error
-    );
-
+    console.error('❌ updateInventory error:', error);
     next(error);
-
   } finally {
-
-    if (connection)
-      connection.release();
-
+    if (connection) connection.release();
   }
 };

@@ -680,6 +680,7 @@
         }
 
         .login-box input,
+        .login-box select,
         .modal-input {
             width: 100%;
             padding: 13px;
@@ -693,11 +694,20 @@
         }
 
         .login-box input:focus,
+        .login-box select:focus,
         .modal-input:focus {
             outline: none;
             border-color: var(--primary);
             background: white;
             box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+        }
+
+        .modal-field-note {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: -3px;
+            margin-bottom: 5px;
+            text-align: left !important;
         }
 
         .show-password,
@@ -749,9 +759,7 @@
         }
 
         @media (max-width: 900px) {
-            nav {
-                padding: 16px 24px;
-            }
+            nav { padding: 16px 24px; }
 
             .hero-content,
             .why-grid {
@@ -824,9 +832,7 @@
         }
 
         @media (max-width: 480px) {
-            .logo {
-                font-size: 18px;
-            }
+            .logo { font-size: 18px; }
 
             .auth-buttons,
             .btn-nav {
@@ -932,26 +938,26 @@
             <div class="products-grid">
                 <div class="product-card">
                     <div class="product-icon">💧</div>
-                    <h3>Purified Drinking Water</h3>
-                    <p>Clean drinking water suitable for daily household and business use.</p>
+                    <h3>Gallon Round</h3>
+                    <p>Round water gallon available for delivery orders at ₱30.</p>
                 </div>
 
                 <div class="product-card">
-                    <div class="product-icon">🏠</div>
-                    <h3>Household Refill</h3>
-                    <p>Affordable refill service for families who need regular water supply at home.</p>
+                    <div class="product-icon">💧</div>
+                    <h3>Gallon Slim</h3>
+                    <p>Slim water gallon available for delivery orders at ₱30.</p>
                 </div>
 
                 <div class="product-card">
-                    <div class="product-icon">🏢</div>
-                    <h3>Office Supply</h3>
-                    <p>Convenient water delivery for offices, small businesses, and local establishments.</p>
+                    <div class="product-icon">💧</div>
+                    <h3>3 Gallon</h3>
+                    <p>Smaller 3-gallon container option available for ₱25.</p>
                 </div>
 
                 <div class="product-card">
                     <div class="product-icon">🚚</div>
-                    <h3>Bulk Delivery</h3>
-                    <p>Multiple-container delivery for customers with larger water consumption needs.</p>
+                    <h3>Delivery Service</h3>
+                    <p>Customers can order one or more gallon types through the customer dashboard.</p>
                 </div>
 
                 <div class="product-card">
@@ -1019,9 +1025,7 @@
 
     <section id="why" class="section why-choose">
         <div class="section-container why-grid">
-            <div class="why-image">
-                💧🏆
-            </div>
+            <div class="why-image">💧🏆</div>
 
             <div class="why-content">
                 <p class="section-kicker">Why Choose Us</p>
@@ -1091,26 +1095,77 @@
 
             <div id="registerMessage"></div>
 
-            <form id="registerModalForm">
+            <form id="registerModalForm" novalidate>
                 <label class="modal-field-label" for="modalRegName">Full Name</label>
-                <input class="modal-input" type="text" id="modalRegName" required autocomplete="name" placeholder="Full name" />
+                <input class="modal-input" type="text" id="modalRegName" autocomplete="name" placeholder="Full name" />
 
                 <label class="modal-field-label" for="modalRegEmail">Email</label>
-                <input class="modal-input" type="email" id="modalRegEmail" required autocomplete="email" placeholder="Email" />
+                <input class="modal-input" type="email" id="modalRegEmail" autocomplete="email" placeholder="Email" />
 
                 <label class="modal-field-label" for="modalRegPassword">Password</label>
-                <input class="modal-input" type="password" id="modalRegPassword" required minlength="6" autocomplete="new-password" placeholder="Min. 6 characters" />
+                <input class="modal-input" type="password" id="modalRegPassword" autocomplete="new-password" placeholder="Min. 6 characters" />
 
                 <button type="button" class="show-password" id="toggleModalRegPasswordBtn" style="margin-top:6px;">Show Password</button>
 
-                <label class="modal-field-label" for="modalRegPhone">Phone</label>
-                <input class="modal-input" type="tel" id="modalRegPhone" autocomplete="tel" placeholder="Phone number" />
+                <label class="modal-field-label" for="modalRegPhone">Phone Number</label>
+                <input
+                    class="modal-input"
+                    type="tel"
+                    id="modalRegPhone"
+                    autocomplete="tel"
+                    placeholder="Example: 09xx-xxx-xxxx"
+                    maxlength="11"
+                    inputmode="numeric"
+                />
+                <p class="modal-field-note">Phone number must be exactly 11 digits.</p>
 
-                <label class="modal-field-label" for="modalRegAddress">Address</label>
-                <input class="modal-input" type="text" id="modalRegAddress" autocomplete="street-address" placeholder="Street / area" />
+                <label class="modal-field-label" for="modalRegAddress">Street / Sitio / Purok</label>
+                <input class="modal-input" type="text" id="modalRegAddress" autocomplete="street-address" placeholder="Street / Sitio / Purok" />
 
                 <label class="modal-field-label" for="modalRegBarangay">Barangay</label>
-                <input class="modal-input" type="text" id="modalRegBarangay" placeholder="Barangay" />
+                <select class="modal-input" id="modalRegBarangay">
+                    <option value="">Select barangay in Hinunangan</option>
+                    <option value="Ambacon">Ambacon</option>
+                    <option value="Badiangon">Badiangon</option>
+                    <option value="Bangcas A">Bangcas A</option>
+                    <option value="Bangcas B">Bangcas B</option>
+                    <option value="Biasong">Biasong</option>
+                    <option value="Bugho">Bugho</option>
+                    <option value="Calag-itan">Calag-itan</option>
+                    <option value="Calayugan">Calayugan</option>
+                    <option value="Calinao">Calinao</option>
+                    <option value="Canipaan">Canipaan</option>
+                    <option value="Catublian">Catublian</option>
+                    <option value="Ilaya">Ilaya</option>
+                    <option value="Ingan">Ingan</option>
+                    <option value="Labrador">Labrador</option>
+                    <option value="Libas">Libas</option>
+                    <option value="Lumbog">Lumbog</option>
+                    <option value="Manalog">Manalog</option>
+                    <option value="Manlico">Manlico</option>
+                    <option value="Matin-ao">Matin-ao</option>
+                    <option value="Nava">Nava</option>
+                    <option value="Nueva Esperanza">Nueva Esperanza</option>
+                    <option value="Otama">Otama</option>
+                    <option value="Palongpong">Palongpong</option>
+                    <option value="Panalaron">Panalaron</option>
+                    <option value="Patong">Patong</option>
+                    <option value="Poblacion">Poblacion</option>
+                    <option value="Pondol">Pondol</option>
+                    <option value="Salog">Salog</option>
+                    <option value="Salvacion">Salvacion</option>
+                    <option value="San Pablo Island">San Pablo Island</option>
+                    <option value="San Pedro Island">San Pedro Island</option>
+                    <option value="Santo Niño I">Santo Niño I</option>
+                    <option value="Santo Niño II">Santo Niño II</option>
+                    <option value="Tahusan">Tahusan</option>
+                    <option value="Talisay">Talisay</option>
+                    <option value="Tawog">Tawog</option>
+                    <option value="Toptop">Toptop</option>
+                    <option value="Tuburan">Tuburan</option>
+                    <option value="Union">Union</option>
+                    <option value="Upper Bantawon">Upper Bantawon</option>
+                </select>
 
                 <button type="submit" class="modal-login-btn" style="margin-top:14px;">Register</button>
             </form>
@@ -1147,9 +1202,9 @@
 
             <div class="footer-section">
                 <h4>Contact</h4>
-                <p>📞 Phone: 09XX-XXX-XXXX</p>
-                <p>📧 Email: purewaterstation@example.com</p>
-                <p>📍 Location: Hinunangan, Southern Leyte</p>
+                <p>📞 Phone: 0965-436-3741</p>
+                <p>📧 Email: Irashi_pretty@example.com</p>
+                <p>📍 Location: Purok Masipag, Hinunangan, Southern Leyte</p>
             </div>
         </div>
 
@@ -1220,6 +1275,21 @@
             }
         }
 
+        function showRegisterError(text, fieldId) {
+            var message = document.getElementById('registerMessage');
+            message.style.color = 'red';
+            message.innerText = text;
+            alert(text);
+
+            if (fieldId) {
+                document.getElementById(fieldId).focus();
+            }
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
         document.getElementById('navLoginBtn').addEventListener('click', openLogin);
         document.getElementById('heroLoginBtn').addEventListener('click', openLogin);
         document.getElementById('ctaLoginBtn').addEventListener('click', openLogin);
@@ -1255,6 +1325,10 @@
                 password.type = 'password';
                 showText.innerText = 'Show Password';
             }
+        });
+
+        document.getElementById('modalRegPhone').addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(0, 11);
         });
 
         document.getElementById('loginModal').addEventListener('click', function(e) {
@@ -1324,17 +1398,34 @@
                 ? window.location.origin
                 : '';
 
-            var payload = {
-                name: document.getElementById('modalRegName').value.trim(),
-                email: document.getElementById('modalRegEmail').value.trim(),
-                password: document.getElementById('modalRegPassword').value.trim(),
-                phone: document.getElementById('modalRegPhone').value.trim(),
-                address: document.getElementById('modalRegAddress').value.trim(),
-                barangay: document.getElementById('modalRegBarangay').value.trim()
-            };
+            var name = document.getElementById('modalRegName').value.trim();
+            var email = document.getElementById('modalRegEmail').value.trim();
+            var password = document.getElementById('modalRegPassword').value.trim();
+            var phone = document.getElementById('modalRegPhone').value.trim();
+            var address = document.getElementById('modalRegAddress').value.trim();
+            var barangay = document.getElementById('modalRegBarangay').value.trim();
 
             message.style.color = '';
             message.innerText = '';
+
+            if (!name) return showRegisterError('Full name is required.', 'modalRegName');
+            if (!email) return showRegisterError('Email is required.', 'modalRegEmail');
+            if (!isValidEmail(email)) return showRegisterError('Please enter a valid email address.', 'modalRegEmail');
+            if (!password) return showRegisterError('Password is required.', 'modalRegPassword');
+            if (password.length < 6) return showRegisterError('Password must be at least 6 characters.', 'modalRegPassword');
+            if (!phone) return showRegisterError('Phone number is required.', 'modalRegPhone');
+            if (!/^\d{11}$/.test(phone)) return showRegisterError('Phone number must be exactly 11 digits.', 'modalRegPhone');
+            if (!address) return showRegisterError('Street / Sitio / Purok is required.', 'modalRegAddress');
+            if (!barangay) return showRegisterError('Please select your barangay.', 'modalRegBarangay');
+
+            var payload = {
+                name: name,
+                email: email,
+                password: password,
+                phone: phone,
+                address: address,
+                barangay: barangay
+            };
 
             try {
                 var res = await fetch(API_URL + '/auth/register', {
@@ -1348,14 +1439,12 @@
                 });
 
                 if (!res.ok) {
-                    message.style.color = 'red';
-
                     var errMsg = data.error;
                     if (!errMsg && data.errors && data.errors.length) {
                         errMsg = data.errors[0].msg || data.errors[0].message;
                     }
 
-                    message.innerText = errMsg || 'Registration failed';
+                    showRegisterError(errMsg || 'Registration failed');
                     return;
                 }
 
@@ -1364,12 +1453,18 @@
                     localStorage.setItem('user', JSON.stringify(data.user || {}));
                 }
 
+                localStorage.setItem(
+                    'customerRegisteredAddress',
+                    address + ', ' + barangay + ', Hinunangan, Southern Leyte'
+                );
+
+                alert('Registration successful!');
+
                 closeRegister();
                 redirectToDashboard('customer');
 
             } catch (err) {
-                message.style.color = 'red';
-                message.innerText = 'Server error';
+                showRegisterError('Server error. Please check if your server is running.');
             }
         });
 

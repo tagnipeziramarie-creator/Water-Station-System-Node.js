@@ -2,19 +2,17 @@
 <html lang="en">
 <head>
 <!-- =========================================================
-     HEAD SECTION: Page settings, title, and CSS styles
+     HEAD SECTION
 ========================================================= -->
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Admin Dashboard - Water Station</title>
 
 <style>
-
 /* =========================================================
-   CSS SECTION: Design, layout, sidebar, tables, cards, and responsiveness
+   CSS SECTION
 ========================================================= */
 
-/* Root variables: reusable colors, shadows, and radius values */
 :root {
   --primary:#0ea5e9;--primary-dark:#0369a1;--secondary:#14b8a6;--dark:#0f172a;
   --muted:#64748b;--light:#f8fafc;--border:#e2e8f0;--success:#16a34a;
@@ -25,34 +23,34 @@
 /* Global reset */
 *{margin:0;padding:0;box-sizing:border-box}
 
-/* Body background and font */
+/* Main body styling */
 body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient(circle at top left,rgba(14,165,233,.18),transparent 32%),radial-gradient(circle at top right,rgba(20,184,166,.16),transparent 32%),#f8fafc;color:var(--dark);min-height:100vh}
 
-/* Main layout with sidebar and content */
+/* Main dashboard layout */
 .layout{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
 
-/* Sidebar area */
+/* Sidebar */
 .sidebar{background:#0f172a;color:white;padding:24px 18px;position:sticky;top:0;height:100vh}
 
-/* Brand/logo section */
+/* Brand section */
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:28px;padding:0 8px}
 .brand-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(135deg,var(--primary),var(--secondary));font-size:23px}
 .brand h2{font-size:18px}.brand p{color:#94a3b8;font-size:12px}
 
-/* Sidebar navigation menu */
+/* Navigation menu */
 .nav-menu{display:grid;gap:8px}
 .nav-menu button{color:#cbd5e1;background:none;border:none;text-align:left;padding:12px 14px;border-radius:14px;font-weight:700;font-size:14px;cursor:pointer}
 .nav-menu button:hover,.nav-menu button.active{background:rgba(14,165,233,.16);color:white}
 
-/* Sidebar footer/logout area */
+/* Sidebar logout */
 .sidebar-footer{position:absolute;left:18px;right:18px;bottom:22px}
 .logout-btn{width:100%;background:rgba(220,38,38,.12);color:#fecaca;border:1px solid rgba(248,113,113,.35);padding:12px 18px;border-radius:14px;cursor:pointer;font-weight:800}
 .logout-btn:hover{background:var(--danger);color:white}
 
-/* Main content area */
+/* Main content */
 .main{padding:26px;overflow-x:hidden}
 
-/* Topbar header */
+/* Topbar */
 .topbar{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:24px;padding:22px 26px;box-shadow:var(--shadow-sm);margin-bottom:24px}
 .topbar h1{font-size:28px;color:#082f49}.topbar p{color:var(--muted);font-size:14px;margin-top:4px}
 
@@ -63,21 +61,21 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
 /* Last updated text */
 .last-updated{font-size:12px;color:var(--muted);text-align:right;margin-top:6px}
 
-/* Page switching */
+/* Page display */
 .page{display:none}.page.active{display:block}
 
-/* Dashboard statistic cards */
+/* Stats grid */
 .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:18px;margin-bottom:24px}
 .stat-card{background:white;padding:20px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
 .stat-card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--primary),var(--secondary))}
 .stat-icon{font-size:26px;margin-bottom:10px}.stat-label{color:var(--muted);font-size:12px;text-transform:uppercase;font-weight:900}.stat-number{font-size:30px;font-weight:900;color:#082f49;margin-top:6px}
 
-/* Section containers */
+/* Sections */
 .section{background:white;padding:24px;border-radius:24px;border:1px solid var(--border);box-shadow:var(--shadow-sm);margin-bottom:24px}
 .section-header{margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:14px}
 .section h2{font-size:20px;color:#082f49}.section-desc{color:var(--muted);font-size:14px;margin-top:4px}
 
-/* Chart layout */
+/* Charts */
 .grid-2{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:20px}
 .chart-box{background:var(--light);border:1px solid var(--border);border-radius:18px;padding:18px}.chart-title{font-weight:900;margin-bottom:12px}.chart-container{height:300px}
 
@@ -88,11 +86,11 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
 /* Badges */
 .badge{display:inline-flex;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:900}.badge-success{background:#dcfce7;color:#166534}.badge-warning{background:#fef3c7;color:#92400e}.badge-danger{background:#fee2e2;color:#991b1b}.badge-info{background:#e0f2fe;color:#075985}.badge-muted{background:#e2e8f0;color:#475569}
 
-/* Empty, error, and notice states */
+/* Empty, error, and notice */
 .empty-card,.empty-message{text-align:center;color:var(--muted);padding:28px}.empty-card{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:18px}
 .error{background:#fee2e2;color:#991b1b;padding:14px 16px;border-radius:16px;margin-bottom:18px;border:1px solid #fecaca;font-weight:700}.notice{background:#e0f2fe;color:#075985;padding:14px 16px;border-radius:16px;margin-bottom:18px;border:1px solid #bae6fd;font-weight:700}
 
-/* Inventory section */
+/* Inventory cards */
 .inventory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}.inventory-card{background:#f8fafc;padding:16px;border-radius:18px;border:1px solid var(--border)}
 .inventory-name{font-weight:900;color:#334155}.inventory-price{color:var(--muted);font-size:13px;margin-top:3px}
 .inventory-form{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px}.inventory-form input{padding:11px;border:1px solid #cbd5e1;border-radius:12px;font-size:15px}
@@ -110,16 +108,26 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
 
 <body>
 
-<!-- Main layout wrapper -->
+<!-- =========================================================
+     MAIN LAYOUT
+========================================================= -->
 <div class="layout">
 
-<!-- Sidebar section -->
+<!-- =========================================================
+     SIDEBAR
+========================================================= -->
 <aside class="sidebar">
 
-  <!-- Brand/logo -->
-  <div class="brand"><div class="brand-icon">💧</div><div><h2>Water Station</h2><p>Admin Dashboard</p></div></div>
+  <!-- Brand / logo -->
+  <div class="brand">
+    <div class="brand-icon">💧</div>
+    <div>
+      <h2>Water Station</h2>
+      <p>Admin Dashboard</p>
+    </div>
+  </div>
 
-  <!-- Sidebar navigation buttons -->
+  <!-- Navigation buttons -->
   <div class="nav-menu">
     <button class="active" data-page="overviewPage">📊 Overview</button>
     <button data-page="ordersPage">📑 Orders</button>
@@ -129,27 +137,37 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
     <button data-page="deliveryPage">🚚 Delivery Staff</button>
   </div>
 
-  <!-- Logout button -->
-  <div class="sidebar-footer"><button class="logout-btn" onclick="logout()">Logout</button></div>
+  <!-- Logout -->
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
 </aside>
 
-<!-- Main dashboard content -->
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
 <main class="main">
 
 <!-- Topbar -->
 <header class="topbar">
-  <div><h1 id="pageTitle">Overview</h1><p id="pageSubtitle">System summary and real-time records.</p></div>
-  <div><button class="refresh-btn" id="refreshBtn" onclick="loadDashboard()">Refresh Data</button><div class="last-updated" id="lastUpdated">Not updated yet</div></div>
+  <div>
+    <h1 id="pageTitle">Overview</h1>
+    <p id="pageSubtitle">System summary and real-time records.</p>
+  </div>
+  <div>
+    <button class="refresh-btn" id="refreshBtn" onclick="loadDashboard()">Refresh Data</button>
+    <div class="last-updated" id="lastUpdated">Not updated yet</div>
+  </div>
 </header>
 
-<!-- Error and notice message containers -->
+<!-- Error and notice containers -->
 <div id="errorContainer"></div>
 <div id="noticeContainer"></div>
 
-<!-- Overview page -->
+<!-- =========================================================
+     OVERVIEW PAGE
+========================================================= -->
 <section id="overviewPage" class="page active">
-
-  <!-- Statistic cards -->
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total Users</div><div class="stat-number" id="totalUsers">0</div></div>
     <div class="stat-card"><div class="stat-icon">🛍️</div><div class="stat-label">Total Orders</div><div class="stat-number" id="totalOrders">0</div></div>
@@ -161,9 +179,12 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
     <div class="stat-card"><div class="stat-icon">👤</div><div class="stat-label">Customers</div><div class="stat-number" id="totalCustomers">0</div></div>
   </div>
 
-  <!-- Overview charts -->
+  <!-- Charts -->
   <section class="section">
-    <div class="section-header"><h2>📈 Overview Charts</h2><p class="section-desc">Charts are based on actual order and delivery records.</p></div>
+    <div class="section-header">
+      <h2>📈 Overview Charts</h2>
+      <p class="section-desc">Charts are based on actual order and delivery records.</p>
+    </div>
     <div class="grid-2">
       <div class="chart-box"><div class="chart-title">Order Status</div><div class="chart-container"><canvas id="ordersChart"></canvas></div></div>
       <div class="chart-box"><div class="chart-title">Delivery Status</div><div class="chart-container"><canvas id="deliveryChart"></canvas></div></div>
@@ -171,57 +192,95 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
   </section>
 </section>
 
-<!-- Orders page -->
+<!-- =========================================================
+     ORDERS PAGE
+========================================================= -->
 <section id="ordersPage" class="page">
   <section class="section">
-    <div class="section-header"><h2>📑 Manage Orders</h2><p class="section-desc">View and cancel orders before delivery starts.</p></div>
+    <div class="section-header">
+      <h2>📑 Manage Orders</h2>
+      <p class="section-desc">View and cancel orders before delivery starts.</p>
+    </div>
     <div id="manageOrdersContainer"><div class="empty-card"><strong>No orders found.</strong> Customer orders will appear here.</div></div>
   </section>
 
   <section class="section">
     <div class="section-header"><h2>📋 Recent Orders</h2></div>
-    <div class="table-wrap"><table class="table"><thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody id="recentOrdersTable"><tr><td colspan="5" class="empty-message">No recent orders yet.</td></tr></tbody></table></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="recentOrdersTable"><tr><td colspan="5" class="empty-message">No recent orders yet.</td></tr></tbody>
+      </table>
+    </div>
   </section>
 </section>
 
-<!-- Assign delivery page -->
+<!-- =========================================================
+     ASSIGN DELIVERY PAGE
+========================================================= -->
 <section id="assignPage" class="page">
   <section class="section">
-    <div class="section-header"><h2>📌 Assign Delivery Personnel</h2><p class="section-desc">Select delivery personnel for unassigned deliveries.</p></div>
+    <div class="section-header">
+      <h2>📌 Assign Delivery Personnel</h2>
+      <p class="section-desc">Select delivery personnel for unassigned deliveries.</p>
+    </div>
     <div id="assignDeliveriesContainer"><div class="empty-card"><strong>No unassigned deliveries.</strong> Orders waiting for delivery assignment will appear here.</div></div>
   </section>
 </section>
 
-<!-- Inventory page -->
+<!-- =========================================================
+     INVENTORY PAGE
+========================================================= -->
 <section id="inventoryPage" class="page">
   <section class="section">
-    <div class="section-header"><h2>📦 Edit Gallon Inventory</h2><p class="section-desc">Update how many gallons/containers are available.</p></div>
+    <div class="section-header">
+      <h2>📦 Edit Gallon Inventory</h2>
+      <p class="section-desc">Update how many gallons/containers are available.</p>
+    </div>
     <div id="inventoryContainer"><div class="empty-card"><strong>No inventory shown yet.</strong> Seed or add inventory items first.</div></div>
   </section>
 </section>
 
-<!-- Customers page -->
+<!-- =========================================================
+     CUSTOMERS PAGE
+========================================================= -->
 <section id="customersPage" class="page">
   <section class="section">
     <div class="section-header"><h2>⭐ Top Customers</h2></div>
-    <div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Total Spent</th></tr></thead><tbody id="topCustomersTable"><tr><td colspan="5" class="empty-message">No customer order data yet.</td></tr></tbody></table></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th><th>Total Spent</th></tr></thead>
+        <tbody id="topCustomersTable"><tr><td colspan="5" class="empty-message">No customer order data yet.</td></tr></tbody>
+      </table>
+    </div>
   </section>
 </section>
 
-<!-- Delivery staff page -->
+<!-- =========================================================
+     DELIVERY STAFF PAGE
+========================================================= -->
 <section id="deliveryPage" class="page">
   <section class="section">
     <div class="section-header"><h2>🚚 Delivery Performance</h2></div>
-    <div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Assignments</th><th>Completed</th><th>Success Rate</th></tr></thead><tbody id="deliveryPerformanceTable"><tr><td colspan="6" class="empty-message">No delivery performance data yet.</td></tr></tbody></table></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Assignments</th><th>Completed</th><th>Success Rate</th></tr></thead>
+        <tbody id="deliveryPerformanceTable"><tr><td colspan="6" class="empty-message">No delivery performance data yet.</td></tr></tbody>
+      </table>
+    </div>
   </section>
 </section>
+
 </main>
 </div>
 
-<!-- Chart.js library -->
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+/* =========================================================
+   GLOBAL VARIABLES
+========================================================= */
 
 /* API URL */
 const API_URL = window.location.origin && window.location.origin !== 'null' ? window.location.origin : '';
@@ -235,28 +294,44 @@ let ordersChart, deliveryChart;
 /* Redirect if not logged in */
 if (!token) window.location.href = '/index.html';
 
-/* Sidebar navigation page switching */
+/* =========================================================
+   NAVIGATION
+========================================================= */
 document.querySelectorAll('.nav-menu button').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-menu button').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
     btn.classList.add('active');
     document.getElementById(btn.dataset.page).classList.add('active');
     document.getElementById('pageTitle').textContent = btn.textContent.replace(/[^\w\s]/g, '').trim();
   });
 });
 
-/* Loads all dashboard data */
+/* =========================================================
+   LOAD DASHBOARD
+========================================================= */
 async function loadDashboard() {
-  setRefreshing(true); clearError(); clearNotice();
+  setRefreshing(true);
+  clearError();
+  clearNotice();
+
   try {
-    const dashboardRes = await fetch(`${API_URL}/dashboard/admin`, { headers:{Authorization:`Bearer ${token}`} });
+    const dashboardRes = await fetch(`${API_URL}/dashboard/admin`, {
+      headers:{Authorization:`Bearer ${token}`}
+    });
+
     const dashboardBody = await dashboardRes.json().catch(()=>({}));
-    if (!dashboardRes.ok) throw new Error(dashboardBody.error || dashboardBody.message || 'Failed to load dashboard');
+
+    if (!dashboardRes.ok) {
+      throw new Error(dashboardBody.error || dashboardBody.message || 'Failed to load dashboard');
+    }
 
     const orders = await getAdminOrders();
+
     displayDashboard(dashboardBody.data || {}, orders);
     updateLastUpdated();
+
   } catch (e) {
     displayError(e.message || 'Dashboard loading failed');
   } finally {
@@ -264,17 +339,30 @@ async function loadDashboard() {
   }
 }
 
-/* Gets admin orders */
+/* =========================================================
+   GET ADMIN ORDERS
+========================================================= */
 async function getAdminOrders() {
-  const res = await fetch(`${API_URL}/admin/orders?limit=200`, { headers:{Authorization:`Bearer ${token}`} });
+  const res = await fetch(`${API_URL}/admin/orders?limit=200`, {
+    headers:{Authorization:`Bearer ${token}`}
+  });
+
   const body = await res.json().catch(()=>({}));
-  if (!res.ok) { showNotice(body.error || body.message || 'Order list could not be refreshed.'); return []; }
+
+  if (!res.ok) {
+    showNotice(body.error || body.message || 'Order list could not be refreshed.');
+    return [];
+  }
+
   return Array.isArray(body.orders) ? body.orders : [];
 }
 
-/* Displays data in dashboard sections */
+/* =========================================================
+   DISPLAY DASHBOARD
+========================================================= */
 function displayDashboard(data, orders) {
   const stats = calculateStats(data.systemStatistics || {}, orders);
+
   totalUsers.textContent = safeNumber(stats.totalUsers);
   totalOrders.textContent = safeNumber(stats.totalOrders);
   totalRevenue.textContent = formatCurrency(stats.totalRevenue);
@@ -287,13 +375,18 @@ function displayDashboard(data, orders) {
   displayCharts(stats);
   renderManageOrders(orders);
   displayAssignDeliveries(data.unassignedDeliveries || [], data.deliveryStaff || []);
+
+  /* Inventory comes from backend/database */
   displayInventory(data.inventoryStatus || []);
+
   displayTopCustomers(data.topCustomers || []);
   displayDeliveryPerformance(data.deliveryPerformance || []);
   displayRecentOrders(data.recentOrders || orders.slice(0,10));
 }
 
-/* Calculates totals and counts */
+/* =========================================================
+   CALCULATE STATISTICS
+========================================================= */
 function calculateStats(apiStats, orders) {
   return {
     totalUsers:numberOr(apiStats.totalUsers,0),
@@ -312,45 +405,107 @@ function calculateStats(apiStats, orders) {
   };
 }
 
-/* Renders manage orders table */
+/* =========================================================
+   MANAGE ORDERS TABLE
+========================================================= */
 function renderManageOrders(orders) {
   const c = manageOrdersContainer;
-  if (!orders.length) { c.innerHTML = `<div class="empty-card"><strong>No orders found.</strong> Customer orders will appear here.</div>`; return; }
+
+  if (!orders.length) {
+    c.innerHTML = `<div class="empty-card"><strong>No orders found.</strong> Customer orders will appear here.</div>`;
+    return;
+  }
+
   c.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>Order</th><th>Customer</th><th>Product / Qty</th><th>Total</th><th>Status</th><th>Delivery</th><th>Action</th></tr></thead><tbody>` +
     orders.map(o => {
-      const os=normalizeStatus(o.order_status||o.status||'pending'), ds=normalizeStatus(o.delivery_status||'—');
+      const os=normalizeStatus(o.order_status||o.status||'pending');
+      const ds=normalizeStatus(o.delivery_status||'—');
       const canCancel=['pending','confirmed'].includes(os)&&(!o.delivery_status||ds==='pending'||ds==='—');
-      return `<tr><td><strong>#${escapeHtml(o.id||o.order_id)}</strong></td><td>${escapeHtml(o.customer_name||'N/A')}<br><small>${escapeHtml(o.customer_email||'')}</small></td><td>${escapeHtml(o.product||o.product_name||'Product')} × ${escapeHtml(o.quantity||0)}</td><td>${formatCurrency(o.total_price||o.total_amount||0)}</td><td>${badge(os)}</td><td>${badge(ds)}</td><td>${canCancel?`<button class="cancel-btn" onclick="adminCancelOrder('${escapeForJs(o.id||o.order_id)}')">Cancel</button>`:`<span class="badge badge-muted">No Action</span>`}</td></tr>`;
+
+      return `<tr>
+        <td><strong>#${escapeHtml(o.id||o.order_id||o.orderId)}</strong></td>
+        <td>${escapeHtml(o.customer_name||'N/A')}<br><small>${escapeHtml(o.customer_email||'')}</small></td>
+        <td>${escapeHtml(o.product||o.product_name||'Product')} × ${escapeHtml(o.quantity||0)}</td>
+        <td>${formatCurrency(o.total_price||o.total_amount||0)}</td>
+        <td>${badge(os)}</td>
+        <td>${badge(ds)}</td>
+        <td>${canCancel?`<button class="cancel-btn" onclick="adminCancelOrder('${escapeForJs(o.id||o.order_id||o.orderId)}')">Cancel</button>`:`<span class="badge badge-muted">No Action</span>`}</td>
+      </tr>`;
     }).join('') + `</tbody></table></div>`;
 }
 
-/* Displays unassigned delivery records */
+/* =========================================================
+   ASSIGN DELIVERIES
+========================================================= */
 function displayAssignDeliveries(rows, staff) {
   const c = assignDeliveriesContainer;
-  if (!rows.length) { c.innerHTML = `<div class="empty-card"><strong>No unassigned deliveries.</strong> Orders waiting for delivery assignment will appear here.</div>`; return; }
-  if (!staff.length) { c.innerHTML = `<div class="empty-card"><strong>No delivery staff available.</strong> Add a delivery account first.</div>`; return; }
+
+  if (!rows.length) {
+    c.innerHTML = `<div class="empty-card"><strong>No unassigned deliveries.</strong> Orders waiting for delivery assignment will appear here.</div>`;
+    return;
+  }
+
+  if (!staff.length) {
+    c.innerHTML = `<div class="empty-card"><strong>No delivery staff available.</strong> Add a delivery account first.</div>`;
+    return;
+  }
+
   c.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>Delivery #</th><th>Order</th><th>Customer</th><th>Address</th><th>Assign To</th></tr></thead><tbody>` +
     rows.map(r => {
       const sid=`staff_${r.delivery_id}`;
       const options=staff.map(s=>`<option value="${escapeHtml(s.id||s.userId||s.user_id)}">${escapeHtml(s.name)} (${escapeHtml(s.email)})</option>`).join('');
-      return `<tr><td>#${escapeHtml(r.delivery_id)}</td><td>#${escapeHtml(r.order_id)}</td><td>${escapeHtml(r.customer_name||'N/A')}<br><small>${escapeHtml(r.customer_phone||'')}</small></td><td>${escapeHtml(r.delivery_address||'N/A')}</td><td><select id="${sid}" class="select-staff">${options}</select> <button class="assign-btn" onclick="assignStaff('${escapeForJs(r.delivery_id)}','${sid}')">Assign</button></td></tr>`;
+
+      return `<tr>
+        <td>#${escapeHtml(r.delivery_id)}</td>
+        <td>#${escapeHtml(r.order_id)}</td>
+        <td>${escapeHtml(r.customer_name||'N/A')}<br><small>${escapeHtml(r.customer_phone||'')}</small></td>
+        <td>${escapeHtml(r.delivery_address||'N/A')}</td>
+        <td><select id="${sid}" class="select-staff">${options}</select> <button class="assign-btn" onclick="assignStaff('${escapeForJs(r.delivery_id)}','${sid}')">Assign</button></td>
+      </tr>`;
     }).join('') + `</tbody></table></div>`;
 }
 
-/* Displays inventory items */
+/* =========================================================
+   DISPLAY INVENTORY
+
+   Important:
+   - Admin controls quantity.
+   - If backend sends saved quantity, it displays it.
+   - If no saved quantity exists, it shows 0.
+========================================================= */
 function displayInventory(items) {
   const c = inventoryContainer;
-  if (!items.length) { c.innerHTML = `<div class="empty-card"><strong>No inventory items.</strong> Add inventory first.</div>`; return; }
-  c.innerHTML = `<div class="inventory-grid">` + items.map((item, i) => {
-    const qty = Number(item.quantity || item.quantity_on_hand || 0);
-    const price = Number(item.price || item.selling_price || 0);
-    const productId = item.product_id || item.id || item.name;
-    const cls = qty===0?'stock-out':qty<10?'stock-low':'';
+
+  const fixedProducts = [
+    { product_id: 'gallon-round', name: 'Gallon Round', price: 30 },
+    { product_id: 'gallon-slim', name: 'Gallon Slim', price: 30 },
+    { product_id: '3-gallon', name: '3 Gallon', price: 25 }
+  ];
+
+  const finalItems = fixedProducts.map(product => {
+    const found = items.find(item =>
+      item.product_id === product.product_id ||
+      String(item.name || item.product_name || '').toLowerCase() === product.name.toLowerCase()
+    );
+
+    return {
+      product_id: product.product_id,
+      name: product.name,
+      price: product.price,
+      quantity: found ? Number(found.quantity || found.quantity_on_hand || 0) : 0
+    };
+  });
+
+  c.innerHTML = `<div class="inventory-grid">` + finalItems.map((item, i) => {
+    const qty = Number(item.quantity || 0);
+    const cls = qty === 0 ? 'stock-out' : qty < 10 ? 'stock-low' : '';
+
     return `<div class="inventory-card ${cls}">
-      <div class="inventory-name">${escapeHtml(item.name||item.product_name||item.product_id||'Item')}</div>
-      <div class="inventory-price">${formatCurrency(price)} per unit</div>
+      <div class="inventory-name">${escapeHtml(item.name)}</div>
+      <div class="inventory-price">${formatCurrency(item.price)} per unit</div>
       <div style="margin-top:8px">${qty===0?badge('out'):qty<10?badge('low'):badge('stock')}</div>
-      <form class="inventory-form" onsubmit="updateInventory(event,'${escapeForJs(productId)}')">
+
+      <form class="inventory-form" onsubmit="updateInventory(event,'${escapeForJs(item.product_id)}')">
         <input type="number" min="0" id="qty_${i}" value="${qty}" placeholder="How many gallons?">
         <button class="save-btn" type="submit">Save</button>
       </form>
@@ -358,51 +513,125 @@ function displayInventory(items) {
   }).join('') + `</div>`;
 }
 
-/* Updates product inventory quantity */
+/* =========================================================
+   UPDATE INVENTORY
+
+   Fix:
+   - Sends product_id, name, price, selling_price, quantity,
+     and quantity_on_hand.
+   - This helps backend update or create the correct product.
+========================================================= */
 async function updateInventory(e, productId) {
   e.preventDefault();
-  const qty = e.target.querySelector('input').value;
+
+  const qty = Number(e.target.querySelector('input').value);
+
+  const productMap = {
+    'gallon-round': {
+      product_id: 'gallon-round',
+      name: 'Gallon Round',
+      price: 30
+    },
+    'gallon-slim': {
+      product_id: 'gallon-slim',
+      name: 'Gallon Slim',
+      price: 30
+    },
+    '3-gallon': {
+      product_id: '3-gallon',
+      name: '3 Gallon',
+      price: 25
+    }
+  };
+
+  const selectedProduct = productMap[productId];
+
+  if (!selectedProduct) {
+    alert('Invalid product selected.');
+    return;
+  }
+
   try {
     const res = await fetch(`${API_URL}/admin/inventory/${encodeURIComponent(productId)}`, {
       method:'PATCH',
-      headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},
-      body:JSON.stringify({ quantity_on_hand:Number(qty), quantity:Number(qty) })
+      headers:{
+        Authorization:`Bearer ${token}`,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        product_id:selectedProduct.product_id,
+        name:selectedProduct.name,
+        price:selectedProduct.price,
+        selling_price:selectedProduct.price,
+        quantity:qty,
+        quantity_on_hand:qty
+      })
     });
+
     const body = await res.json().catch(()=>({}));
-    if (!res.ok) throw new Error(body.error || body.message || 'Inventory update failed. Add backend PATCH /admin/inventory/:productId route.');
+
+    if (!res.ok) {
+      throw new Error(body.error || body.message || 'Inventory update failed. Please check backend PATCH route.');
+    }
+
     alert('Inventory updated successfully.');
-    loadDashboard();
-  } catch(err) { alert(err.message); }
+
+    await loadDashboard();
+
+  } catch(err) {
+    alert(err.message);
+  }
 }
 
-/* Assigns delivery staff */
+/* =========================================================
+   ASSIGN STAFF
+========================================================= */
 async function assignStaff(deliveryId, selectId) {
   const personnelId = document.getElementById(selectId)?.value;
+
   if (!personnelId) return alert('Select delivery staff first.');
+
   try {
     const res = await fetch(`${API_URL}/delivery/assign/${encodeURIComponent(deliveryId)}`, {
       method:'PATCH',
       headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},
       body:JSON.stringify({delivery_personnel_id:personnelId})
     });
+
     const body = await res.json().catch(()=>({}));
+
     if (!res.ok) throw new Error(body.error || body.message || 'Assign failed');
+
     alert('Delivery assigned successfully.');
     loadDashboard();
-  } catch(e) { alert(e.message); }
+
+  } catch(e) {
+    alert(e.message);
+  }
 }
 
-/* Cancels an admin order */
+/* =========================================================
+   CANCEL ORDER
+========================================================= */
 async function adminCancelOrder(orderId) {
   if (!confirm('Cancel this order?')) return;
-  const res = await fetch(`${API_URL}/admin/orders/${encodeURIComponent(orderId)}/cancel`,{method:'PATCH',headers:{Authorization:`Bearer ${token}`}});
+
+  const res = await fetch(`${API_URL}/admin/orders/${encodeURIComponent(orderId)}/cancel`,{
+    method:'PATCH',
+    headers:{Authorization:`Bearer ${token}`}
+  });
+
   const body = await res.json().catch(()=>({}));
+
   if (!res.ok) return alert(body.error || body.message || 'Cancel failed');
+
   alert('Order cancelled successfully.');
   loadDashboard();
 }
 
-/* Displays charts */
+/* =========================================================
+   CHARTS
+========================================================= */
 function displayCharts(s) {
   const orderData=[s.pendingOrders,s.completedOrders,s.cancelledOrders];
   const deliveryData=[s.pendingDeliveries,s.inTransitDeliveries,s.successfulDeliveries,s.failedDeliveries];
@@ -414,76 +643,43 @@ function displayCharts(s) {
   deliveryChart = new Chart(deliveryChartCanvas(),{type:'bar',data:{labels:['Pending','In Transit','Delivered','Failed'],datasets:[{data:deliveryData,backgroundColor:['#fef3c7','#e0f2fe','#dcfce7','#fee2e2'],borderColor:['#f59e0b','#0284c7','#16a34a','#dc2626'],borderWidth:2,borderRadius:12}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,ticks:{precision:0}}},plugins:{legend:{display:false}}}});
 }
 
-/* Gets order chart canvas */
 function ordersChartCanvas(){return document.getElementById('ordersChart').getContext('2d')}
-
-/* Gets delivery chart canvas */
 function deliveryChartCanvas(){return document.getElementById('deliveryChart').getContext('2d')}
 
-/* Displays top customers */
+/* =========================================================
+   OTHER DISPLAY FUNCTIONS
+========================================================= */
 function displayTopCustomers(customers){topCustomersTable.innerHTML=customers.length?customers.map(c=>{const info=c.customer||c;return `<tr><td>${escapeHtml(info.name||'N/A')}</td><td>${escapeHtml(info.email||'N/A')}</td><td>${escapeHtml(info.phone||'N/A')}</td><td><span class="badge badge-info">${safeNumber(c.dataValues?.orderCount||c.orderCount||0)}</span></td><td>${formatCurrency(c.dataValues?.totalSpent||c.totalSpent||0)}</td></tr>`}).join(''):`<tr><td colspan="5" class="empty-message">No customer order data yet.</td></tr>`}
 
-/* Displays delivery staff performance */
 function displayDeliveryPerformance(p){deliveryPerformanceTable.innerHTML=p.length?p.map(x=>{const info=x.delivery_personnel||x;const a=x.dataValues?.assignmentCount||x.assignmentCount||0;const c=x.dataValues?.completedCount||x.completedCount||0;return `<tr><td>${escapeHtml(info.name||'N/A')}</td><td>${escapeHtml(info.email||'N/A')}</td><td>${escapeHtml(info.phone||'N/A')}</td><td>${safeNumber(a)}</td><td>${safeNumber(c)}</td><td><strong>${a>0?((c/a)*100).toFixed(1):0}%</strong></td></tr>`}).join(''):`<tr><td colspan="6" class="empty-message">No delivery performance data yet.</td></tr>`}
 
-/* Displays recent orders */
 function displayRecentOrders(o){recentOrdersTable.innerHTML=o.length?o.slice(0,10).map(x=>`<tr><td>#${escapeHtml(x.id||x.order_id||'N/A')}</td><td>${escapeHtml(x.customer?.name||x.customer_name||'N/A')}</td><td>${formatCurrency(x.total_amount||x.total_price||0)}</td><td>${badge(x.status||x.order_status||'pending')}</td><td>${escapeHtml(x.createdAt?new Date(x.createdAt).toLocaleDateString():'N/A')}</td></tr>`).join(''):`<tr><td colspan="5" class="empty-message">No recent orders yet.</td></tr>`}
 
-/* Creates badge based on status */
+/* =========================================================
+   HELPER FUNCTIONS
+========================================================= */
 function badge(s){s=normalizeStatus(s);const b={pending:['badge-warning','Pending'],confirmed:['badge-info','Confirmed'],in_transit:['badge-info','In Transit'],delivered:['badge-success','Delivered'],completed:['badge-success','Completed'],cancelled:['badge-danger','Cancelled'],failed:['badge-danger','Failed'],out:['badge-danger','Out of Stock'],low:['badge-warning','Low Stock'],stock:['badge-success','In Stock'],'—':['badge-muted','—']};const v=b[s]||['badge-muted',s];return `<span class="badge ${v[0]}">${escapeHtml(v[1])}</span>`}
-
-/* Counts order statuses */
 function countOrder(o,s){return o.filter(x=>s.includes(normalizeStatus(x.order_status||x.status))).length}
-
-/* Counts delivery statuses */
 function countDelivery(o,s){return o.filter(x=>s.includes(normalizeStatus(x.delivery_status))).length}
-
-/* Checks if date is today */
 function isToday(d){if(!d)return false;return new Date(d).toDateString()===new Date().toDateString()}
-
-/* Changes refresh button text */
 function setRefreshing(v){refreshBtn.disabled=v;refreshBtn.textContent=v?'Refreshing...':'Refresh Data'}
-
-/* Shows error message */
 function displayError(m){errorContainer.innerHTML=`<div class="error">⚠️ ${escapeHtml(m)}</div>`}
-
-/* Clears error message */
 function clearError(){errorContainer.innerHTML=''}
-
-/* Shows notice message */
 function showNotice(m){noticeContainer.innerHTML=`<div class="notice">ℹ️ ${escapeHtml(m)}</div>`}
-
-/* Clears notice message */
 function clearNotice(){noticeContainer.innerHTML=''}
-
-/* Updates last updated text */
 function updateLastUpdated(){lastUpdated.textContent=`Last updated: ${new Date().toLocaleString()}`}
-
-/* Logs out the user */
 function logout(){localStorage.removeItem('token');localStorage.removeItem('user');window.location.href='/index.html'}
-
-/* Formats currency into Philippine Peso */
 function formatCurrency(v){return Number(v||0).toLocaleString('en-PH',{style:'currency',currency:'PHP'})}
-
-/* Safely formats number */
 function safeNumber(v){return Number(v||0).toLocaleString()}
-
-/* Converts value to number or fallback */
 function numberOr(v,f){const n=Number(v);return Number.isFinite(n)?n:Number(f||0)}
-
-/* Normalizes status text */
 function normalizeStatus(s){if(s===null||s===undefined||s==='')return'unknown';return String(s).toLowerCase().trim()}
-
-/* Escapes HTML output */
 function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;")}
-
-/* Escapes JavaScript string */
 function escapeForJs(v){return String(v??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
 
-/* Initial dashboard load */
+/* Initial load */
 loadDashboard();
 
-/* Auto refresh every 30 seconds */
+/* Auto refresh */
 setInterval(loadDashboard,30000);
 </script>
 </body>

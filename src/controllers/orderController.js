@@ -16,28 +16,13 @@ import { createPayment } from '../models/Payment.js';
 
 /* =========================================================
    CREATE ORDER
+   - Supports multiple gallon types in one order
+   - Checks inventory per product_id
+   - Deducts inventory per product_id
 ========================================================= */
 export const createOrder = async (req, res, next) => {
   try {
-    const product =
-      req.body.product ||
-      req.body.product_id ||
-      req.body.productId;
-
-    const quantity =
-      Number(req.body.quantity || 1);
-
-    const delivery_address =
-      req.body.delivery_address ||
-      req.body.deliveryAddress ||
-      '';
-
-    const total_price =
-      req.body.total_price ??
-      req.body.total_amount ??
-      req.body.totalAmount ??
-      null;
-
+    /* Get logged-in user */
     const userId =
       req.user?.userId ||
       req.user?.id;
@@ -48,17 +33,11 @@ export const createOrder = async (req, res, next) => {
       });
     }
 
-    if (!product) {
-      return res.status(400).json({
-        error: 'Product is required'
-      });
-    }
-
-    if (!quantity || quantity <= 0) {
-      return res.status(400).json({
-        error: 'Valid quantity is required'
-      });
-    }
+    /* Get delivery address */
+    const delivery_address =
+      req.body.delivery_address ||
+      req.body.deliveryAddress ||
+      '';
 
     if (!delivery_address.trim()) {
       return res.status(400).json({
@@ -66,62 +45,134 @@ export const createOrder = async (req, res, next) => {
       });
     }
 
-    const stock = await getTotalStockByProductId(product);
+    /* Get multiple order items from frontend */
+    const items =
+      req.body.items ||
+      req.body.order_items ||
+      [];
 
-    if (stock < quantity) {
+    /* If multiple items exist, use them */
+    const finalItems = Array.isArray(items) && items.length > 0
+      ? items
+      : [
+          {
+            product_id: req.body.product_id || req.body.productId || req.body.product,
+            product: req.body.product_id || req.body.productId || req.body.product,
+            name: req.body.product,
+            quantity: Number(req.body.quantity || 1),
+            price: Number(req.body.price || 0),
+            subtotal: Number(req.body.total_price || req.body.total_amount || 0)
+          }
+        ];
+
+    /* Validate order items */
+    if (!finalItems.length) {
       return res.status(400).json({
-        error: 'Insufficient inventory'
+        error: 'Order items are required'
       });
     }
 
-    const fifo = await decrementProductStockFifo(
-      product,
-      quantity
-    );
+    for (const item of finalItems) {
+      const productId = item.product_id || item.product;
+      const quantity = Number(item.quantity || 0);
 
-    if (!fifo.ok) {
-      return res.status(400).json({
-        error: fifo.error || 'Insufficient inventory'
-      });
+      if (!productId) {
+        return res.status(400).json({
+          error: 'Product is required'
+        });
+      }
+
+      if (!quantity || quantity <= 0) {
+        return res.status(400).json({
+          error: 'Valid quantity is required'
+        });
+      }
     }
 
-    const lineTotal =
-      Number(total_price ?? fifo.lineTotal ?? 0);
+    /* Check inventory for each selected gallon */
+    for (const item of finalItems) {
+      const productId = item.product_id || item.product;
+      const quantity = Number(item.quantity || 0);
 
+      const stock = await getTotalStockByProductId(productId);
+
+      if (stock < quantity) {
+        return res.status(400).json({
+          error: `Insufficient inventory for ${item.name || productId}`
+        });
+      }
+    }
+
+    /* Deduct inventory for each selected gallon */
+    for (const item of finalItems) {
+      const productId = item.product_id || item.product;
+      const quantity = Number(item.quantity || 0);
+
+      const fifo = await decrementProductStockFifo(productId, quantity);
+
+      if (!fifo.ok) {
+        return res.status(400).json({
+          error: fifo.error || `Insufficient inventory for ${item.name || productId}`
+        });
+      }
+    }
+
+    /* Compute total quantity */
+    const totalQuantity = finalItems.reduce((sum, item) => {
+      return sum + Number(item.quantity || 0);
+    }, 0);
+
+    /* Compute total amount */
+    const totalAmount = finalItems.reduce((sum, item) => {
+      const quantity = Number(item.quantity || 0);
+      const price = Number(item.price || 0);
+      const subtotal = Number(item.subtotal || 0);
+
+      return sum + (subtotal > 0 ? subtotal : quantity * price);
+    }, 0);
+
+    /* Product summary for orders table */
+    const productSummary = finalItems
+      .map(item => `${item.name || item.product_id || item.product} x${item.quantity}`)
+      .join(', ');
+
+    /* Generate order ID */
     const orderId = uuidv4();
 
-    /* =====================================================
-       DEBUG CHECK:
-       This will show in your terminal what values are being
-       sent to MySQL. If one value says undefined, that is the
-       cause of the error.
-    ===================================================== */
+    /* Debug terminal log */
     console.log('ORDER DATA TO SAVE:', {
       orderId,
       customer_id: userId,
-      order_date: new Date(),
-      order_status: 'pending',
-      product,
-      quantity,
-      delivery_address,
-      total_amount: lineTotal,
-      total_price: lineTotal,
-      payment: 'pending',
+      productSummary,
+      totalQuantity,
+      totalAmount,
+      finalItems
     });
 
+    /* Save order */
     const order = await createOrderDB({
       orderId,
       customer_id: userId,
       order_date: new Date(),
       order_status: 'pending',
-      product,
-      quantity,
+      product: productSummary,
+      quantity: totalQuantity,
       delivery_address,
-      total_amount: lineTotal,
-      total_price: lineTotal,
+      total_amount: totalAmount,
+      total_price: totalAmount,
       payment: 'pending',
+
+      /* Save multiple items */
+      items: finalItems,
+      order_items: finalItems,
+
+      /* Save valid ID details but avoid huge base64 if frontend sends it */
+      valid_id_name: req.body.valid_id_name || null,
+      valid_id_type: req.body.valid_id_type || null,
+      valid_id_data: req.body.valid_id_data || null
     });
 
+    /* Create delivery record */
     await createDelivery({
       order_id: orderId,
       delivery_personnel_id: null,
@@ -130,16 +181,16 @@ export const createOrder = async (req, res, next) => {
       payment_received: false,
     });
 
+    /* Create payment record */
     await createPayment({
       order_id: orderId,
       payment_method: 'COD',
       payment_status: 'pending',
-      amount: lineTotal,
+      amount: totalAmount,
     });
 
     res.status(201).json({
-      message:
-        'Order created successfully (COD). Pay when the order is delivered.',
+      message: 'Order created successfully (COD). Pay when the order is delivered.',
       order,
     });
 

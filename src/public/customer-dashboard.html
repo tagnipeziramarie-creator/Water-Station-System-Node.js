@@ -247,6 +247,30 @@ body{
 .order-items-list span{display:block;color:#0f172a;font-weight:700}
 .order-items-list small{display:block;color:var(--muted);font-size:12px}
 
+.delivery-info-box{
+    display:grid;
+    gap:5px;
+    color:#334155;
+    font-size:13px;
+}
+
+.delivery-person-name{
+    font-weight:900;
+    color:#075985;
+}
+
+.delivery-transparency{
+    display:inline-flex;
+    margin-top:5px;
+    padding:5px 8px;
+    border-radius:999px;
+    background:#ecfeff;
+    border:1px solid #bae6fd;
+    color:#155e75;
+    font-size:11px;
+    font-weight:800;
+}
+
 .status-badge{
     display:inline-flex;
     padding:7px 12px;
@@ -281,7 +305,6 @@ body{
     transform:translateY(-4px);
 }
 
-/* Product image added */
 .product-image-wrap{
     width:100%;
     height:145px;
@@ -467,7 +490,6 @@ body.login-gate-open .container{filter:blur(2px);pointer-events:none}
     margin-bottom:10px;
 }
 
-/* Image inside order modal */
 .order-item-image{
     width:70px;
     height:70px;
@@ -636,7 +658,7 @@ body.login-gate-open .container{filter:blur(2px);pointer-events:none}
     <div class="hero-panel">
         <div>
             <h2 id="welcomeText">Welcome back!</h2>
-            <p>Check your orders, view live gallon inventory, and place a new water order anytime.</p>
+            <p>Check your orders, view live gallon inventory, and see who is assigned to deliver your water.</p>
         </div>
         <div class="hero-actions">
             <button class="hero-btn" onclick="openOrderModal()">Order Now</button>
@@ -664,29 +686,10 @@ body.login-gate-open .container{filter:blur(2px);pointer-events:none}
     <div id="errorContainer"></div>
 
     <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">📦</div>
-            <div class="stat-label">Total Orders</div>
-            <div class="stat-number" id="totalOrders">0</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon">⏳</div>
-            <div class="stat-label">Pending Orders</div>
-            <div class="stat-number" id="pendingOrders">0</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon">✅</div>
-            <div class="stat-label">Completed Orders</div>
-            <div class="stat-number" id="completedOrders">0</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon">₱</div>
-            <div class="stat-label">Total Spent</div>
-            <div class="stat-number" id="totalSpent">₱0.00</div>
-        </div>
+        <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-label">Total Orders</div><div class="stat-number" id="totalOrders">0</div></div>
+        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-label">Pending Orders</div><div class="stat-number" id="pendingOrders">0</div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-label">Completed Orders</div><div class="stat-number" id="completedOrders">0</div></div>
+        <div class="stat-card"><div class="stat-icon">₱</div><div class="stat-label">Total Spent</div><div class="stat-number" id="totalSpent">₱0.00</div></div>
     </div>
 
     <div class="section">
@@ -702,7 +705,7 @@ body.login-gate-open .container{filter:blur(2px);pointer-events:none}
             <div class="section">
                 <div class="section-header">
                     <h2>🚚 Active Orders</h2>
-                    <p class="section-note">Orders currently being processed or delivered</p>
+                    <p class="section-note">Includes assigned delivery personnel for transparency</p>
                 </div>
                 <div id="activeOrdersContainer">
                     <div class="empty-message">No active orders yet. Once you place an order, it will appear here.</div>
@@ -735,32 +738,10 @@ body.login-gate-open .container{filter:blur(2px);pointer-events:none}
 <script>
 const API_URL = window.location.origin && window.location.origin !== 'null' ? window.location.origin : '';
 
-/* Product images added here */
 const DEFAULT_PRODUCTS = [
-    {
-        id: 1,
-        product_id: 'gallon-round',
-        name: 'Gallon Round',
-        price: 30,
-        quantity: 0,
-        image: '/images/gallon-round.png'
-    },
-    {
-        id: 2,
-        product_id: 'gallon-slim',
-        name: 'Gallon Slim',
-        price: 30,
-        quantity: 0,
-        image: '/images/gallon-slim.png'
-    },
-    {
-        id: 3,
-        product_id: '3-gallon',
-        name: '3 Gallon',
-        price: 25,
-        quantity: 0,
-        image: '/images/3-gallon.png'
-    }
+    { id: 1, product_id: 'gallon-round', name: 'Gallon Round', price: 30, quantity: 0, image: '/images/gallon-round.png' },
+    { id: 2, product_id: 'gallon-slim', name: 'Gallon Slim', price: 30, quantity: 0, image: '/images/gallon-slim.png' },
+    { id: 3, product_id: '3-gallon', name: '3 Gallon', price: 25, quantity: 0, image: '/images/3-gallon.png' }
 ];
 
 let cachedProducts = [...DEFAULT_PRODUCTS];
@@ -799,7 +780,6 @@ function showToast(message){
 function showLoginGate(message){
     document.body.classList.add('login-gate-open');
     document.getElementById('loginGate').classList.add('is-open');
-
     const msg = document.getElementById('loginGateMessage');
     msg.style.color = message ? '#dc2626' : '';
     msg.textContent = message || '';
@@ -814,23 +794,18 @@ function getRegisteredAddress(){
     const user = localStorage.getItem('user');
     const savedAddress = localStorage.getItem('customerRegisteredAddress');
 
-    if(savedAddress){
-        return savedAddress;
-    }
+    if(savedAddress) return savedAddress;
 
     if(user){
         try{
             const parsedUser = JSON.parse(user);
-
             const addressParts = [
                 parsedUser.address,
                 parsedUser.barangay,
                 parsedUser.barangay ? 'Hinunangan, Southern Leyte' : ''
             ].filter(Boolean);
 
-            if(addressParts.length > 0){
-                return addressParts.join(', ');
-            }
+            if(addressParts.length > 0) return addressParts.join(', ');
         }catch(error){
             return '';
         }
@@ -923,7 +898,6 @@ async function loadDashboard(){
         }
 
         const data = await response.json();
-
         displayDashboard(data.data || {});
     }catch(error){
         displayError(error.message);
@@ -935,11 +909,7 @@ function getFixedProductsFromBackend(apiProducts){
         const matched = (apiProducts || []).find(apiProduct => {
             const name = String(apiProduct.name || apiProduct.product_name || '').toLowerCase();
             const id = String(apiProduct.product_id || '').toLowerCase();
-
-            return (
-                id === defaultProduct.product_id ||
-                name === defaultProduct.name.toLowerCase()
-            );
+            return id === defaultProduct.product_id || name === defaultProduct.name.toLowerCase();
         });
 
         return {
@@ -953,10 +923,7 @@ function displayDashboard(data){
     const customerName = data.customer?.name || 'Guest Customer';
     const customerEmail = data.customer?.email || 'customer@example.com';
 
-    localStorage.setItem('customerProfile',JSON.stringify({
-        name:customerName,
-        email:customerEmail
-    }));
+    localStorage.setItem('customerProfile',JSON.stringify({name:customerName,email:customerEmail}));
 
     if(data.customer){
         saveRegisteredAddressFromUser(data.customer);
@@ -994,20 +961,13 @@ function displayInventory(products){
 }
 
 function parseOrderItems(order){
-    if(Array.isArray(order.order_items)){
-        return order.order_items;
-    }
-
-    if(Array.isArray(order.items)){
-        return order.items;
-    }
+    if(Array.isArray(order.order_items)) return order.order_items;
+    if(Array.isArray(order.items)) return order.items;
 
     if(typeof order.order_items === 'string' && order.order_items.trim()){
         try{
             const parsed = JSON.parse(order.order_items);
-            if(Array.isArray(parsed)){
-                return parsed;
-            }
+            if(Array.isArray(parsed)) return parsed;
         }catch(error){
             return [];
         }
@@ -1043,12 +1003,62 @@ function getOrderTotal(order){
             const quantity = Number(item.quantity || 0);
             const price = Number(item.price || 0);
             const subtotal = Number(item.subtotal || 0);
-
             return sum + (subtotal > 0 ? subtotal : quantity * price);
         },0);
     }
 
     return Number(order.total_amount || order.total_price || 0);
+}
+
+function getDeliveryPersonnelHTML(order){
+    const delivery = order.delivery || {};
+    const personnel = delivery.delivery_personnel || {};
+
+    const name =
+        personnel.name ||
+        order.delivery_personnel_name ||
+        order.delivery_name ||
+        order.assigned_delivery_name ||
+        '';
+
+    const phone =
+        personnel.phone ||
+        order.delivery_personnel_phone ||
+        order.delivery_phone ||
+        '';
+
+    const email =
+        personnel.email ||
+        order.delivery_personnel_email ||
+        order.delivery_email ||
+        '';
+
+    const status =
+        order.delivery_status ||
+        delivery.delivery_status ||
+        order.status ||
+        order.order_status ||
+        'pending';
+
+    if(!name){
+        return `
+            <div class="delivery-info-box">
+                <span class="delivery-person-name">Not yet assigned</span>
+                <span>We will update this once an admin assigns a delivery personnel.</span>
+                <span class="delivery-transparency">Transparent delivery assignment</span>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="delivery-info-box">
+            <span class="delivery-person-name">👤 ${escapeHTML(name)}</span>
+            ${phone ? `<span>📞 ${escapeHTML(phone)}</span>` : ''}
+            ${email ? `<span>✉️ ${escapeHTML(email)}</span>` : ''}
+            <span>Status: ${escapeHTML(status)}</span>
+            <span class="delivery-transparency">You can see who will deliver your water</span>
+        </div>
+    `;
 }
 
 function displayActiveOrders(orders){
@@ -1080,7 +1090,7 @@ function displayActiveOrders(orders){
             <td>${getOrderItemsHTML(order)}</td>
             <td><strong>${formatMoney(getOrderTotal(order))}</strong></td>
             <td>${getStatusBadge(order.status || order.order_status)}</td>
-            <td>${escapeHTML(order.delivery?.delivery_personnel?.name || order.delivery_personnel_name || 'Not yet assigned')}</td>
+            <td>${getDeliveryPersonnelHTML(order)}</td>
         </tr>`;
     });
 
@@ -1106,6 +1116,7 @@ function displayRecentOrders(orders){
             <th>Date</th>
             <th>Total</th>
             <th>Status</th>
+            <th>Delivery Info</th>
         </tr>
     </thead>
     <tbody>`;
@@ -1120,6 +1131,7 @@ function displayRecentOrders(orders){
             <td>${date}</td>
             <td><strong>${formatMoney(getOrderTotal(order))}</strong></td>
             <td>${getStatusBadge(order.status || order.order_status)}</td>
+            <td>${getDeliveryPersonnelHTML(order)}</td>
         </tr>`;
     });
 
@@ -1146,12 +1158,7 @@ function displayProducts(products){
         html += `
         <div class="product-card">
             <div class="product-image-wrap">
-                <img
-                    class="product-image"
-                    src="${escapeHTML(product.image)}"
-                    alt="${escapeHTML(product.name)}"
-                    onerror="this.style.display='none';"
-                >
+                <img class="product-image" src="${escapeHTML(product.image)}" alt="${escapeHTML(product.name)}" onerror="this.style.display='none';">
             </div>
             <div class="product-name">${escapeHTML(product.name)}</div>
             <div class="product-price">${formatMoney(product.price || 0)}</div>
@@ -1178,12 +1185,7 @@ function renderOrderItems(selectedRowId){
 
         html += `
         <div class="order-item-row">
-            <img
-                class="order-item-image"
-                src="${escapeHTML(product.image)}"
-                alt="${escapeHTML(product.name)}"
-                onerror="this.style.display='none';"
-            >
+            <img class="order-item-image" src="${escapeHTML(product.image)}" alt="${escapeHTML(product.name)}" onerror="this.style.display='none';">
 
             <div class="order-item-info">
                 <strong>${escapeHTML(product.name)} - ${formatMoney(product.price || 0)}</strong>
@@ -1192,7 +1194,6 @@ function renderOrderItems(selectedRowId){
 
             <div class="form-group">
                 <label for="qty_${product.id}">Quantity</label>
-               <!-- Quantity input -->
                 <input
                     type="number"
                     id="qty_${product.id}"
@@ -1203,9 +1204,7 @@ function renderOrderItems(selectedRowId){
                     value="${selectedQty}"
                     placeholder="0"
                     ${stock <= 0 ? 'disabled' : ''}
-
                     onfocus="if(this.value==='0'){this.value=''}"
-
                     onblur="if(this.value===''){this.value='0'}"
                 />
             </div>
@@ -1278,6 +1277,23 @@ function closeOrderModal(){
     document.getElementById('orderModal').classList.remove('is-open');
 }
 
+/* Converts uploaded valid ID to Base64 so delivery personnel can view the actual image */
+function convertFileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = function () {
+            resolve(reader.result);
+        };
+
+        reader.onerror = function () {
+            reject(new Error('Failed to read valid ID file.'));
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
 async function orderProduct(items,address,validIdFile){
     if(!items || items.length === 0){
         alert('Please add at least one gallon type to your order.');
@@ -1290,6 +1306,8 @@ async function orderProduct(items,address,validIdFile){
     }
 
     try{
+        const validIdBase64 = await convertFileToBase64(validIdFile);
+
         const totalAmount = items.reduce((sum,item)=>sum + Number(item.subtotal || 0),0);
         const totalQuantity = items.reduce((sum,item)=>sum + Number(item.quantity || 0),0);
 
@@ -1311,9 +1329,10 @@ async function orderProduct(items,address,validIdFile){
                 total_amount:totalAmount,
                 total_price:totalAmount,
                 delivery_address:address.trim(),
+
                 valid_id_name:validIdFile.name,
                 valid_id_type:validIdFile.type,
-                valid_id_data:'Uploaded valid ID: ' + validIdFile.name
+                valid_id_data:validIdBase64
             })
         });
 

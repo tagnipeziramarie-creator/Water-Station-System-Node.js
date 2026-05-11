@@ -5,7 +5,14 @@ import {
   getReports,
   listAdminOrders,
   cancelAdminOrder,
-  updateInventory
+  updateInventory,
+
+  // Delivery Staff Management
+  getDeliveryStaff,
+  createDeliveryStaff,
+  updateDeliveryStaff,
+  deleteDeliveryStaff
+
 } from '../controllers/adminController.js';
 
 import {
@@ -13,6 +20,9 @@ import {
   roleMiddleware
 } from '../middleware/auth.js';
 
+/* =========================================================
+   EXPRESS ROUTER
+========================================================= */
 const router = express.Router();
 
 /* =========================================================
@@ -54,7 +64,7 @@ router.patch(
 );
 
 /* =========================================================
-   INVENTORY ROUTE
+   INVENTORY ROUTES
 ========================================================= */
 
 /* Update Inventory Quantity */
@@ -63,4 +73,35 @@ router.patch(
   updateInventory
 );
 
+/* =========================================================
+   DELIVERY STAFF MANAGEMENT ROUTES
+========================================================= */
+
+/* Get all delivery staff */
+router.get(
+  '/delivery-staff',
+  getDeliveryStaff
+);
+
+/* Create delivery staff */
+router.post(
+  '/delivery-staff',
+  createDeliveryStaff
+);
+
+/* Update delivery staff */
+router.patch(
+  '/delivery-staff/:userId',
+  updateDeliveryStaff
+);
+
+/* Delete delivery staff */
+router.delete(
+  '/delivery-staff/:userId',
+  deleteDeliveryStaff
+);
+
+/* =========================================================
+   EXPORT ROUTER
+========================================================= */
 export default router;

@@ -1,5 +1,14 @@
+import bcrypt from 'bcryptjs';
 import pool from '../config/database.js';
 import { AppError } from '../middleware/errorHandler.js';
+
+// ===================================
+// CUSTOM USER ID GENERATOR
+// Avoids crypto/uuid issues on Render
+// ===================================
+const generateUserId = () => {
+  return `USR-${Date.now()}-${Math.random().toString(36).slice(2, 10).toUpperCase()}`;
+};
 
 // ===================================
 // CHECK IF COLUMN EXISTS
@@ -29,27 +38,46 @@ export const getAdminDashboard = async (req, res, next) => {
   try {
     connection = await pool.getConnection();
 
-    // Get total orders
+    // Total orders
     const [totalOrdersResult] = await connection.execute(
       'SELECT COUNT(*) AS count FROM orders'
     );
 
-    // Get total delivered revenue
-    const [totalRevenueResult] = await connection.execute(
-      "SELECT SUM(COALESCE(total_amount, total_price)) AS total FROM orders WHERE order_status = 'delivered'"
+    // Total users
+    const [totalUsersResult] = await connection.execute(
+      'SELECT COUNT(*) AS count FROM users'
     );
 
-    // Get pending deliveries
+    // Total customers
+    const [totalCustomersResult] = await connection.execute(
+      "SELECT COUNT(*) AS count FROM users WHERE role = 'customer'"
+    );
+
+    // Total delivered revenue
+    const [totalRevenueResult] = await connection.execute(
+      "SELECT SUM(COALESCE(total_amount, total_price)) AS total FROM orders WHERE order_status IN ('delivered', 'completed')"
+    );
+
+    // Pending deliveries
     const [pendingDeliveriesResult] = await connection.execute(
       "SELECT COUNT(*) AS count FROM deliveries WHERE delivery_status = 'pending'"
     );
 
-    // Get recent orders
+    // Recent orders
     const [recentOrders] = await connection.execute(
-      'SELECT * FROM orders ORDER BY createdAt DESC LIMIT 10'
+      `
+        SELECT 
+          o.*,
+          u.name AS customer_name,
+          u.email AS customer_email
+        FROM orders o
+        LEFT JOIN users u ON u.userId = o.customer_id
+        ORDER BY o.createdAt DESC
+        LIMIT 10
+      `
     );
 
-    // Get inventory records for admin and customer display
+    // Inventory records
     const [inventoryStatus] = await connection.execute(
       `
         SELECT 
@@ -64,20 +92,82 @@ export const getAdminDashboard = async (req, res, next) => {
       `
     );
 
+    // Delivery staff list
+    const [deliveryStaff] = await connection.execute(
+      `
+        SELECT 
+          userId,
+          name,
+          email,
+          phone,
+          address,
+          barangay,
+          createdAt
+        FROM users
+        WHERE role = 'delivery'
+        ORDER BY name ASC
+      `
+    );
+
+    // Unassigned deliveries
+    const [unassignedDeliveries] = await connection.execute(
+      `
+        SELECT
+          d.id AS delivery_id,
+          d.order_id,
+          d.delivery_status,
+          d.delivery_address,
+          d.createdAt,
+          o.product,
+          o.quantity,
+          o.total_amount,
+          o.total_price,
+          u.name AS customer_name,
+          u.email AS customer_email,
+          u.phone AS customer_phone
+        FROM deliveries d
+        LEFT JOIN orders o ON o.orderId = d.order_id
+        LEFT JOIN users u ON u.userId = o.customer_id
+        WHERE d.delivery_personnel_id IS NULL
+          AND d.delivery_status = 'pending'
+        ORDER BY d.createdAt ASC
+      `
+    );
+
+    // Delivery performance
+    const [deliveryPerformance] = await connection.execute(
+      `
+        SELECT
+          u.userId,
+          u.name,
+          u.email,
+          u.phone,
+          COUNT(d.id) AS assignmentCount,
+          SUM(CASE WHEN d.delivery_status IN ('delivered', 'completed') THEN 1 ELSE 0 END) AS completedCount
+        FROM users u
+        LEFT JOIN deliveries d ON d.delivery_personnel_id = u.userId
+        WHERE u.role = 'delivery'
+        GROUP BY u.userId, u.name, u.email, u.phone
+        ORDER BY u.name ASC
+      `
+    );
+
     res.json({
       success: true,
       data: {
         systemStatistics: {
+          totalUsers: totalUsersResult[0].count,
+          totalCustomers: totalCustomersResult[0].count,
           totalOrders: totalOrdersResult[0].count,
           totalRevenue: Number(totalRevenueResult[0].total || 0),
           pendingDeliveries: pendingDeliveriesResult[0].count,
         },
         recentOrders,
         inventoryStatus,
-        unassignedDeliveries: [],
-        deliveryStaff: [],
+        unassignedDeliveries,
+        deliveryStaff,
+        deliveryPerformance,
         topCustomers: [],
-        deliveryPerformance: [],
       },
     });
   } catch (error) {
@@ -158,7 +248,11 @@ export const getReports = async (req, res, next) => {
 };
 
 // ===================================
-// ORDERS LIST
+// LIST ADMIN ORDERS
+// FIXED:
+// - Oldest order first for priority
+// - Cleaner order ID support
+// - Includes delivery staff name
 // ===================================
 export const listAdminOrders = async (req, res, next) => {
   let connection;
@@ -194,6 +288,7 @@ export const listAdminOrders = async (req, res, next) => {
       `
         SELECT 
           o.orderId AS id,
+          o.orderId AS orderId,
           o.customer_id,
           o.order_date,
           o.order_status,
@@ -204,33 +299,27 @@ export const listAdminOrders = async (req, res, next) => {
           ${deliveryAddressExpression} AS delivery_address,
           ${paymentExpression} AS payment,
           o.createdAt,
+
           u.name AS customer_name,
           u.email AS customer_email,
           u.phone AS customer_phone,
-          (
-            SELECT d.id 
-            FROM deliveries d 
-            WHERE d.order_id = o.orderId 
-            ORDER BY d.id DESC 
-            LIMIT 1
-          ) AS delivery_id,
-          (
-            SELECT d.delivery_status 
-            FROM deliveries d 
-            WHERE d.order_id = o.orderId 
-            ORDER BY d.id DESC 
-            LIMIT 1
-          ) AS delivery_status,
-          (
-            SELECT d.delivery_personnel_id 
-            FROM deliveries d 
-            WHERE d.order_id = o.orderId 
-            ORDER BY d.id DESC 
-            LIMIT 1
-          ) AS delivery_personnel_id
+
+          d.id AS delivery_id,
+          d.delivery_status,
+          d.delivery_personnel_id,
+
+          staff.name AS delivery_personnel_name,
+          staff.email AS delivery_personnel_email,
+          staff.phone AS delivery_personnel_phone
+
         FROM orders o
         LEFT JOIN users u ON u.userId = o.customer_id
-        ORDER BY o.createdAt DESC
+        LEFT JOIN deliveries d ON d.order_id = o.orderId
+        LEFT JOIN users staff ON staff.userId = d.delivery_personnel_id
+
+        -- Priority: first customer who ordered appears first
+        ORDER BY o.createdAt ASC
+
         LIMIT ${limit}
       `
     );
@@ -342,7 +431,6 @@ export const cancelAdminOrder = async (req, res, next) => {
 
 // ===================================
 // UPDATE INVENTORY
-// FIXED: UPDATE IF EXISTS, INSERT IF NOT EXISTS
 // ===================================
 export const updateInventory = async (req, res, next) => {
   let connection;
@@ -359,7 +447,6 @@ export const updateInventory = async (req, res, next) => {
       quantity_on_hand,
     } = req.body;
 
-    // Final product data
     const finalProductId = product_id || productId;
     const finalName = name || finalProductId;
     const finalPrice = Number(price || selling_price || 0);
@@ -367,14 +454,12 @@ export const updateInventory = async (req, res, next) => {
 
     connection = await pool.getConnection();
 
-    // Check if inventory item already exists
     const [existingRows] = await connection.execute(
       'SELECT id FROM inventories WHERE product_id = ? LIMIT 1',
       [finalProductId]
     );
 
     if (existingRows.length > 0) {
-      // Update existing inventory row
       await connection.execute(
         `
           UPDATE inventories
@@ -387,7 +472,6 @@ export const updateInventory = async (req, res, next) => {
         [finalName, finalQuantity, finalPrice, finalProductId]
       );
     } else {
-      // Insert new inventory row if it does not exist yet
       await connection.execute(
         `
           INSERT INTO inventories (
@@ -407,7 +491,6 @@ export const updateInventory = async (req, res, next) => {
       );
     }
 
-    // Also update or create water_products row if table exists
     await connection.execute(
       `
         INSERT INTO water_products (
@@ -443,6 +526,251 @@ export const updateInventory = async (req, res, next) => {
     });
   } catch (error) {
     console.error('❌ updateInventory error:', error);
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+// ===================================
+// GET DELIVERY STAFF
+// ===================================
+export const getDeliveryStaff = async (req, res, next) => {
+  let connection;
+
+  try {
+    connection = await pool.getConnection();
+
+    const [rows] = await connection.execute(
+      `
+        SELECT
+          userId,
+          name,
+          email,
+          phone,
+          address,
+          barangay,
+          role,
+          createdAt
+        FROM users
+        WHERE role = 'delivery'
+        ORDER BY name ASC
+      `
+    );
+
+    res.json({
+      success: true,
+      staff: rows,
+    });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+// ===================================
+// CREATE DELIVERY STAFF
+// ===================================
+export const createDeliveryStaff = async (req, res, next) => {
+  let connection;
+
+  try {
+    const { name, email, password, phone, address, barangay } = req.body;
+
+    if (!name || !email || !password) {
+      throw new AppError('Name, email, and password are required', 400);
+    }
+
+    connection = await pool.getConnection();
+
+    const [existing] = await connection.execute(
+      'SELECT userId FROM users WHERE email = ? LIMIT 1',
+      [email]
+    );
+
+    if (existing.length > 0) {
+      throw new AppError('Email already exists', 400);
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const userId = generateUserId();
+
+    await connection.execute(
+      `
+        INSERT INTO users (
+          userId,
+          name,
+          email,
+          password,
+          phone,
+          address,
+          barangay,
+          role,
+          createdAt,
+          updatedAt
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'delivery', NOW(), NOW())
+      `,
+      [
+        userId,
+        name,
+        email,
+        hashedPassword,
+        phone || null,
+        address || null,
+        barangay || null,
+      ]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Delivery personnel added successfully',
+      staff: {
+        userId,
+        name,
+        email,
+        phone,
+        address,
+        barangay,
+        role: 'delivery',
+      },
+    });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+// ===================================
+// UPDATE DELIVERY STAFF
+// ===================================
+export const updateDeliveryStaff = async (req, res, next) => {
+  let connection;
+
+  try {
+    const { userId } = req.params;
+    const { name, email, password, phone, address, barangay } = req.body;
+
+    connection = await pool.getConnection();
+
+    const [existing] = await connection.execute(
+      "SELECT * FROM users WHERE userId = ? AND role = 'delivery' LIMIT 1",
+      [userId]
+    );
+
+    if (existing.length === 0) {
+      throw new AppError('Delivery personnel not found', 404);
+    }
+
+    const fields = [];
+    const values = [];
+
+    if (name !== undefined) {
+      fields.push('name = ?');
+      values.push(name);
+    }
+
+    if (email !== undefined) {
+      fields.push('email = ?');
+      values.push(email);
+    }
+
+    if (phone !== undefined) {
+      fields.push('phone = ?');
+      values.push(phone);
+    }
+
+    if (address !== undefined) {
+      fields.push('address = ?');
+      values.push(address);
+    }
+
+    if (barangay !== undefined) {
+      fields.push('barangay = ?');
+      values.push(barangay);
+    }
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      fields.push('password = ?');
+      values.push(hashedPassword);
+    }
+
+    if (fields.length === 0) {
+      throw new AppError('No update data provided', 400);
+    }
+
+    fields.push('updatedAt = NOW()');
+    values.push(userId);
+
+    await connection.execute(
+      `
+        UPDATE users
+        SET ${fields.join(', ')}
+        WHERE userId = ?
+          AND role = 'delivery'
+      `,
+      values
+    );
+
+    res.json({
+      success: true,
+      message: 'Delivery personnel updated successfully',
+    });
+  } catch (error) {
+    next(error);
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+// ===================================
+// DELETE DELIVERY STAFF
+// ===================================
+export const deleteDeliveryStaff = async (req, res, next) => {
+  let connection;
+
+  try {
+    const { userId } = req.params;
+
+    connection = await pool.getConnection();
+
+    const [existing] = await connection.execute(
+      "SELECT * FROM users WHERE userId = ? AND role = 'delivery' LIMIT 1",
+      [userId]
+    );
+
+    if (existing.length === 0) {
+      throw new AppError('Delivery personnel not found', 404);
+    }
+
+    const [activeDeliveries] = await connection.execute(
+      `
+        SELECT id
+        FROM deliveries
+        WHERE delivery_personnel_id = ?
+          AND delivery_status IN ('pending', 'in_transit')
+        LIMIT 1
+      `,
+      [userId]
+    );
+
+    if (activeDeliveries.length > 0) {
+      throw new AppError('Cannot delete staff with active deliveries', 400);
+    }
+
+    await connection.execute(
+      "DELETE FROM users WHERE userId = ? AND role = 'delivery'",
+      [userId]
+    );
+
+    res.json({
+      success: true,
+      message: 'Delivery personnel deleted successfully',
+    });
+  } catch (error) {
     next(error);
   } finally {
     if (connection) connection.release();

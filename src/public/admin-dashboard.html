@@ -1,124 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- =========================================================
-     HEAD SECTION
-========================================================= -->
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Admin Dashboard - Water Station</title>
 
 <style>
-/* =========================================================
-   CSS SECTION
-========================================================= */
-
 :root {
-  --primary:#0ea5e9;--primary-dark:#0369a1;--secondary:#14b8a6;--dark:#0f172a;
-  --muted:#64748b;--light:#f8fafc;--border:#e2e8f0;--success:#16a34a;
-  --warning:#f59e0b;--danger:#dc2626;--shadow-sm:0 4px 14px rgba(15,23,42,.08);
-  --shadow-md:0 12px 30px rgba(15,23,42,.12);--radius:18px;
+  --primary:#0ea5e9;--secondary:#14b8a6;--dark:#0f172a;
+  --muted:#64748b;--light:#f8fafc;--border:#e2e8f0;
+  --success:#16a34a;--danger:#dc2626;
+  --shadow-sm:0 4px 14px rgba(15,23,42,.08);
+  --radius:18px;
 }
 
-/* Global reset */
 *{margin:0;padding:0;box-sizing:border-box}
 
-/* Main body styling */
-body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient(circle at top left,rgba(14,165,233,.18),transparent 32%),radial-gradient(circle at top right,rgba(20,184,166,.16),transparent 32%),#f8fafc;color:var(--dark);min-height:100vh}
+body{
+  font-family:"Segoe UI",Tahoma,Verdana,sans-serif;
+  background:radial-gradient(circle at top left,rgba(14,165,233,.18),transparent 32%),
+  radial-gradient(circle at top right,rgba(20,184,166,.16),transparent 32%),#f8fafc;
+  color:var(--dark);
+  min-height:100vh;
+}
 
-/* Main dashboard layout */
 .layout{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
 
-/* Sidebar */
-.sidebar{background:#0f172a;color:white;padding:24px 18px;position:sticky;top:0;height:100vh}
+.sidebar{
+  background:#0f172a;
+  color:white;
+  padding:24px 18px;
+  position:sticky;
+  top:0;
+  height:100vh;
+}
 
-/* Brand section */
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:28px;padding:0 8px}
 .brand-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(135deg,var(--primary),var(--secondary));font-size:23px}
-.brand h2{font-size:18px}.brand p{color:#94a3b8;font-size:12px}
+.brand h2{font-size:18px}
+.brand p{color:#94a3b8;font-size:12px}
 
-/* Navigation menu */
 .nav-menu{display:grid;gap:8px}
-.nav-menu button{color:#cbd5e1;background:none;border:none;text-align:left;padding:12px 14px;border-radius:14px;font-weight:700;font-size:14px;cursor:pointer}
+.nav-menu button{
+  color:#cbd5e1;
+  background:none;
+  border:none;
+  text-align:left;
+  padding:12px 14px;
+  border-radius:14px;
+  font-weight:700;
+  font-size:14px;
+  cursor:pointer;
+}
 .nav-menu button:hover,.nav-menu button.active{background:rgba(14,165,233,.16);color:white}
 
-/* Sidebar logout */
 .sidebar-footer{position:absolute;left:18px;right:18px;bottom:22px}
-.logout-btn{width:100%;background:rgba(220,38,38,.12);color:#fecaca;border:1px solid rgba(248,113,113,.35);padding:12px 18px;border-radius:14px;cursor:pointer;font-weight:800}
+.logout-btn{
+  width:100%;
+  background:rgba(220,38,38,.12);
+  color:#fecaca;
+  border:1px solid rgba(248,113,113,.35);
+  padding:12px 18px;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:800;
+}
 .logout-btn:hover{background:var(--danger);color:white}
 
-/* Main content */
 .main{padding:26px;overflow-x:hidden}
 
-/* Topbar */
-.topbar{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:24px;padding:22px 26px;box-shadow:var(--shadow-sm);margin-bottom:24px}
-.topbar h1{font-size:28px;color:#082f49}.topbar p{color:var(--muted);font-size:14px;margin-top:4px}
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:rgba(255,255,255,.9);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:22px 26px;
+  box-shadow:var(--shadow-sm);
+  margin-bottom:24px;
+}
+.topbar h1{font-size:28px;color:#082f49}
+.topbar p{color:var(--muted);font-size:14px;margin-top:4px}
 
-/* Buttons */
-.refresh-btn,.save-btn,.assign-btn,.cancel-btn{border:none;border-radius:999px;font-weight:900;cursor:pointer}
-.refresh-btn{background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;padding:12px 18px}
+.refresh-btn,.save-btn,.assign-btn,.cancel-btn,.edit-btn{
+  border:none;
+  border-radius:999px;
+  font-weight:900;
+  cursor:pointer;
+}
 
-/* Last updated text */
+.refresh-btn{
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:white;
+  padding:12px 18px;
+}
+
 .last-updated{font-size:12px;color:var(--muted);text-align:right;margin-top:6px}
 
-/* Page display */
-.page{display:none}.page.active{display:block}
+.page{display:none}
+.page.active{display:block}
 
-/* Stats grid */
-.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:18px;margin-bottom:24px}
-.stat-card{background:white;padding:20px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
-.stat-card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--primary),var(--secondary))}
-.stat-icon{font-size:26px;margin-bottom:10px}.stat-label{color:var(--muted);font-size:12px;text-transform:uppercase;font-weight:900}.stat-number{font-size:30px;font-weight:900;color:#082f49;margin-top:6px}
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(160px,1fr));
+  gap:18px;
+  margin-bottom:24px;
+}
 
-/* Sections */
-.section{background:white;padding:24px;border-radius:24px;border:1px solid var(--border);box-shadow:var(--shadow-sm);margin-bottom:24px}
+.stat-card{
+  background:white;
+  padding:20px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-sm);
+  position:relative;
+  overflow:hidden;
+}
+.stat-card::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto 0;
+  height:4px;
+  background:linear-gradient(90deg,var(--primary),var(--secondary));
+}
+.stat-icon{font-size:26px;margin-bottom:10px}
+.stat-label{color:var(--muted);font-size:12px;text-transform:uppercase;font-weight:900}
+.stat-number{font-size:30px;font-weight:900;color:#082f49;margin-top:6px}
+
+.section{
+  background:white;
+  padding:24px;
+  border-radius:24px;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-sm);
+  margin-bottom:24px;
+}
 .section-header{margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:14px}
-.section h2{font-size:20px;color:#082f49}.section-desc{color:var(--muted);font-size:14px;margin-top:4px}
+.section h2{font-size:20px;color:#082f49}
+.section-desc{color:var(--muted);font-size:14px;margin-top:4px}
 
-/* Charts */
 .grid-2{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:20px}
-.chart-box{background:var(--light);border:1px solid var(--border);border-radius:18px;padding:18px}.chart-title{font-weight:900;margin-bottom:12px}.chart-container{height:300px}
+.chart-box{background:var(--light);border:1px solid var(--border);border-radius:18px;padding:18px}
+.chart-title{font-weight:900;margin-bottom:12px}
+.chart-container{height:300px}
 
-/* Tables */
-.table-wrap{width:100%;overflow-x:auto;border:1px solid var(--border);border-radius:16px}.table{width:100%;border-collapse:collapse;min-width:760px}
-.table th{background:#f1f5f9;padding:13px 14px;text-align:left;color:#334155;font-weight:900;font-size:13px}.table td{padding:13px 14px;border-top:1px solid var(--border);font-size:14px}
+.table-wrap{width:100%;overflow-x:auto;border:1px solid var(--border);border-radius:16px}
+.table{width:100%;border-collapse:collapse;min-width:760px}
+.table th{background:#f1f5f9;padding:13px 14px;text-align:left;color:#334155;font-weight:900;font-size:13px}
+.table td{padding:13px 14px;border-top:1px solid var(--border);font-size:14px}
 
-/* Badges */
-.badge{display:inline-flex;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:900}.badge-success{background:#dcfce7;color:#166534}.badge-warning{background:#fef3c7;color:#92400e}.badge-danger{background:#fee2e2;color:#991b1b}.badge-info{background:#e0f2fe;color:#075985}.badge-muted{background:#e2e8f0;color:#475569}
+.badge{display:inline-flex;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:900}
+.badge-success{background:#dcfce7;color:#166534}
+.badge-warning{background:#fef3c7;color:#92400e}
+.badge-danger{background:#fee2e2;color:#991b1b}
+.badge-info{background:#e0f2fe;color:#075985}
+.badge-muted{background:#e2e8f0;color:#475569}
 
-/* Empty, error, and notice */
-.empty-card,.empty-message{text-align:center;color:var(--muted);padding:28px}.empty-card{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:18px}
-.error{background:#fee2e2;color:#991b1b;padding:14px 16px;border-radius:16px;margin-bottom:18px;border:1px solid #fecaca;font-weight:700}.notice{background:#e0f2fe;color:#075985;padding:14px 16px;border-radius:16px;margin-bottom:18px;border:1px solid #bae6fd;font-weight:700}
+.empty-card,.empty-message{text-align:center;color:var(--muted);padding:28px}
+.empty-card{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:18px}
+.error{background:#fee2e2;color:#991b1b;padding:14px 16px;border-radius:16px;margin-bottom:18px;border:1px solid #fecaca;font-weight:700}
+.notice{background:#e0f2fe;color:#075985;padding:14px 16px;border-radius:16px;margin-bottom:18px;border:1px solid #bae6fd;font-weight:700}
 
-/* Inventory cards */
-.inventory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}.inventory-card{background:#f8fafc;padding:16px;border-radius:18px;border:1px solid var(--border)}
-.inventory-name{font-weight:900;color:#334155}.inventory-price{color:var(--muted);font-size:13px;margin-top:3px}
-.inventory-form{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px}.inventory-form input{padding:11px;border:1px solid #cbd5e1;border-radius:12px;font-size:15px}
-.save-btn{background:#dcfce7;color:#166534;padding:10px 14px}.save-btn:hover{background:var(--success);color:white}
-.assign-btn{background:#e0f2fe;color:#075985;padding:8px 12px}.assign-btn:hover{background:var(--primary);color:white}
-.cancel-btn{background:#fee2e2;color:#991b1b;padding:8px 12px}.cancel-btn:hover{background:var(--danger);color:white}
+.inventory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.inventory-card{background:#f8fafc;padding:16px;border-radius:18px;border:1px solid var(--border)}
+.inventory-name{font-weight:900;color:#334155}
+.inventory-price{color:var(--muted);font-size:13px;margin-top:3px}
+.inventory-form{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:14px}
+.inventory-form input{padding:11px;border:1px solid #cbd5e1;border-radius:12px;font-size:15px}
+
+.save-btn{background:#dcfce7;color:#166534;padding:10px 14px}
+.save-btn:hover{background:var(--success);color:white}
+
+.assign-btn,.edit-btn{background:#e0f2fe;color:#075985;padding:8px 12px}
+.assign-btn:hover,.edit-btn:hover{background:var(--primary);color:white}
+
+.cancel-btn{background:#fee2e2;color:#991b1b;padding:8px 12px}
+.cancel-btn:hover{background:var(--danger);color:white}
+
 .select-staff{padding:9px;border-radius:12px;border:1px solid #cbd5e1}
-.stock-low{background:#fffbeb;border-color:#fde68a}.stock-out{background:#fef2f2;border-color:#fecaca}
+.stock-low{background:#fffbeb;border-color:#fde68a}
+.stock-out{background:#fef2f2;border-color:#fecaca}
 
-/* Responsive design */
-@media(max-width:1100px){.layout{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.sidebar-footer{position:static;margin-top:18px}.nav-menu{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.stats-grid{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}}
-@media(max-width:650px){.main{padding:16px}.topbar{flex-direction:column;align-items:stretch}.stats-grid{grid-template-columns:1fr}.section{padding:18px}}
+.staff-form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(220px,1fr));
+  gap:12px;
+}
+.staff-field label{display:block;font-weight:800;margin-bottom:6px;color:#334155}
+.staff-field input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #cbd5e1;
+}
+.staff-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+@media(max-width:1100px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:relative;height:auto}
+  .sidebar-footer{position:static;margin-top:18px}
+  .nav-menu{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .grid-2{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+  .main{padding:16px}
+  .topbar{flex-direction:column;align-items:stretch}
+  .stats-grid{grid-template-columns:1fr}
+  .section{padding:18px}
+  .staff-form-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 
 <body>
-
-<!-- =========================================================
-     MAIN LAYOUT
-========================================================= -->
 <div class="layout">
 
-<!-- =========================================================
-     SIDEBAR
-========================================================= -->
 <aside class="sidebar">
-
-  <!-- Brand / logo -->
   <div class="brand">
     <div class="brand-icon">💧</div>
     <div>
@@ -127,7 +226,6 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
     </div>
   </div>
 
-  <!-- Navigation buttons -->
   <div class="nav-menu">
     <button class="active" data-page="overviewPage">📊 Overview</button>
     <button data-page="ordersPage">📑 Orders</button>
@@ -137,18 +235,12 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
     <button data-page="deliveryPage">🚚 Delivery Staff</button>
   </div>
 
-  <!-- Logout -->
   <div class="sidebar-footer">
     <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
 </aside>
 
-<!-- =========================================================
-     MAIN CONTENT
-========================================================= -->
 <main class="main">
-
-<!-- Topbar -->
 <header class="topbar">
   <div>
     <h1 id="pageTitle">Overview</h1>
@@ -160,13 +252,9 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
   </div>
 </header>
 
-<!-- Error and notice containers -->
 <div id="errorContainer"></div>
 <div id="noticeContainer"></div>
 
-<!-- =========================================================
-     OVERVIEW PAGE
-========================================================= -->
 <section id="overviewPage" class="page active">
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total Users</div><div class="stat-number" id="totalUsers">0</div></div>
@@ -179,7 +267,6 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
     <div class="stat-card"><div class="stat-icon">👤</div><div class="stat-label">Customers</div><div class="stat-number" id="totalCustomers">0</div></div>
   </div>
 
-  <!-- Charts -->
   <section class="section">
     <div class="section-header">
       <h2>📈 Overview Charts</h2>
@@ -192,14 +279,11 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
   </section>
 </section>
 
-<!-- =========================================================
-     ORDERS PAGE
-========================================================= -->
 <section id="ordersPage" class="page">
   <section class="section">
     <div class="section-header">
       <h2>📑 Manage Orders</h2>
-      <p class="section-desc">View and cancel orders before delivery starts.</p>
+      <p class="section-desc">Oldest orders are shown first, so the first customer who ordered is prioritized.</p>
     </div>
     <div id="manageOrdersContainer"><div class="empty-card"><strong>No orders found.</strong> Customer orders will appear here.</div></div>
   </section>
@@ -215,9 +299,6 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
   </section>
 </section>
 
-<!-- =========================================================
-     ASSIGN DELIVERY PAGE
-========================================================= -->
 <section id="assignPage" class="page">
   <section class="section">
     <div class="section-header">
@@ -228,9 +309,6 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
   </section>
 </section>
 
-<!-- =========================================================
-     INVENTORY PAGE
-========================================================= -->
 <section id="inventoryPage" class="page">
   <section class="section">
     <div class="section-header">
@@ -241,9 +319,6 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
   </section>
 </section>
 
-<!-- =========================================================
-     CUSTOMERS PAGE
-========================================================= -->
 <section id="customersPage" class="page">
   <section class="section">
     <div class="section-header"><h2>⭐ Top Customers</h2></div>
@@ -256,47 +331,114 @@ body{font-family:"Segoe UI",Tahoma,Verdana,sans-serif;background:radial-gradient
   </section>
 </section>
 
-<!-- =========================================================
-     DELIVERY STAFF PAGE
-========================================================= -->
 <section id="deliveryPage" class="page">
+
   <section class="section">
-    <div class="section-header"><h2>🚚 Delivery Performance</h2></div>
+    <div class="section-header">
+      <h2>👨‍✈️ Manage Delivery Staff</h2>
+      <p class="section-desc">Add, update, and delete delivery personnel accounts.</p>
+    </div>
+
+    <div class="inventory-card" style="margin-bottom:20px;">
+      <h3 style="margin-bottom:15px;">➕ Add Delivery Staff</h3>
+
+      <form id="addStaffForm">
+        <div class="staff-form-grid">
+          <div class="staff-field">
+            <label>Full Name</label>
+            <input type="text" id="staffName" placeholder="Enter full name" required>
+          </div>
+
+          <div class="staff-field">
+            <label>Email</label>
+            <input type="email" id="staffEmail" placeholder="Enter email" required>
+          </div>
+
+          <div class="staff-field">
+            <label>Password</label>
+            <input type="password" id="staffPassword" placeholder="Enter password" required>
+          </div>
+
+          <div class="staff-field">
+            <label>Phone</label>
+            <input type="text" id="staffPhone" placeholder="Enter phone number">
+          </div>
+
+          <div class="staff-field">
+            <label>Address</label>
+            <input type="text" id="staffAddress" placeholder="Enter address">
+          </div>
+
+          <div class="staff-field">
+            <label>Barangay</label>
+            <input type="text" id="staffBarangay" placeholder="Enter barangay">
+          </div>
+        </div>
+
+        <button type="submit" class="save-btn" style="padding:12px 20px;margin-top:15px;">
+          Add Delivery Staff
+        </button>
+      </form>
+    </div>
+
     <div class="table-wrap">
       <table class="table">
-        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Assignments</th><th>Completed</th><th>Success Rate</th></tr></thead>
-        <tbody id="deliveryPerformanceTable"><tr><td colspan="6" class="empty-message">No delivery performance data yet.</td></tr></tbody>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Barangay</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="deliveryStaffManageTable">
+          <tr><td colspan="5" class="empty-message">No delivery staff yet.</td></tr>
+        </tbody>
       </table>
     </div>
   </section>
+
+  <section class="section">
+    <div class="section-header">
+      <h2>🚚 Delivery Performance</h2>
+      <p class="section-desc">Monitor delivery personnel completed deliveries.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Assignments</th>
+            <th>Completed</th>
+            <th>Performance</th>
+          </tr>
+        </thead>
+        <tbody id="deliveryPerformanceTable">
+          <tr><td colspan="6" class="empty-message">No delivery performance data yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
 </section>
 
 </main>
 </div>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-/* =========================================================
-   GLOBAL VARIABLES
-========================================================= */
-
-/* API URL */
 const API_URL = window.location.origin && window.location.origin !== 'null' ? window.location.origin : '';
-
-/* Login token */
 const token = localStorage.getItem('token');
 
-/* Chart instances */
 let ordersChart, deliveryChart;
 
-/* Redirect if not logged in */
 if (!token) window.location.href = '/index.html';
 
-/* =========================================================
-   NAVIGATION
-========================================================= */
 document.querySelectorAll('.nav-menu button').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-menu button').forEach(b => b.classList.remove('active'));
@@ -305,12 +447,13 @@ document.querySelectorAll('.nav-menu button').forEach(btn => {
     btn.classList.add('active');
     document.getElementById(btn.dataset.page).classList.add('active');
     document.getElementById('pageTitle').textContent = btn.textContent.replace(/[^\w\s]/g, '').trim();
+
+    if (btn.dataset.page === 'deliveryPage') {
+      loadDeliveryStaffManagement();
+    }
   });
 });
 
-/* =========================================================
-   LOAD DASHBOARD
-========================================================= */
 async function loadDashboard() {
   setRefreshing(true);
   clearError();
@@ -328,7 +471,6 @@ async function loadDashboard() {
     }
 
     const orders = await getAdminOrders();
-
     displayDashboard(dashboardBody.data || {}, orders);
     updateLastUpdated();
 
@@ -339,9 +481,6 @@ async function loadDashboard() {
   }
 }
 
-/* =========================================================
-   GET ADMIN ORDERS
-========================================================= */
 async function getAdminOrders() {
   const res = await fetch(`${API_URL}/admin/orders?limit=200`, {
     headers:{Authorization:`Bearer ${token}`}
@@ -354,12 +493,14 @@ async function getAdminOrders() {
     return [];
   }
 
-  return Array.isArray(body.orders) ? body.orders : [];
+  const orders = Array.isArray(body.orders) ? body.orders : [];
+
+  return orders.sort((a,b)=>{
+    return new Date(a.createdAt || a.created_at || a.order_date || 0) -
+           new Date(b.createdAt || b.created_at || b.order_date || 0);
+  });
 }
 
-/* =========================================================
-   DISPLAY DASHBOARD
-========================================================= */
 function displayDashboard(data, orders) {
   const stats = calculateStats(data.systemStatistics || {}, orders);
 
@@ -375,18 +516,12 @@ function displayDashboard(data, orders) {
   displayCharts(stats);
   renderManageOrders(orders);
   displayAssignDeliveries(data.unassignedDeliveries || [], data.deliveryStaff || []);
-
-  /* Inventory comes from backend/database */
   displayInventory(data.inventoryStatus || []);
-
   displayTopCustomers(data.topCustomers || []);
   displayDeliveryPerformance(data.deliveryPerformance || []);
   displayRecentOrders(data.recentOrders || orders.slice(0,10));
 }
 
-/* =========================================================
-   CALCULATE STATISTICS
-========================================================= */
 function calculateStats(apiStats, orders) {
   return {
     totalUsers:numberOr(apiStats.totalUsers,0),
@@ -405,9 +540,6 @@ function calculateStats(apiStats, orders) {
   };
 }
 
-/* =========================================================
-   MANAGE ORDERS TABLE
-========================================================= */
 function renderManageOrders(orders) {
   const c = manageOrdersContainer;
 
@@ -416,27 +548,53 @@ function renderManageOrders(orders) {
     return;
   }
 
-  c.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>Order</th><th>Customer</th><th>Product / Qty</th><th>Total</th><th>Status</th><th>Delivery</th><th>Action</th></tr></thead><tbody>` +
-    orders.map(o => {
-      const os=normalizeStatus(o.order_status||o.status||'pending');
-      const ds=normalizeStatus(o.delivery_status||'—');
-      const canCancel=['pending','confirmed'].includes(os)&&(!o.delivery_status||ds==='pending'||ds==='—');
+  c.innerHTML = `
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Priority</th>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Product / Qty</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Delivery</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${orders.map((o,index) => {
+            const os=normalizeStatus(o.order_status||o.status||'pending');
+            const ds=normalizeStatus(o.delivery_status||'—');
+            const rawId = o.id || o.order_id || o.orderId;
+            const canCancel=['pending','confirmed'].includes(os)&&(!o.delivery_status||ds==='pending'||ds==='—');
 
-      return `<tr>
-        <td><strong>#${escapeHtml(o.id||o.order_id||o.orderId)}</strong></td>
-        <td>${escapeHtml(o.customer_name||'N/A')}<br><small>${escapeHtml(o.customer_email||'')}</small></td>
-        <td>${escapeHtml(o.product||o.product_name||'Product')} × ${escapeHtml(o.quantity||0)}</td>
-        <td>${formatCurrency(o.total_price||o.total_amount||0)}</td>
-        <td>${badge(os)}</td>
-        <td>${badge(ds)}</td>
-        <td>${canCancel?`<button class="cancel-btn" onclick="adminCancelOrder('${escapeForJs(o.id||o.order_id||o.orderId)}')">Cancel</button>`:`<span class="badge badge-muted">No Action</span>`}</td>
-      </tr>`;
-    }).join('') + `</tbody></table></div>`;
+            return `
+              <tr>
+                <td><span class="badge badge-info">#${index + 1}</span></td>
+                <td><strong>${formatOrderId(rawId)}</strong><br><small>${escapeHtml(rawId || 'N/A')}</small></td>
+                <td>${escapeHtml(o.customer_name||'N/A')}<br><small>${escapeHtml(o.customer_email||'')}</small></td>
+                <td>${escapeHtml(o.product||o.product_name||'Product')} × ${escapeHtml(o.quantity||0)}</td>
+                <td>${formatCurrency(o.total_price||o.total_amount||0)}</td>
+                <td>${badge(os)}</td>
+                <td>${badge(ds)}</td>
+                <td>
+                  ${
+                    canCancel
+                      ? `<button class="cancel-btn" onclick="adminCancelOrder('${escapeForJs(rawId)}')">Cancel</button>`
+                      : `<span class="badge badge-muted">No Action</span>`
+                  }
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
-/* =========================================================
-   ASSIGN DELIVERIES
-========================================================= */
 function displayAssignDeliveries(rows, staff) {
   const c = assignDeliveriesContainer;
 
@@ -457,7 +615,7 @@ function displayAssignDeliveries(rows, staff) {
 
       return `<tr>
         <td>#${escapeHtml(r.delivery_id)}</td>
-        <td>#${escapeHtml(r.order_id)}</td>
+        <td>${formatOrderId(r.order_id)}<br><small>${escapeHtml(r.order_id)}</small></td>
         <td>${escapeHtml(r.customer_name||'N/A')}<br><small>${escapeHtml(r.customer_phone||'')}</small></td>
         <td>${escapeHtml(r.delivery_address||'N/A')}</td>
         <td><select id="${sid}" class="select-staff">${options}</select> <button class="assign-btn" onclick="assignStaff('${escapeForJs(r.delivery_id)}','${sid}')">Assign</button></td>
@@ -465,14 +623,6 @@ function displayAssignDeliveries(rows, staff) {
     }).join('') + `</tbody></table></div>`;
 }
 
-/* =========================================================
-   DISPLAY INVENTORY
-
-   Important:
-   - Admin controls quantity.
-   - If backend sends saved quantity, it displays it.
-   - If no saved quantity exists, it shows 0.
-========================================================= */
 function displayInventory(items) {
   const c = inventoryContainer;
 
@@ -513,35 +663,15 @@ function displayInventory(items) {
   }).join('') + `</div>`;
 }
 
-/* =========================================================
-   UPDATE INVENTORY
-
-   Fix:
-   - Sends product_id, name, price, selling_price, quantity,
-     and quantity_on_hand.
-   - This helps backend update or create the correct product.
-========================================================= */
 async function updateInventory(e, productId) {
   e.preventDefault();
 
   const qty = Number(e.target.querySelector('input').value);
 
   const productMap = {
-    'gallon-round': {
-      product_id: 'gallon-round',
-      name: 'Gallon Round',
-      price: 30
-    },
-    'gallon-slim': {
-      product_id: 'gallon-slim',
-      name: 'Gallon Slim',
-      price: 30
-    },
-    '3-gallon': {
-      product_id: '3-gallon',
-      name: '3 Gallon',
-      price: 25
-    }
+    'gallon-round': { product_id:'gallon-round', name:'Gallon Round', price:30 },
+    'gallon-slim': { product_id:'gallon-slim', name:'Gallon Slim', price:30 },
+    '3-gallon': { product_id:'3-gallon', name:'3 Gallon', price:25 }
   };
 
   const selectedProduct = productMap[productId];
@@ -571,11 +701,10 @@ async function updateInventory(e, productId) {
     const body = await res.json().catch(()=>({}));
 
     if (!res.ok) {
-      throw new Error(body.error || body.message || 'Inventory update failed. Please check backend PATCH route.');
+      throw new Error(body.error || body.message || 'Inventory update failed.');
     }
 
     alert('Inventory updated successfully.');
-
     await loadDashboard();
 
   } catch(err) {
@@ -583,9 +712,6 @@ async function updateInventory(e, productId) {
   }
 }
 
-/* =========================================================
-   ASSIGN STAFF
-========================================================= */
 async function assignStaff(deliveryId, selectId) {
   const personnelId = document.getElementById(selectId)?.value;
 
@@ -604,15 +730,13 @@ async function assignStaff(deliveryId, selectId) {
 
     alert('Delivery assigned successfully.');
     loadDashboard();
+    loadDeliveryStaffManagement();
 
   } catch(e) {
     alert(e.message);
   }
 }
 
-/* =========================================================
-   CANCEL ORDER
-========================================================= */
 async function adminCancelOrder(orderId) {
   if (!confirm('Cancel this order?')) return;
 
@@ -629,36 +753,251 @@ async function adminCancelOrder(orderId) {
   loadDashboard();
 }
 
-/* =========================================================
-   CHARTS
-========================================================= */
 function displayCharts(s) {
   const orderData=[s.pendingOrders,s.completedOrders,s.cancelledOrders];
   const deliveryData=[s.pendingDeliveries,s.inTransitDeliveries,s.successfulDeliveries,s.failedDeliveries];
 
   if (ordersChart) ordersChart.destroy();
-  ordersChart = new Chart(ordersChartCanvas(),{type:'doughnut',data:{labels:['Pending/Confirmed','Completed/Delivered','Cancelled'],datasets:[{data:orderData,backgroundColor:['#fef3c7','#dcfce7','#fee2e2'],borderColor:['#f59e0b','#16a34a','#dc2626'],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+  ordersChart = new Chart(ordersChartCanvas(),{
+    type:'doughnut',
+    data:{
+      labels:['Pending/Confirmed','Completed/Delivered','Cancelled'],
+      datasets:[{data:orderData,backgroundColor:['#fef3c7','#dcfce7','#fee2e2'],borderColor:['#f59e0b','#16a34a','#dc2626'],borderWidth:2}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+  });
 
   if (deliveryChart) deliveryChart.destroy();
-  deliveryChart = new Chart(deliveryChartCanvas(),{type:'bar',data:{labels:['Pending','In Transit','Delivered','Failed'],datasets:[{data:deliveryData,backgroundColor:['#fef3c7','#e0f2fe','#dcfce7','#fee2e2'],borderColor:['#f59e0b','#0284c7','#16a34a','#dc2626'],borderWidth:2,borderRadius:12}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,ticks:{precision:0}}},plugins:{legend:{display:false}}}});
+  deliveryChart = new Chart(deliveryChartCanvas(),{
+    type:'bar',
+    data:{
+      labels:['Pending','In Transit','Delivered','Failed'],
+      datasets:[{data:deliveryData,backgroundColor:['#fef3c7','#e0f2fe','#dcfce7','#fee2e2'],borderColor:['#f59e0b','#0284c7','#16a34a','#dc2626'],borderWidth:2,borderRadius:12}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,ticks:{precision:0}}},plugins:{legend:{display:false}}}
+  });
 }
 
 function ordersChartCanvas(){return document.getElementById('ordersChart').getContext('2d')}
 function deliveryChartCanvas(){return document.getElementById('deliveryChart').getContext('2d')}
 
-/* =========================================================
-   OTHER DISPLAY FUNCTIONS
-========================================================= */
-function displayTopCustomers(customers){topCustomersTable.innerHTML=customers.length?customers.map(c=>{const info=c.customer||c;return `<tr><td>${escapeHtml(info.name||'N/A')}</td><td>${escapeHtml(info.email||'N/A')}</td><td>${escapeHtml(info.phone||'N/A')}</td><td><span class="badge badge-info">${safeNumber(c.dataValues?.orderCount||c.orderCount||0)}</span></td><td>${formatCurrency(c.dataValues?.totalSpent||c.totalSpent||0)}</td></tr>`}).join(''):`<tr><td colspan="5" class="empty-message">No customer order data yet.</td></tr>`}
+function displayTopCustomers(customers){
+  topCustomersTable.innerHTML=customers.length
+    ? customers.map(c=>{
+      const info=c.customer||c;
+      return `<tr><td>${escapeHtml(info.name||'N/A')}</td><td>${escapeHtml(info.email||'N/A')}</td><td>${escapeHtml(info.phone||'N/A')}</td><td><span class="badge badge-info">${safeNumber(c.dataValues?.orderCount||c.orderCount||0)}</span></td><td>${formatCurrency(c.dataValues?.totalSpent||c.totalSpent||0)}</td></tr>`;
+    }).join('')
+    : `<tr><td colspan="5" class="empty-message">No customer order data yet.</td></tr>`;
+}
 
-function displayDeliveryPerformance(p){deliveryPerformanceTable.innerHTML=p.length?p.map(x=>{const info=x.delivery_personnel||x;const a=x.dataValues?.assignmentCount||x.assignmentCount||0;const c=x.dataValues?.completedCount||x.completedCount||0;return `<tr><td>${escapeHtml(info.name||'N/A')}</td><td>${escapeHtml(info.email||'N/A')}</td><td>${escapeHtml(info.phone||'N/A')}</td><td>${safeNumber(a)}</td><td>${safeNumber(c)}</td><td><strong>${a>0?((c/a)*100).toFixed(1):0}%</strong></td></tr>`}).join(''):`<tr><td colspan="6" class="empty-message">No delivery performance data yet.</td></tr>`}
+function displayDeliveryPerformance(p){
+  deliveryPerformanceTable.innerHTML=p.length
+    ? p.map(x=>{
+      const info=x.delivery_personnel||x;
+      const a=x.dataValues?.assignmentCount||x.assignmentCount||0;
+      const c=x.dataValues?.completedCount||x.completedCount||0;
+      return `<tr><td>${escapeHtml(info.name||'N/A')}</td><td>${escapeHtml(info.email||'N/A')}</td><td>${escapeHtml(info.phone||'N/A')}</td><td>${safeNumber(a)}</td><td>${safeNumber(c)}</td><td><strong>${a>0?((c/a)*100).toFixed(1):0}%</strong></td></tr>`;
+    }).join('')
+    : `<tr><td colspan="6" class="empty-message">No delivery performance data yet.</td></tr>`;
+}
 
-function displayRecentOrders(o){recentOrdersTable.innerHTML=o.length?o.slice(0,10).map(x=>`<tr><td>#${escapeHtml(x.id||x.order_id||'N/A')}</td><td>${escapeHtml(x.customer?.name||x.customer_name||'N/A')}</td><td>${formatCurrency(x.total_amount||x.total_price||0)}</td><td>${badge(x.status||x.order_status||'pending')}</td><td>${escapeHtml(x.createdAt?new Date(x.createdAt).toLocaleDateString():'N/A')}</td></tr>`).join(''):`<tr><td colspan="5" class="empty-message">No recent orders yet.</td></tr>`}
+function displayRecentOrders(o){
+  recentOrdersTable.innerHTML=o.length
+    ? o.slice(0,10).map(x=>`
+      <tr>
+        <td>${formatOrderId(x.id||x.order_id||x.orderId)}<br><small>${escapeHtml(x.id||x.order_id||x.orderId||'N/A')}</small></td>
+        <td>${escapeHtml(x.customer?.name||x.customer_name||'N/A')}</td>
+        <td>${formatCurrency(x.total_amount||x.total_price||0)}</td>
+        <td>${badge(x.status||x.order_status||'pending')}</td>
+        <td>${escapeHtml(x.createdAt?new Date(x.createdAt).toLocaleDateString():'N/A')}</td>
+      </tr>
+    `).join('')
+    : `<tr><td colspan="5" class="empty-message">No recent orders yet.</td></tr>`;
+}
 
-/* =========================================================
-   HELPER FUNCTIONS
-========================================================= */
-function badge(s){s=normalizeStatus(s);const b={pending:['badge-warning','Pending'],confirmed:['badge-info','Confirmed'],in_transit:['badge-info','In Transit'],delivered:['badge-success','Delivered'],completed:['badge-success','Completed'],cancelled:['badge-danger','Cancelled'],failed:['badge-danger','Failed'],out:['badge-danger','Out of Stock'],low:['badge-warning','Low Stock'],stock:['badge-success','In Stock'],'—':['badge-muted','—']};const v=b[s]||['badge-muted',s];return `<span class="badge ${v[0]}">${escapeHtml(v[1])}</span>`}
+async function loadDeliveryStaffManagement() {
+  try {
+    const res = await fetch(`${API_URL}/admin/delivery-staff`, {
+      headers:{Authorization:`Bearer ${token}`}
+    });
+
+    const body = await res.json().catch(()=>({}));
+
+    if (!res.ok) {
+      throw new Error(body.error || body.message || 'Failed to load delivery staff.');
+    }
+
+    renderDeliveryStaffManagement(body.staff || []);
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function renderDeliveryStaffManagement(staff) {
+  const table = document.getElementById('deliveryStaffManageTable');
+
+  if (!staff.length) {
+    table.innerHTML = `<tr><td colspan="5" class="empty-message">No delivery staff yet.</td></tr>`;
+    return;
+  }
+
+  table.innerHTML = staff.map(person => `
+    <tr>
+      <td>${escapeHtml(person.name)}</td>
+      <td>${escapeHtml(person.email)}</td>
+      <td>${escapeHtml(person.phone || 'N/A')}</td>
+      <td>${escapeHtml(person.barangay || 'N/A')}</td>
+      <td>
+        <div class="staff-actions">
+          <button class="edit-btn" onclick="editDeliveryStaff('${escapeForJs(person.userId)}','${escapeForJs(person.name)}','${escapeForJs(person.email)}','${escapeForJs(person.phone || '')}','${escapeForJs(person.address || '')}','${escapeForJs(person.barangay || '')}')">
+            Update
+          </button>
+          <button class="cancel-btn" onclick="deleteDeliveryStaff('${escapeForJs(person.userId)}')">
+            Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('addStaffForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  try {
+    const payload = {
+      name:document.getElementById('staffName').value.trim(),
+      email:document.getElementById('staffEmail').value.trim(),
+      password:document.getElementById('staffPassword').value.trim(),
+      phone:document.getElementById('staffPhone').value.trim(),
+      address:document.getElementById('staffAddress').value.trim(),
+      barangay:document.getElementById('staffBarangay').value.trim()
+    };
+
+    const res = await fetch(`${API_URL}/admin/delivery-staff`, {
+      method:'POST',
+      headers:{
+        Authorization:`Bearer ${token}`,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify(payload)
+    });
+
+    const body = await res.json().catch(()=>({}));
+
+    if (!res.ok) {
+      throw new Error(body.error || body.message || 'Failed to add delivery staff.');
+    }
+
+    alert('Delivery staff added successfully.');
+    document.getElementById('addStaffForm').reset();
+    loadDeliveryStaffManagement();
+    loadDashboard();
+
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+async function editDeliveryStaff(userId, oldName, oldEmail, oldPhone, oldAddress, oldBarangay) {
+  const name = prompt('Update full name:', oldName);
+  if (name === null) return;
+
+  const email = prompt('Update email:', oldEmail);
+  if (email === null) return;
+
+  const phone = prompt('Update phone:', oldPhone);
+  if (phone === null) return;
+
+  const address = prompt('Update address:', oldAddress);
+  if (address === null) return;
+
+  const barangay = prompt('Update barangay:', oldBarangay);
+  if (barangay === null) return;
+
+  const password = prompt('New password optional. Leave blank if not changing password:', '');
+
+  try {
+    const payload = {
+      name:name.trim(),
+      email:email.trim(),
+      phone:phone.trim(),
+      address:address.trim(),
+      barangay:barangay.trim()
+    };
+
+    if (password && password.trim()) {
+      payload.password = password.trim();
+    }
+
+    const res = await fetch(`${API_URL}/admin/delivery-staff/${encodeURIComponent(userId)}`, {
+      method:'PATCH',
+      headers:{
+        Authorization:`Bearer ${token}`,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify(payload)
+    });
+
+    const body = await res.json().catch(()=>({}));
+
+    if (!res.ok) {
+      throw new Error(body.error || body.message || 'Failed to update delivery staff.');
+    }
+
+    alert('Delivery staff updated successfully.');
+    loadDeliveryStaffManagement();
+    loadDashboard();
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function deleteDeliveryStaff(userId) {
+  if (!confirm('Delete this delivery staff?')) return;
+
+  try {
+    const res = await fetch(`${API_URL}/admin/delivery-staff/${encodeURIComponent(userId)}`, {
+      method:'DELETE',
+      headers:{Authorization:`Bearer ${token}`}
+    });
+
+    const body = await res.json().catch(()=>({}));
+
+    if (!res.ok) {
+      throw new Error(body.error || body.message || 'Failed to delete delivery staff.');
+    }
+
+    alert('Delivery staff deleted successfully.');
+    loadDeliveryStaffManagement();
+    loadDashboard();
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+function badge(s){
+  s=normalizeStatus(s);
+  const b={
+    pending:['badge-warning','Pending'],
+    confirmed:['badge-info','Confirmed'],
+    in_transit:['badge-info','In Transit'],
+    delivered:['badge-success','Delivered'],
+    completed:['badge-success','Completed'],
+    cancelled:['badge-danger','Cancelled'],
+    failed:['badge-danger','Failed'],
+    out:['badge-danger','Out of Stock'],
+    low:['badge-warning','Low Stock'],
+    stock:['badge-success','In Stock'],
+    '—':['badge-muted','—']
+  };
+  const v=b[s]||['badge-muted',s];
+  return `<span class="badge ${v[0]}">${escapeHtml(v[1])}</span>`;
+}
+
 function countOrder(o,s){return o.filter(x=>s.includes(normalizeStatus(x.order_status||x.status))).length}
 function countDelivery(o,s){return o.filter(x=>s.includes(normalizeStatus(x.delivery_status))).length}
 function isToday(d){if(!d)return false;return new Date(d).toDateString()===new Date().toDateString()}
@@ -673,13 +1012,13 @@ function formatCurrency(v){return Number(v||0).toLocaleString('en-PH',{style:'cu
 function safeNumber(v){return Number(v||0).toLocaleString()}
 function numberOr(v,f){const n=Number(v);return Number.isFinite(n)?n:Number(f||0)}
 function normalizeStatus(s){if(s===null||s===undefined||s==='')return'unknown';return String(s).toLowerCase().trim()}
+function formatOrderId(id){if(!id)return'ORD-N/A';const clean=String(id).replace(/[^a-zA-Z0-9]/g,'').toUpperCase();return `ORD-${clean.slice(0,8)}`}
 function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;")}
-function escapeForJs(v){return String(v??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
+function escapeForJs(v){return String(v??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;')}
 
-/* Initial load */
 loadDashboard();
+loadDeliveryStaffManagement();
 
-/* Auto refresh */
 setInterval(loadDashboard,30000);
 </script>
 </body>

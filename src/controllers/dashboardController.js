@@ -44,55 +44,133 @@ export const getCustomerDashboard = async (req, res, next) => {
       [userId]
     );
 
+    // ===================================
+    // ACTIVE ORDERS WITH DELIVERY PERSONNEL
+    // ===================================
     const [activeRows] = await connection.execute(
       `SELECT 
         o.orderId AS id,
         o.order_status,
         o.createdAt,
         COALESCE(o.total_amount, o.total_price) AS total_price,
+
+        d.id AS delivery_id,
         d.delivery_status,
-        dp.name AS personnel_name
+        d.delivery_personnel_id,
+
+        dp.name AS delivery_personnel_name,
+        dp.email AS delivery_personnel_email,
+        dp.phone AS delivery_personnel_phone
+
       FROM orders o
-      LEFT JOIN deliveries d ON d.order_id = o.orderId
-      LEFT JOIN users dp ON dp.userId = d.delivery_personnel_id
+      LEFT JOIN deliveries d 
+        ON d.order_id = o.orderId
+      LEFT JOIN users dp 
+        ON dp.userId = d.delivery_personnel_id
+
       WHERE o.customer_id = ?
         AND o.order_status NOT IN ('delivered', 'cancelled')
+
       ORDER BY o.createdAt DESC`,
       [userId]
     );
 
     const activeOrders = activeRows.map((row) => {
       let status = row.order_status;
-      if (row.delivery_status === 'in_transit') status = 'in_transit';
+
+      if (row.delivery_status === 'in_transit') {
+        status = 'in_transit';
+      }
 
       return {
         id: row.id,
+        orderId: row.id,
         status,
+        order_status: row.order_status,
+
         total_amount: parseFloat(row.total_price || 0),
+        total_price: parseFloat(row.total_price || 0),
         total_items: 1,
-        delivery: row.personnel_name
-          ? { delivery_personnel: { name: row.personnel_name } }
+
+        delivery_status: row.delivery_status,
+
+        delivery_personnel_name: row.delivery_personnel_name,
+        delivery_personnel_email: row.delivery_personnel_email,
+        delivery_personnel_phone: row.delivery_personnel_phone,
+
+        delivery: row.delivery_personnel_name
+          ? {
+              id: row.delivery_id,
+              delivery_status: row.delivery_status,
+              delivery_personnel: {
+                id: row.delivery_personnel_id,
+                name: row.delivery_personnel_name,
+                email: row.delivery_personnel_email,
+                phone: row.delivery_personnel_phone,
+              },
+            }
           : null,
       };
     });
 
+    // ===================================
+    // RECENT ORDERS WITH DELIVERY PERSONNEL
+    // ===================================
     const [recentRows] = await connection.execute(
       `SELECT 
-        orderId AS id,
-        order_status AS status,
-        createdAt,
-        COALESCE(total_amount, total_price) AS total_amount
-       FROM orders 
-       WHERE customer_id = ? 
-       ORDER BY createdAt DESC 
-       LIMIT 5`,
+        o.orderId AS id,
+        o.order_status AS status,
+        o.createdAt,
+        COALESCE(o.total_amount, o.total_price) AS total_amount,
+
+        d.id AS delivery_id,
+        d.delivery_status,
+        d.delivery_personnel_id,
+
+        dp.name AS delivery_personnel_name,
+        dp.email AS delivery_personnel_email,
+        dp.phone AS delivery_personnel_phone
+
+      FROM orders o
+      LEFT JOIN deliveries d 
+        ON d.order_id = o.orderId
+      LEFT JOIN users dp 
+        ON dp.userId = d.delivery_personnel_id
+
+      WHERE o.customer_id = ?
+
+      ORDER BY o.createdAt DESC
+      LIMIT 5`,
       [userId]
     );
 
     const recentOrders = recentRows.map((row) => ({
-      ...row,
-      total_amount: parseFloat(row.total_amount || 0),
+      id: row.id,
+      orderId: row.id,
+      status: row.status,
       createdAt: row.createdAt,
+
+      total_amount: parseFloat(row.total_amount || 0),
+      total_price: parseFloat(row.total_amount || 0),
+
+      delivery_status: row.delivery_status,
+
+      delivery_personnel_name: row.delivery_personnel_name,
+      delivery_personnel_email: row.delivery_personnel_email,
+      delivery_personnel_phone: row.delivery_personnel_phone,
+
+      delivery: row.delivery_personnel_name
+        ? {
+            id: row.delivery_id,
+            delivery_status: row.delivery_status,
+            delivery_personnel: {
+              id: row.delivery_personnel_id,
+              name: row.delivery_personnel_name,
+              email: row.delivery_personnel_email,
+              phone: row.delivery_personnel_phone,
+            },
+          }
+        : null,
     }));
 
     const [availableProducts] = await connection.execute(
@@ -174,10 +252,6 @@ export const getDeliveryDashboard = async (req, res, next) => {
       [userId]
     );
 
-    // ===================================
-    // ACTIVE DELIVERIES
-    // Added valid_id fields so delivery personnel can see customer uploaded ID.
-    // ===================================
     const [activeRows] = await connection.execute(
       `SELECT 
         d.id,
@@ -202,8 +276,10 @@ export const getDeliveryDashboard = async (req, res, next) => {
         c.barangay AS customer_barangay
 
       FROM deliveries d
-      INNER JOIN orders o ON o.orderId = d.order_id
-      INNER JOIN users c ON c.userId = o.customer_id
+      INNER JOIN orders o 
+        ON o.orderId = d.order_id
+      INNER JOIN users c 
+        ON c.userId = o.customer_id
       WHERE d.delivery_personnel_id = ?
         AND d.delivery_status IN ('pending', 'in_transit')
       ORDER BY d.createdAt DESC`,
@@ -225,7 +301,6 @@ export const getDeliveryDashboard = async (req, res, next) => {
         quantity: row.quantity,
         delivery_address: row.order_address,
 
-        // IMPORTANT: valid ID data sent to delivery dashboard frontend
         valid_id_name: row.valid_id_name,
         valid_id_type: row.valid_id_type,
         valid_id_data: row.valid_id_data,
@@ -239,10 +314,6 @@ export const getDeliveryDashboard = async (req, res, next) => {
       },
     }));
 
-    // ===================================
-    // TODAY DELIVERIES
-    // Added valid_id fields here also.
-    // ===================================
     const [todayRows] = await connection.execute(
       `SELECT 
         d.id,
@@ -267,8 +338,10 @@ export const getDeliveryDashboard = async (req, res, next) => {
         c.barangay AS customer_barangay
 
       FROM deliveries d
-      INNER JOIN orders o ON o.orderId = d.order_id
-      INNER JOIN users c ON c.userId = o.customer_id
+      INNER JOIN orders o 
+        ON o.orderId = d.order_id
+      INNER JOIN users c 
+        ON c.userId = o.customer_id
       WHERE d.delivery_personnel_id = ?
         AND (
           DATE(COALESCE(d.scheduled_date, d.createdAt)) = CURDATE()
@@ -293,7 +366,6 @@ export const getDeliveryDashboard = async (req, res, next) => {
         quantity: row.quantity,
         delivery_address: row.order_address,
 
-        // IMPORTANT: valid ID data sent to delivery dashboard frontend
         valid_id_name: row.valid_id_name,
         valid_id_type: row.valid_id_type,
         valid_id_data: row.valid_id_data,
@@ -402,7 +474,8 @@ export const getAdminDashboard = async (req, res, next) => {
         u.name AS customer_name,
         u.email AS customer_email
       FROM orders o
-      LEFT JOIN users u ON o.customer_id = u.userId
+      LEFT JOIN users u 
+        ON o.customer_id = u.userId
       ORDER BY o.createdAt DESC
       LIMIT 10`
     );
@@ -413,7 +486,10 @@ export const getAdminDashboard = async (req, res, next) => {
       total_amount: parseFloat(row.total_amount || 0),
       createdAt: row.createdAt,
       customer: row.customer_name
-        ? { name: row.customer_name, email: row.customer_email }
+        ? {
+            name: row.customer_name,
+            email: row.customer_email,
+          }
         : null,
     }));
 
@@ -425,7 +501,8 @@ export const getAdminDashboard = async (req, res, next) => {
         COUNT(o.orderId) AS orderCount,
         COALESCE(SUM(COALESCE(o.total_amount, o.total_price)), 0) AS totalSpent
       FROM users u
-      INNER JOIN orders o ON o.customer_id = u.userId
+      INNER JOIN orders o 
+        ON o.customer_id = u.userId
       WHERE u.role = 'customer'
       GROUP BY u.userId, u.name, u.email, u.phone
       ORDER BY totalSpent DESC
@@ -452,7 +529,8 @@ export const getAdminDashboard = async (req, res, next) => {
         COUNT(d.id) AS assignmentCount,
         SUM(CASE WHEN d.delivery_status = 'delivered' THEN 1 ELSE 0 END) AS completedCount
       FROM users u
-      LEFT JOIN deliveries d ON d.delivery_personnel_id = u.userId
+      LEFT JOIN deliveries d 
+        ON d.delivery_personnel_id = u.userId
       WHERE u.role = 'delivery'
       GROUP BY u.userId, u.name, u.email, u.phone`
     );
@@ -476,7 +554,8 @@ export const getAdminDashboard = async (req, res, next) => {
         wp.price,
         COALESCE(SUM(i.quantity_on_hand), 0) AS quantity
       FROM water_products wp
-      LEFT JOIN inventories i ON i.product_id = wp.product_id
+      LEFT JOIN inventories i 
+        ON i.product_id = wp.product_id
       WHERE wp.is_active = 1
       GROUP BY wp.product_id, wp.name, wp.price
       ORDER BY wp.name ASC`
@@ -497,8 +576,10 @@ export const getAdminDashboard = async (req, res, next) => {
         c.name AS customer_name,
         c.phone AS customer_phone
       FROM deliveries d
-      INNER JOIN orders o ON o.orderId = d.order_id
-      INNER JOIN users c ON c.userId = o.customer_id
+      INNER JOIN orders o 
+        ON o.orderId = d.order_id
+      INNER JOIN users c 
+        ON c.userId = o.customer_id
       WHERE d.delivery_personnel_id IS NULL
         AND d.delivery_status = 'pending'
       ORDER BY d.createdAt DESC`

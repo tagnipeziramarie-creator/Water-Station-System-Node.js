@@ -1,7 +1,62 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+
+import pool from '../config/database.js';
 import { findUserByEmail, createUser } from '../models/User.js';
 import { getJwtSecret } from '../config/jwt.js';
+
+/* =========================================================
+   GENERATE CLEAN USER ID
+   Example:
+   Customer = CUS-001
+   Delivery = DEL-001
+   Admin    = ADM-001
+========================================================= */
+const generateUserId = async (role = 'customer') => {
+  const connection = await pool.getConnection();
+
+  try {
+    let prefix = 'USR';
+
+    if (role === 'customer') {
+      prefix = 'CUS';
+    }
+
+    if (role === 'delivery') {
+      prefix = 'DEL';
+    }
+
+    if (role === 'admin') {
+      prefix = 'ADM';
+    }
+
+    const [rows] = await connection.execute(
+      `
+        SELECT userId
+        FROM users
+        WHERE userId LIKE ?
+        ORDER BY userId DESC
+        LIMIT 1
+      `,
+      [`${prefix}-%`]
+    );
+
+    let nextNumber = 1;
+
+    if (rows.length > 0) {
+      const latestId = rows[0].userId;
+      const match = latestId.match(/\d+/);
+
+      if (match) {
+        nextNumber = parseInt(match[0], 10) + 1;
+      }
+    }
+
+    return `${prefix}-${String(nextNumber).padStart(3, '0')}`;
+  } finally {
+    connection.release();
+  }
+};
 
 // ===================================
 // REGISTER USER
@@ -24,8 +79,8 @@ export const register = async (req, res, next) => {
     // Hash password for security
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate simple unique user ID
-    const userId = `USER-${Date.now()}`;
+    // Generate clean customer ID
+    const userId = await generateUserId('customer');
 
     // Create new user in database
     const user = await createUser({
@@ -89,10 +144,7 @@ export const login = async (req, res, next) => {
     }
 
     // Compare passwords
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     // Invalid password
     if (!isPasswordValid) {

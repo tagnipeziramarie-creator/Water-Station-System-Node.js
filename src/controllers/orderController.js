@@ -1,13 +1,4 @@
-/* =========================================================
-   CUSTOM ORDER ID GENERATOR
-   Avoids crypto/uuid deployment errors on Render
-========================================================= */
-const generateOrderId = () => {
-  return `ORD-${Date.now()}-${Math.random()
-    .toString(36)
-    .slice(2, 10)
-    .toUpperCase()}`;
-};
+import pool from '../config/database.js';
 
 import {
   createOrder as createOrderDB,
@@ -24,12 +15,57 @@ import { createDelivery } from '../models/Delivery.js';
 import { createPayment } from '../models/Payment.js';
 
 /* =========================================================
+   CLEAN ORDER ID GENERATOR
+   Example:
+   ORD-001
+   ORD-002
+========================================================= */
+const generateOrderId = async () => {
+
+  const connection = await pool.getConnection();
+
+  try {
+
+    const [rows] = await connection.execute(
+      `
+        SELECT orderId
+        FROM orders
+        WHERE orderId LIKE 'ORD-%'
+        ORDER BY orderId DESC
+        LIMIT 1
+      `
+    );
+
+    let nextNumber = 1;
+
+    if (rows.length > 0) {
+
+      const latestId = rows[0].orderId;
+
+      const match = latestId.match(/\d+/);
+
+      if (match) {
+        nextNumber =
+          parseInt(match[0], 10) + 1;
+      }
+    }
+
+    return `ORD-${String(nextNumber).padStart(3, '0')}`;
+
+  } finally {
+
+    connection.release();
+  }
+};
+
+/* =========================================================
    CREATE ORDER
-   - Supports multiple gallon types in one order
-   - Checks inventory per product_id
-   - Deducts inventory per product_id
+   - Supports multiple gallon types
+   - Checks inventory
+   - Deducts inventory
 ========================================================= */
 export const createOrder = async (req, res, next) => {
+
   try {
 
     /* =========================================
@@ -60,7 +96,7 @@ export const createOrder = async (req, res, next) => {
     }
 
     /* =========================================
-       GET MULTIPLE ORDER ITEMS
+       GET MULTIPLE ITEMS
     ========================================= */
     const items =
       req.body.items ||
@@ -68,35 +104,41 @@ export const createOrder = async (req, res, next) => {
       [];
 
     /* =========================================
-       SUPPORT SINGLE PRODUCT ORDER
+       SUPPORT SINGLE PRODUCT
     ========================================= */
-    const finalItems = Array.isArray(items) && items.length > 0
-      ? items
-      : [
-          {
-            product_id:
-              req.body.product_id ||
-              req.body.productId ||
-              req.body.product,
+    const finalItems =
+      Array.isArray(items) &&
+      items.length > 0
+        ? items
+        : [
+            {
+              product_id:
+                req.body.product_id ||
+                req.body.productId ||
+                req.body.product,
 
-            product:
-              req.body.product_id ||
-              req.body.productId ||
-              req.body.product,
+              product:
+                req.body.product_id ||
+                req.body.productId ||
+                req.body.product,
 
-            name: req.body.product,
+              name: req.body.product,
 
-            quantity: Number(req.body.quantity || 1),
+              quantity: Number(
+                req.body.quantity || 1
+              ),
 
-            price: Number(req.body.price || 0),
+              price: Number(
+                req.body.price || 0
+              ),
 
-            subtotal: Number(
-              req.body.total_price ||
-              req.body.total_amount ||
-              0
-            )
-          }
-        ];
+              subtotal: Number(
+                req.body.total_price ||
+                req.body.total_amount ||
+                0
+              )
+            }
+          ];
 
     /* =========================================
        VALIDATE ITEMS
@@ -142,11 +184,17 @@ export const createOrder = async (req, res, next) => {
         Number(item.quantity || 0);
 
       const stock =
-        await getTotalStockByProductId(productId);
+        await getTotalStockByProductId(
+          productId
+        );
 
       if (stock < quantity) {
+
         return res.status(400).json({
-          error: `Insufficient inventory for ${item.name || productId}`
+          error:
+            `Insufficient inventory for ${
+              item.name || productId
+            }`
         });
       }
     }
@@ -170,24 +218,29 @@ export const createOrder = async (req, res, next) => {
         );
 
       if (!fifo.ok) {
+
         return res.status(400).json({
           error:
             fifo.error ||
-            `Insufficient inventory for ${item.name || productId}`
+            `Insufficient inventory for ${
+              item.name || productId
+            }`
         });
       }
     }
 
     /* =========================================
-       COMPUTE TOTAL QUANTITY
+       TOTAL QUANTITY
     ========================================= */
     const totalQuantity =
-      finalItems.reduce((sum, item) => {
-        return sum + Number(item.quantity || 0);
-      }, 0);
+      finalItems.reduce(
+        (sum, item) =>
+          sum + Number(item.quantity || 0),
+        0
+      );
 
     /* =========================================
-       COMPUTE TOTAL AMOUNT
+       TOTAL AMOUNT
     ========================================= */
     const totalAmount =
       finalItems.reduce((sum, item) => {
@@ -215,19 +268,18 @@ export const createOrder = async (req, res, next) => {
     const productSummary =
       finalItems
         .map(item =>
-          `${item.name || item.product_id || item.product} x${item.quantity}`
+          `${item.name || item.product_id} x${item.quantity}`
         )
         .join(', ');
 
     /* =========================================
-       GENERATE ORDER ID
-       FIXED (NO UUID / NO CRYPTO)
+       CLEAN ORDER ID
     ========================================= */
     const orderId =
-      generateOrderId();
+      await generateOrderId();
 
     /* =========================================
-       DEBUG TERMINAL LOG
+       DEBUG LOG
     ========================================= */
     console.log('ORDER DATA TO SAVE:', {
       orderId,
@@ -264,11 +316,10 @@ export const createOrder = async (req, res, next) => {
 
         payment: 'pending',
 
-        /* Multiple items */
         items: finalItems,
+
         order_items: finalItems,
 
-        /* Valid ID */
         valid_id_name:
           req.body.valid_id_name || null,
 
@@ -305,7 +356,7 @@ export const createOrder = async (req, res, next) => {
     ========================================= */
     res.status(201).json({
       message:
-        'Order created successfully (COD). Pay when the order is delivered.',
+        'Order created successfully (COD).',
       order,
     });
 
@@ -323,7 +374,12 @@ export const createOrder = async (req, res, next) => {
 /* =========================================================
    GET CUSTOMER ORDERS
 ========================================================= */
-export const getOrders = async (req, res, next) => {
+export const getOrders = async (
+  req,
+  res,
+  next
+) => {
+
   try {
 
     const userId =
@@ -331,13 +387,16 @@ export const getOrders = async (req, res, next) => {
       req.user?.id;
 
     if (!userId) {
+
       return res.status(401).json({
         error: 'User not authenticated'
       });
     }
 
     const orders =
-      await findOrdersByCustomerId(userId);
+      await findOrdersByCustomerId(
+        userId
+      );
 
     res.json({
       orders
@@ -355,9 +414,14 @@ export const getOrders = async (req, res, next) => {
 };
 
 /* =========================================================
-   GET SINGLE ORDER BY ID
+   GET ORDER BY ID
 ========================================================= */
-export const getOrderById = async (req, res, next) => {
+export const getOrderById = async (
+  req,
+  res,
+  next
+) => {
+
   try {
 
     const { id } = req.params;
@@ -367,6 +431,7 @@ export const getOrderById = async (req, res, next) => {
       req.user?.id;
 
     if (!userId) {
+
       return res.status(401).json({
         error: 'User not authenticated'
       });
@@ -379,6 +444,7 @@ export const getOrderById = async (req, res, next) => {
       !order ||
       order.customer_id !== userId
     ) {
+
       return res.status(404).json({
         error: 'Order not found'
       });

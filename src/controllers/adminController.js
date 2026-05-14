@@ -3,11 +3,66 @@ import pool from '../config/database.js';
 import { AppError } from '../middleware/errorHandler.js';
 
 // ===================================
-// CUSTOM USER ID GENERATOR
-// Avoids crypto/uuid issues on Render
+// CLEAN USER ID GENERATOR
+// Example:
+// DEL-001
+// DEL-002
+// CUS-001
+// ADM-001
 // ===================================
-const generateUserId = () => {
-  return `USR-${Date.now()}-${Math.random().toString(36).slice(2, 10).toUpperCase()}`;
+const generateUserId = async (
+  connection,
+  role = 'delivery'
+) => {
+
+  // Default prefix
+  let prefix = 'USR';
+
+  // Delivery personnel
+  if (role === 'delivery') {
+    prefix = 'DEL';
+  }
+
+  // Customer
+  if (role === 'customer') {
+    prefix = 'CUS';
+  }
+
+  // Admin
+  if (role === 'admin') {
+    prefix = 'ADM';
+  }
+
+  // Get latest ID
+  const [rows] = await connection.execute(
+    `
+      SELECT userId
+      FROM users
+      WHERE userId LIKE ?
+      ORDER BY userId DESC
+      LIMIT 1
+    `,
+    [`${prefix}-%`]
+  );
+
+  let nextNumber = 1;
+
+  // If existing ID exists
+  if (rows.length > 0) {
+
+    const latestId = rows[0].userId;
+
+    // Extract number
+    const match = latestId.match(/\d+/);
+
+    if (match) {
+      nextNumber =
+        parseInt(match[0], 10) + 1;
+    }
+  }
+
+  // Final clean ID
+  return `${prefix}-${String(nextNumber).padStart(3, '0')}`;
 };
 
 // ===================================
@@ -594,7 +649,10 @@ export const createDeliveryStaff = async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const userId = generateUserId();
+    const userId = await generateUserId(
+    connection,
+    'delivery'
+  );
 
     await connection.execute(
       `

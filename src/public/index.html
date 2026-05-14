@@ -31,6 +31,7 @@
         html {
             scroll-behavior: smooth;
         }
+
         /* ===================================
         SYSTEM LOGO
         =================================== */
@@ -925,7 +926,6 @@
                             <p>Place water refill and delivery orders through a simple web interface.</p>
                         </div>
                     </div>
-
                     <div class="panel-item">
                         <span>🚚</span>
                         <div>
@@ -1309,6 +1309,19 @@
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         }
 
+        // Added: validate only real Philippine mobile numbers.
+        function isValidPhilippinePhone(phone) {
+            var cleanPhone = String(phone || '').trim().replace(/\D/g, '');
+
+            // Must be 11 digits in local format: 09XXXXXXXXX
+            if (!/^09\d{9}$/.test(cleanPhone)) return false;
+
+            // Reject suspicious repeated digits like 11111111111, 99999999999, etc.
+            if (/^(\d)\1{6,}$/.test(cleanPhone)) return false;
+
+            return true;
+        }
+
         document.getElementById('navLoginBtn').addEventListener('click', openLogin);
         document.getElementById('heroLoginBtn').addEventListener('click', openLogin);
         document.getElementById('ctaLoginBtn').addEventListener('click', openLogin);
@@ -1432,8 +1445,16 @@
             if (!isValidEmail(email)) return showRegisterError('Please enter a valid email address.', 'modalRegEmail');
             if (!password) return showRegisterError('Password is required.', 'modalRegPassword');
             if (password.length < 6) return showRegisterError('Password must be at least 6 characters.', 'modalRegPassword');
+
+            // Fixed: only accept valid phone numbers, not just any 11 digits.
             if (!phone) return showRegisterError('Phone number is required.', 'modalRegPhone');
-            if (!/^\d{11}$/.test(phone)) return showRegisterError('Phone number must be exactly 11 digits.', 'modalRegPhone');
+            if (!isValidPhilippinePhone(phone)) {
+                return showRegisterError(
+                    'Phone number must be a valid Philippine mobile number like 09171234567.',
+                    'modalRegPhone'
+                );
+            }
+
             if (!address) return showRegisterError('Street / Sitio / Purok is required.', 'modalRegAddress');
             if (!barangay) return showRegisterError('Please select your barangay.', 'modalRegBarangay');
 
@@ -1441,7 +1462,7 @@
                 name: name,
                 email: email,
                 password: password,
-                phone: phone,
+                phone: phone.replace(/\D/g, ''),
                 address: address,
                 barangay: barangay
             };

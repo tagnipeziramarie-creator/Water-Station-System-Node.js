@@ -174,19 +174,33 @@ export const getDeliveryDashboard = async (req, res, next) => {
       [userId]
     );
 
+    // ===================================
+    // ACTIVE DELIVERIES
+    // Added valid_id fields so delivery personnel can see customer uploaded ID.
+    // ===================================
     const [activeRows] = await connection.execute(
       `SELECT 
         d.id,
         d.order_id,
         d.delivery_status,
         d.createdAt,
+
         o.orderId,
         COALESCE(o.total_amount, o.total_price) AS total_amount,
         o.delivery_address AS order_address,
+        o.product,
+        o.quantity,
+        o.total_price,
+
+        o.valid_id_name,
+        o.valid_id_type,
+        o.valid_id_data,
+
         c.name AS customer_name,
         c.phone AS customer_phone,
         c.address AS customer_address,
         c.barangay AS customer_barangay
+
       FROM deliveries d
       INNER JOIN orders o ON o.orderId = d.order_id
       INNER JOIN users c ON c.userId = o.customer_id
@@ -199,9 +213,23 @@ export const getDeliveryDashboard = async (req, res, next) => {
     const activeDeliveries = activeRows.map((row) => ({
       id: row.id,
       status: row.delivery_status,
+      delivery_status: row.delivery_status,
+      order_id: row.order_id,
+
       order: {
         id: row.orderId,
+        orderId: row.orderId,
         total_amount: parseFloat(row.total_amount || 0),
+        total_price: parseFloat(row.total_price || row.total_amount || 0),
+        product: row.product,
+        quantity: row.quantity,
+        delivery_address: row.order_address,
+
+        // IMPORTANT: valid ID data sent to delivery dashboard frontend
+        valid_id_name: row.valid_id_name,
+        valid_id_type: row.valid_id_type,
+        valid_id_data: row.valid_id_data,
+
         customer: {
           name: row.customer_name,
           phone: row.customer_phone,
@@ -211,19 +239,33 @@ export const getDeliveryDashboard = async (req, res, next) => {
       },
     }));
 
+    // ===================================
+    // TODAY DELIVERIES
+    // Added valid_id fields here also.
+    // ===================================
     const [todayRows] = await connection.execute(
       `SELECT 
         d.id,
         d.order_id,
         d.delivery_status,
         d.createdAt,
+
         o.orderId,
         COALESCE(o.total_amount, o.total_price) AS total_amount,
         o.delivery_address AS order_address,
+        o.product,
+        o.quantity,
+        o.total_price,
+
+        o.valid_id_name,
+        o.valid_id_type,
+        o.valid_id_data,
+
         c.name AS customer_name,
         c.phone AS customer_phone,
         c.address AS customer_address,
         c.barangay AS customer_barangay
+
       FROM deliveries d
       INNER JOIN orders o ON o.orderId = d.order_id
       INNER JOIN users c ON c.userId = o.customer_id
@@ -239,9 +281,23 @@ export const getDeliveryDashboard = async (req, res, next) => {
     const todayDeliveries = todayRows.map((row) => ({
       id: row.id,
       status: row.delivery_status,
+      delivery_status: row.delivery_status,
+      order_id: row.order_id,
+
       order: {
         id: row.orderId,
+        orderId: row.orderId,
         total_amount: parseFloat(row.total_amount || 0),
+        total_price: parseFloat(row.total_price || row.total_amount || 0),
+        product: row.product,
+        quantity: row.quantity,
+        delivery_address: row.order_address,
+
+        // IMPORTANT: valid ID data sent to delivery dashboard frontend
+        valid_id_name: row.valid_id_name,
+        valid_id_type: row.valid_id_type,
+        valid_id_data: row.valid_id_data,
+
         customer: {
           name: row.customer_name,
           phone: row.customer_phone,

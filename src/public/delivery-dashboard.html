@@ -1048,53 +1048,68 @@
 
             let previewHTML = '';
 
-            if (String(validIdData).startsWith('data:image')) {
-                previewHTML = `
-                    <img
-                        class="valid-id-preview"
-                        src="${escapeHtml(validIdData)}"
-                        alt="Customer Valid ID"
-                    >
-                    <a
-                        class="valid-id-link"
-                        href="${escapeHtml(validIdData)}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        View Full Image
-                    </a>
-                `;
-            } else if (String(validIdData).startsWith('data:application/pdf')) {
-                previewHTML = `
-                    <a
-                        class="valid-id-link"
-                        href="${escapeHtml(validIdData)}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        Open Valid ID PDF
-                    </a>
-                `;
-            } else {
-                previewHTML = `
-                    <div class="valid-id-content">
-                        ${escapeHtml(validIdData || 'Uploaded valid ID file is recorded.')}
-                    </div>
-                `;
+           if (String(validIdData).startsWith('data:image')) {
+    previewHTML = `
+        <div class="valid-id-preview-wrapper">
+            <img
+                class="valid-id-preview"
+                src="${validIdData}"
+                alt="Customer Valid ID"
+            >
+
+            <a
+                class="valid-id-link"
+                href="${validIdData}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+    
+            </a>
+        </div>
+    `;
+
+} else if (String(validIdData).startsWith('data:application/pdf')) {
+
+    previewHTML = `
+        <a
+            class="valid-id-link"
+            href="${validIdData}"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            Open Valid ID PDF
+        </a>
+    `;
+
+} else {
+
+    previewHTML = `
+        <div class="valid-id-content">
+            ${escapeHtml(validIdData || 'Uploaded valid ID file is recorded.')}
+        </div>
+    `;
+}
+
+return `
+    <div class="valid-id-box">
+
+        <div class="valid-id-title">
+            🪪 Customer Valid ID
+        </div>
+
+        <div class="valid-id-content">
+            <strong>File:</strong> ${escapeHtml(validIdName || 'Valid ID attached')}
+
+            ${validIdType
+                ? `<br><strong>Type:</strong> ${escapeHtml(validIdType)}`
+                : ''
             }
+        </div>
 
-            return `
-                <div class="valid-id-box">
-                    <div class="valid-id-title">🪪 Customer Valid ID</div>
+        ${previewHTML}
 
-                    <div class="valid-id-content">
-                        <strong>File:</strong> ${escapeHtml(validIdName || 'Valid ID attached')}
-                        ${validIdType ? `<br><strong>Type:</strong> ${escapeHtml(validIdType)}` : ''}
-                    </div>
-
-                    ${previewHTML}
-                </div>
-            `;
+    </div>
+`;
         }
 
         /* =========================================
